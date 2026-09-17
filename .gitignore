@@ -1,0 +1,11 @@
+node_modules
+dist
+generated
+.env
+.DS_Store
+*.log
+.vite
+web/dist
+api/generated
+api/.env
+web/.env

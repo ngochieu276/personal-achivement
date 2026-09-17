@@ -1,0 +1,101 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+  runtime  = "deno"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum KpiTypePeriod {
+  day
+  week
+  twoWeek
+  month
+}
+
+enum KpiType {
+  totalTime
+  totalRepeat
+}
+
+enum EventStatus {
+  miss
+  finish
+}
+
+enum HistoryType {
+  streak_hit
+  kpi_change
+  subject_event
+}
+
+model User {
+  id           String    @id @default(cuid())
+  name         String
+  email        String    @unique
+  passwordHash String
+  createdAt    DateTime  @default(now())
+  projects     Project[]
+}
+
+model Project {
+  id        String    @id @default(cuid())
+  userId    String
+  name      String
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subjects  Subject[]
+
+  @@index([userId])
+}
+
+model Subject {
+  id              String         @id @default(cuid())
+  projectId       String
+  name            String
+  kpi             Float
+  kpiTypePeriod   KpiTypePeriod
+  kpiType         KpiType
+  startDate       DateTime
+  link            String?
+  currentProgress Float          @default(0)
+  currentStreak   Int            @default(0)
+  createdAt       DateTime       @default(now())
+  project         Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  events          SubjectEvent[]
+  history         SubjectHistory[]
+
+  @@index([projectId])
+}
+
+model SubjectEvent {
+  id          String      @id @default(cuid())
+  subjectId   String
+  status      EventStatus
+  date        DateTime
+  periodStart DateTime
+  periodEnd   DateTime
+  progress    Float
+  kpiSnapshot Float
+  createdAt   DateTime    @default(now())
+  subject     Subject     @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  history     SubjectHistory[]
+
+  @@unique([subjectId, periodStart])
+  @@index([subjectId])
+}
+
+model SubjectHistory {
+  id             String        @id @default(cuid())
+  subjectId      String
+  type           HistoryType
+  subjectEventId String?
+  payload        Json
+  createdAt      DateTime      @default(now())
+  subject        Subject       @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  subjectEvent   SubjectEvent? @relation(fields: [subjectEventId], references: [id], onDelete: SetNull)
+
+  @@index([subjectId])
+}

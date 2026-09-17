@@ -1,0 +1,28 @@
+{
+  "nodeModulesDir": "auto",
+  "compilerOptions": {
+    "lib": ["deno.window"],
+    "types": ["node"],
+    "strict": true
+  },
+  "imports": {
+    "@prisma/adapter-pg": "npm:@prisma/adapter-pg@7.10.0",
+    "@prisma/client": "npm:@prisma/client@7.10.0",
+    "prisma": "npm:prisma@7.10.0",
+    "hono": "npm:hono@^4.7.10",
+    "hono/cors": "npm:hono@^4.7.10/cors",
+    "zod": "npm:zod@^3.24.2",
+    "bcryptjs": "npm:bcryptjs@^2.4.3",
+    "jose": "npm:jose@^5.10.0",
+    "pg": "npm:pg@^8.13.3"
+  },
+  "tasks": {
+    "dev": "deno run -A --env=.env --watch main.ts",
+    "start": "deno run -A --env=.env main.ts",
+    "db:generate": "deno run -A --env=.env npm:prisma generate",
+    "db:push": "deno run -A --env=.env npm:prisma db push",
+    "db:migrate": "deno run -A --env=.env npm:prisma migrate dev",
+    "db:migrate:deploy": "deno run -A --env=.env npm:prisma migrate deploy",
+    "db:seed": "deno run -A --env=.env npm:prisma db seed"
+  }
+}
