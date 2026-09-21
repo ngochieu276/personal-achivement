@@ -62,22 +62,24 @@ Register with name, email, and password, create a project, add a subject, then s
 
 ## Deploy API to Fly.io
 
+`fly launch` by itself does **not** provision Postgres. The release command (`prisma migrate deploy`) needs `DATABASE_URL` pointing at Fly Postgres, not `localhost`.
+
 From `api/`:
 
 1. Install [flyctl](https://fly.io/docs/flyctl/install/) and `fly auth login`.
-2. Create the app and a Postgres cluster:
+2. Create the app **without deploying**, then create and attach Postgres:
 
 ```bash
 cd api
 fly launch --no-deploy --copy-config --name personal-record
-fly postgres create
-fly postgres attach <postgres-app-name>
+fly postgres create --name personal-record-db --region sin --initial-cluster-size 1 --vm-size shared-cpu-1x --volume-size 1
+fly postgres attach personal-record-db -a personal-record
 ```
 
-3. Set secrets (attach already sets `DATABASE_URL`):
+3. Set remaining secrets (`attach` already sets `DATABASE_URL`):
 
 ```bash
-fly secrets set JWT_SECRET="$(openssl rand -hex 32)" FRONTEND_ORIGIN="https://your-frontend-host"
+fly secrets set JWT_SECRET="$(openssl rand -hex 32)" FRONTEND_ORIGIN="http://localhost:5173"
 ```
 
 4. Deploy:
