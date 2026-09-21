@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { alignCycleStart, cycleStartHint, toDateInput } from "@/lib/cycle";
 import { formatDate } from "@/lib/format";
-import type { KpiType, KpiTypePeriod } from "@/lib/types";
+import type { KpiType, KpiTypePeriod, Subject } from "@/lib/types";
 
 const selectClass =
   "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring";
@@ -17,6 +17,17 @@ export type SubjectFormValues = {
   startDate: string;
   link: string;
 };
+
+export function subjectToFormValues(subject: Subject): SubjectFormValues {
+  return {
+    name: subject.name,
+    kpi: subject.kpi,
+    kpiTypePeriod: subject.kpiTypePeriod,
+    kpiType: subject.kpiType,
+    startDate: toDateInput(new Date(subject.startDate)),
+    link: subject.link ?? "",
+  };
+}
 
 export function SubjectForm({
   initial,

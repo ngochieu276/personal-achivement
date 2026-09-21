@@ -1,0 +1,1 @@
+follow functional progamming. split component

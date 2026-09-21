@@ -1,11 +1,11 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import { AppLayout } from "@/components/AppLayout";
 import { GuestRoute, ProtectedRoute } from "@/components/RouteGuards";
-import { LoginPage } from "@/pages/LoginPage";
-import { ProjectDetailPage } from "@/pages/ProjectDetailPage";
-import { ProjectsPage } from "@/pages/ProjectsPage";
-import { RegisterPage } from "@/pages/RegisterPage";
-import { SubjectDetailPage } from "@/pages/SubjectDetailPage";
+import { LoginPage } from "@/pages/auth/LoginPage";
+import { ProjectDetailPage } from "@/pages/projects/ProjectDetailPage";
+import { ProjectsPage } from "@/pages/projects/ProjectsPage";
+import { RegisterPage } from "@/pages/auth/RegisterPage";
+import { SubjectDetailPage } from "@/pages/subjects/SubjectDetailPage";
 
 export default function App() {
   return (
