@@ -7,17 +7,48 @@ import { closeAllOverdue } from "./period.ts";
 
 const app = new Hono();
 
-const origins = (Deno.env.get("FRONTEND_ORIGIN") ?? "http://localhost:5173")
-  .split(",")
-  .map((origin) => origin.trim())
-  .filter(Boolean);
+const origins = [
+  "http://localhost:5173",
+  "https://personal-achivement.vercel.app",
+  "https://personal-achivement-git-main-nguyen-ngoc-hieus-projects.vercel.app",
+  "https://personal-achivement-2mcxf6lxz-nguyen-ngoc-hieus-projects.vercel.app",
+  ...(Deno.env.get("FRONTEND_ORIGIN") ?? "")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean),
+];
+
+function isAllowedOrigin(origin: string) {
+  if (origins.includes(origin)) return true;
+  try {
+    const url = new URL(origin);
+    const localHost =
+      url.hostname === "localhost" || url.hostname === "127.0.0.1";
+    if (localHost && (url.protocol === "http:" || url.protocol === "https:")) {
+      return true;
+    }
+    // Vercel preview deployments for this project.
+    return (
+      url.protocol === "https:" &&
+      /^personal-achivement(-[a-z0-9-]+)?-nguyen-ngoc-hieus-projects\.vercel\.app$/.test(
+        url.hostname,
+      )
+    );
+  } catch {
+    return false;
+  }
+}
 
 app.use(
   "*",
   cors({
-    origin: origins,
+    origin: (origin) => {
+      if (!origin) return origins[0];
+      return isAllowedOrigin(origin) ? origin : "";
+    },
     allowHeaders: ["Content-Type", "Authorization"],
     allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    maxAge: 86400,
   }),
 );
 
