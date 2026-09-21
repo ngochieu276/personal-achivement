@@ -1,89 +1,52 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus } from "lucide-react";
 import { useState } from "react";
 import { FormDialog } from "@/components/FormDialog";
 import { ListPlaceholder } from "@/components/ListPlaceholder";
-import { NameForm } from "@/components/NameForm";
 import { Page, PageHeader } from "@/components/PageHeader";
 import { ProjectCard } from "@/components/ProjectCard";
+import { ProjectForm } from "@/components/ProjectForm";
 import { ViewToggle, viewClass } from "@/components/ViewToggle";
-import { Button } from "@/components/ui/button";
 import { api } from "@/lib/api";
-import type { Project } from "@/lib/types";
+import type { GroupTree, Project } from "@/lib/types";
 import { useViewStore } from "@/stores/view";
 
 export function ProjectsPage() {
   const queryClient = useQueryClient();
   const mode = useViewStore((state) => state.mode);
-  const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Project | null>(null);
-  const [name, setName] = useState("");
   const [editName, setEditName] = useState("");
+  const [editIcon, setEditIcon] = useState("");
+  const [editGroupIds, setEditGroupIds] = useState<string[]>([]);
 
   const projectsQuery = useQuery({
     queryKey: ["projects"],
     queryFn: () => api<{ projects: Project[] }>("/projects"),
   });
 
-  const createProject = useMutation({
-    mutationFn: () =>
-      api("/projects", {
-        method: "POST",
-        body: JSON.stringify({ name }),
-      }),
-    onSuccess: async () => {
-      setName("");
-      setOpen(false);
-      await queryClient.invalidateQueries({ queryKey: ["projects"] });
-    },
+  const navQuery = useQuery({
+    queryKey: ["nav"],
+    queryFn: () => api<GroupTree>("/groups"),
   });
 
   const updateProject = useMutation({
     mutationFn: () =>
       api(`/projects/${editing?.id}`, {
         method: "PATCH",
-        body: JSON.stringify({ name: editName }),
+        body: JSON.stringify({ name: editName, icon: editIcon, groupIds: editGroupIds }),
       }),
     onSuccess: async () => {
       setEditing(null);
       await queryClient.invalidateQueries({ queryKey: ["projects"] });
+      await queryClient.invalidateQueries({ queryKey: ["nav"] });
     },
   });
 
   const projects = projectsQuery.data?.projects ?? [];
+  const groups = navQuery.data?.groups ?? [];
 
   return (
     <Page>
-      <PageHeader
-        eyebrow="Collections"
-        title="Projects"
-        actions={
-          <>
-            <ViewToggle />
-            <FormDialog
-              open={open}
-              onOpenChange={setOpen}
-              title="New project"
-              trigger={
-                <Button>
-                  <Plus className="h-4 w-4" />
-                  New project
-                </Button>
-              }
-            >
-              <NameForm
-                id="project-name"
-                value={name}
-                onChange={setName}
-                onSubmit={() => createProject.mutate()}
-                pending={createProject.isPending}
-                error={createProject.error?.message}
-                submitLabel="Create"
-              />
-            </FormDialog>
-          </>
-        }
-      />
+      <PageHeader eyebrow="Collections" title="Projects" actions={<ViewToggle />} />
 
       <FormDialog
         open={Boolean(editing)}
@@ -92,10 +55,14 @@ export function ProjectsPage() {
         }}
         title="Edit project"
       >
-        <NameForm
-          id="edit-project-name"
-          value={editName}
-          onChange={setEditName}
+        <ProjectForm
+          name={editName}
+          icon={editIcon}
+          onNameChange={setEditName}
+          onIconChange={setEditIcon}
+          groupIds={editGroupIds}
+          onGroupIdsChange={setEditGroupIds}
+          groups={groups}
           onSubmit={() => updateProject.mutate()}
           pending={updateProject.isPending}
           error={updateProject.error?.message}
@@ -109,7 +76,7 @@ export function ProjectsPage() {
         <ListPlaceholder
           variant="empty"
           title="No projects yet"
-          description="Create a project, then add subjects like running, writing, or practice reps."
+          description="Use Create project in the sidebar, then add subjects like running, writing, or practice reps."
         />
       ) : (
         <div className={viewClass(mode, "projects")}>
@@ -121,6 +88,8 @@ export function ProjectsPage() {
               onEdit={(next) => {
                 setEditing(next);
                 setEditName(next.name);
+                setEditIcon(next.icon ?? "");
+                setEditGroupIds(next.groupIds ?? []);
               }}
             />
           ))}

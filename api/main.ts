@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { authRoutes } from "./routes/auth.ts";
+import { groupRoutes } from "./routes/groups.ts";
 import { projectRoutes } from "./routes/projects.ts";
 import { subjectRoutes } from "./routes/subjects.ts";
 import { closeAllOverdue } from "./period.ts";
@@ -54,6 +55,7 @@ app.use(
 
 app.get("/health", (c) => c.json({ ok: true }));
 app.route("/auth", authRoutes);
+app.route("/groups", groupRoutes);
 app.route("/projects", projectRoutes);
 app.route("/subjects", subjectRoutes);
 

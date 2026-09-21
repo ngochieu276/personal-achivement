@@ -5,6 +5,7 @@ import { ProgressBar } from "@/components/ProgressBar";
 import { ResourceLink } from "@/components/ResourceLink";
 import { RemainingBadge, StreakBadge } from "@/components/StreakBadge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { EntityIcon } from "@/lib/icons";
 import { periodLabels, unitLabel } from "@/lib/format";
 import type { Subject } from "@/lib/types";
 import type { ViewMode } from "@/stores/view";
@@ -25,11 +26,14 @@ export function SubjectCard({
     return (
       <Card>
         <CardHeader className="flex-row items-center gap-4 p-4">
-          <Link to={`/subjects/${subject.id}`} className="min-w-0 flex-1">
-            <CardTitle className="hover:underline">{subject.name}</CardTitle>
-            <CardDescription>
-              {period} · {subject.currentProgress} / {subject.kpi} {unit}
-            </CardDescription>
+          <Link to={`/subjects/${subject.id}`} className="flex min-w-0 flex-1 items-center gap-3">
+            <EntityIcon name={subject.icon} className="h-5 w-5 shrink-0 text-secondary" />
+            <span className="min-w-0">
+              <CardTitle className="hover:underline">{subject.name}</CardTitle>
+              <CardDescription>
+                {period} · {subject.currentProgress} / {subject.kpi} {unit}
+              </CardDescription>
+            </span>
           </Link>
           <ProgressBar current={subject.currentProgress} target={subject.kpi} size="inline" />
           <StreakBadge streak={subject.currentStreak} />
@@ -49,11 +53,14 @@ export function SubjectCard({
     <Card className="transition-transform hover:-translate-y-0.5">
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-3">
-          <Link to={`/subjects/${subject.id}`} className="min-w-0">
-            <CardTitle className="hover:underline">{subject.name}</CardTitle>
-            <CardDescription>
-              {period} · {subject.kpi} {unit}
-            </CardDescription>
+          <Link to={`/subjects/${subject.id}`} className="flex min-w-0 items-start gap-3">
+            <EntityIcon name={subject.icon} className="mt-0.5 h-5 w-5 shrink-0 text-secondary" />
+            <span className="min-w-0">
+              <CardTitle className="hover:underline">{subject.name}</CardTitle>
+              <CardDescription>
+                {period} · {subject.kpi} {unit}
+              </CardDescription>
+            </span>
           </Link>
           <div className="flex items-center gap-1">
             <StreakBadge streak={subject.currentStreak} />

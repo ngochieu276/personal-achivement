@@ -5,17 +5,39 @@ export type User = {
   createdAt: string;
 };
 
+export type ProjectGroup = {
+  id: string;
+  name: string;
+  icon?: string | null;
+};
+
 export type Project = {
   id: string;
   name: string;
+  icon?: string | null;
   createdAt: string;
   subjectCount?: number;
+  groupIds?: string[];
+  groups?: ProjectGroup[];
+};
+
+export type Group = {
+  id: string;
+  name: string;
+  icon?: string | null;
+  createdAt: string;
+  projects: Project[];
+};
+
+export type GroupTree = {
+  groups: Group[];
+  ungrouped: Project[];
 };
 
 export type KpiTypePeriod = "day" | "week" | "twoWeek" | "month";
 export type KpiType = "totalTime" | "totalRepeat";
 export type EventStatus = "miss" | "finish";
-export type HistoryType = "streak_hit" | "kpi_change" | "subject_event";
+export type HistoryType = "streak_hit" | "kpi_change" | "subject_event" | "kpi_done";
 
 export type PeriodWindow = {
   start: string;
@@ -27,6 +49,7 @@ export type Subject = {
   id: string;
   projectId: string;
   name: string;
+  icon?: string | null;
   kpi: number;
   kpiTypePeriod: KpiTypePeriod;
   kpiType: KpiType;

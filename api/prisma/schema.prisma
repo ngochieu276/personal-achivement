@@ -29,6 +29,7 @@ enum HistoryType {
   streak_hit
   kpi_change
   subject_event
+  kpi_done
 }
 
 model User {
@@ -38,15 +39,40 @@ model User {
   passwordHash String
   createdAt    DateTime  @default(now())
   projects     Project[]
+  groups       Group[]
+}
+
+model Group {
+  id        String         @id
+  userId    String
+  name      String
+  icon      String?
+  createdAt DateTime       @default(now())
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projects  ProjectGroup[]
+
+  @@index([userId])
+}
+
+model ProjectGroup {
+  projectId String
+  groupId   String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  group     Group   @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@id([projectId, groupId])
+  @@index([groupId])
 }
 
 model Project {
-  id        String    @id @default(cuid())
+  id        String         @id @default(cuid())
   userId    String
   name      String
-  createdAt DateTime  @default(now())
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  icon      String?
+  createdAt DateTime       @default(now())
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   subjects  Subject[]
+  groups    ProjectGroup[]
 
   @@index([userId])
 }
@@ -55,6 +81,7 @@ model Subject {
   id              String         @id @default(cuid())
   projectId       String
   name            String
+  icon            String?
   kpi             Float
   kpiTypePeriod   KpiTypePeriod
   kpiType         KpiType

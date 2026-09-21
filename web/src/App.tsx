@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { AppLayout } from "@/components/AppLayout";
 import { GuestRoute, ProtectedRoute } from "@/components/RouteGuards";
 import { LoginPage } from "@/pages/auth/LoginPage";
+import { GroupDetailPage } from "@/pages/groups/GroupDetailPage";
 import { ProjectDetailPage } from "@/pages/projects/ProjectDetailPage";
 import { ProjectsPage } from "@/pages/projects/ProjectsPage";
 import { RegisterPage } from "@/pages/auth/RegisterPage";
@@ -17,6 +18,7 @@ export default function App() {
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
           <Route path="/" element={<ProjectsPage />} />
+          <Route path="/groups/:id" element={<GroupDetailPage />} />
           <Route path="/projects/:id" element={<ProjectDetailPage />} />
           <Route path="/subjects/:id" element={<SubjectDetailPage />} />
         </Route>

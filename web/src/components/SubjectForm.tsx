@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
+import { IconPicker } from "@/components/IconPicker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,6 +12,7 @@ const selectClass =
 
 export type SubjectFormValues = {
   name: string;
+  icon: string;
   kpi: number;
   kpiTypePeriod: KpiTypePeriod;
   kpiType: KpiType;
@@ -21,6 +23,7 @@ export type SubjectFormValues = {
 export function subjectToFormValues(subject: Subject): SubjectFormValues {
   return {
     name: subject.name,
+    icon: subject.icon ?? "",
     kpi: subject.kpi,
     kpiTypePeriod: subject.kpiTypePeriod,
     kpiType: subject.kpiType,
@@ -43,6 +46,7 @@ export function SubjectForm({
   onSubmit: (values: SubjectFormValues) => void;
 }) {
   const [name, setName] = useState(initial?.name ?? "");
+  const [icon, setIcon] = useState(initial?.icon ?? "");
   const [kpi, setKpi] = useState(String(initial?.kpi ?? 10));
   const [kpiTypePeriod, setKpiTypePeriod] = useState<KpiTypePeriod>(
     initial?.kpiTypePeriod ?? "week",
@@ -64,6 +68,7 @@ export function SubjectForm({
     event.preventDefault();
     onSubmit({
       name,
+      icon,
       kpi: Number(kpi),
       kpiTypePeriod,
       kpiType,
@@ -83,6 +88,7 @@ export function SubjectForm({
           required
         />
       </div>
+      <IconPicker value={icon} onChange={setIcon} />
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="kpi">KPI</Label>

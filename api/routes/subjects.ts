@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { z } from "zod";
 import { authMiddleware, type AuthUser } from "../auth.ts";
+import { iconSchema, normalizeIcon } from "../icon.ts";
 import { prisma } from "../db.ts";
 import {
   alignCycleStart,
@@ -11,6 +12,7 @@ import {
 
 const updateSubjectSchema = z.object({
   name: z.string().trim().min(1).max(120).optional(),
+  icon: iconSchema,
   kpi: z.number().positive().optional(),
   kpiTypePeriod: z.enum(["day", "week", "twoWeek", "month"]).optional(),
   kpiType: z.enum(["totalTime", "totalRepeat"]).optional(),
@@ -96,6 +98,7 @@ subjectRoutes.patch("/:id", async (c) => {
     where: { id: existing.id },
     data: {
       name: parsed.data.name ?? existing.name,
+      icon: parsed.data.icon === undefined ? existing.icon : normalizeIcon(parsed.data.icon),
       kpi: nextKpi,
       kpiTypePeriod: parsed.data.kpiTypePeriod ?? existing.kpiTypePeriod,
       kpiType: parsed.data.kpiType ?? existing.kpiType,
@@ -139,14 +142,36 @@ subjectRoutes.put("/:id/progress", async (c) => {
   }
 
   const closed = await closeOverdueForSubject(existing.id);
-  const base = closed?.currentProgress ?? existing.currentProgress;
+  const subject = closed ?? existing;
+  const base = subject.currentProgress;
   const currentProgress = parsed.data.add !== undefined
     ? base + parsed.data.add
     : parsed.data.currentProgress!;
-  await prisma.subject.update({
-    where: { id: existing.id },
-    data: { currentProgress },
-  });
+  const amount = parsed.data.add !== undefined
+    ? parsed.data.add
+    : currentProgress - base;
+  const window = getActiveWindow(subject.startDate, subject.kpiTypePeriod);
+  const firedAt = new Date().toISOString();
+
+  await prisma.$transaction([
+    prisma.subject.update({
+      where: { id: existing.id },
+      data: { currentProgress },
+    }),
+    prisma.subjectHistory.create({
+      data: {
+        subjectId: existing.id,
+        type: "kpi_done",
+        payload: {
+          kind: parsed.data.add !== undefined ? "add" : "set",
+          amount,
+          total: currentProgress,
+          firedAt,
+          periodStart: window.start.toISOString(),
+        },
+      },
+    }),
+  ]);
 
   const detail = await subjectDetail(existing.id);
   return c.json(detail);

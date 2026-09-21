@@ -10,7 +10,7 @@ import { ResourceLink } from "@/components/ResourceLink";
 import { SetProgressForm } from "@/components/SetProgressForm";
 import { RemainingBadge, StreakBadge } from "@/components/StreakBadge";
 import { SubjectFormDialog } from "@/components/SubjectFormDialog";
-import { SubjectHistory } from "@/components/SubjectHistory";
+import { KpiDoneList, SubjectHistory } from "@/components/SubjectHistory";
 import { subjectToFormValues, type SubjectFormValues } from "@/components/SubjectForm";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -76,6 +76,7 @@ export function SubjectDetailPage() {
       <PageHeader
         eyebrow="Subject"
         title={subject.name}
+        icon={subject.icon}
         align="start"
         onEdit={() => setEditing(true)}
         editLabel="Edit subject"
@@ -134,6 +135,10 @@ export function SubjectDetailPage() {
               />
             </div>
             {subject.link ? <ResourceLink href={subject.link} variant="full" /> : null}
+            <div className="space-y-2">
+              <Label>This period events</Label>
+              <KpiDoneList history={history} periodStart={activeWindow.start} unit={unit} />
+            </div>
           </CardContent>
         </Card>
 
@@ -152,7 +157,15 @@ export function SubjectDetailPage() {
         </Card>
       </div>
 
-      <SubjectHistory history={history} unit={unit} />
+      <Card>
+        <CardHeader>
+          <CardTitle>History</CardTitle>
+          <CardDescription>KPI done, KPI updates, period results, and streak hits.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <SubjectHistory history={history} unit={unit} />
+        </CardContent>
+      </Card>
     </Page>
   );
 }
