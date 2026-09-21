@@ -1,6 +1,52 @@
 import type { KpiTypePeriod } from "./generated/prisma/client.ts";
 import { prisma } from "./db.ts";
 
+export function parseStartDate(value: string) {
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return new Date(`${value}T00:00:00.000Z`);
+  }
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  return date;
+}
+
+export function startOfUtcDay(date: Date) {
+  return new Date(
+    Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
+  );
+}
+
+export function startOfIsoWeekUtc(date: Date) {
+  const day = startOfUtcDay(date);
+  const weekday = day.getUTCDay();
+  const offset = weekday === 0 ? 6 : weekday - 1;
+  day.setUTCDate(day.getUTCDate() - offset);
+  return day;
+}
+
+/** Snap a date to the first day of its KPI cycle (UTC). */
+export function alignCycleStart(date: Date, period: KpiTypePeriod) {
+  const day = startOfUtcDay(date);
+  switch (period) {
+    case "day":
+      return day;
+    case "week":
+      return startOfIsoWeekUtc(day);
+    case "twoWeek": {
+      const monday = startOfIsoWeekUtc(day);
+      const epoch = Date.UTC(1970, 0, 5);
+      const diffDays = Math.floor((monday.getTime() - epoch) / 86_400_000);
+      const weekIndex = Math.floor(diffDays / 7);
+      if (weekIndex % 2 !== 0) {
+        monday.setUTCDate(monday.getUTCDate() - 7);
+      }
+      return monday;
+    }
+    case "month":
+      return new Date(Date.UTC(day.getUTCFullYear(), day.getUTCMonth(), 1));
+  }
+}
+
 export function addPeriod(
   date: Date,
   period: KpiTypePeriod,

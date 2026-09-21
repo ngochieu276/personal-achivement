@@ -1,13 +1,22 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, ExternalLink, Flame } from "lucide-react";
+import { ArrowLeft, ExternalLink, Flame, Pencil } from "lucide-react";
 import { useEffect, useState, type FormEvent } from "react";
 import { Link, useParams } from "react-router-dom";
+import { AddProgressForm } from "@/components/AddProgressForm";
+import { SubjectForm, type SubjectFormValues } from "@/components/SubjectForm";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { api } from "@/lib/api";
+import { toDateInput } from "@/lib/cycle";
 import { formatDate, formatDateTime, periodLabels, remainingLabel, unitLabel } from "@/lib/format";
 import type { SubjectDetail } from "@/lib/types";
 
@@ -15,7 +24,7 @@ export function SubjectDetailPage() {
   const { id } = useParams();
   const queryClient = useQueryClient();
   const [progress, setProgress] = useState("");
-  const [kpi, setKpi] = useState("");
+  const [editing, setEditing] = useState(false);
 
   const detailQuery = useQuery({
     queryKey: ["subject", id],
@@ -26,7 +35,6 @@ export function SubjectDetailPage() {
   useEffect(() => {
     if (!detailQuery.data) return;
     setProgress(String(detailQuery.data.subject.currentProgress));
-    setKpi(String(detailQuery.data.subject.kpi));
   }, [detailQuery.data]);
 
   const saveProgress = useMutation({
@@ -41,25 +49,22 @@ export function SubjectDetailPage() {
     },
   });
 
-  const saveKpi = useMutation({
-    mutationFn: () =>
+  const updateSubject = useMutation({
+    mutationFn: (values: SubjectFormValues) =>
       api<SubjectDetail>(`/subjects/${id}`, {
         method: "PATCH",
-        body: JSON.stringify({ kpi: Number(kpi) }),
+        body: JSON.stringify(values),
       }),
     onSuccess: async (data) => {
       queryClient.setQueryData(["subject", id], data);
+      await queryClient.invalidateQueries({ queryKey: ["subjects", data.subject.projectId] });
+      setEditing(false);
     },
   });
 
   function onProgress(event: FormEvent) {
     event.preventDefault();
     saveProgress.mutate();
-  }
-
-  function onKpi(event: FormEvent) {
-    event.preventDefault();
-    saveKpi.mutate();
   }
 
   if (detailQuery.isLoading) {
@@ -85,9 +90,21 @@ export function SubjectDetailPage() {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Subject</p>
-          <h1 className="font-serif text-4xl">{subject.name}</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="font-serif text-4xl">{subject.name}</h1>
+            <Button
+              type="button"
+              size="icon"
+              variant="ghost"
+              className="h-8 w-8"
+              aria-label="Edit subject"
+              onClick={() => setEditing(true)}
+            >
+              <Pencil className="h-4 w-4" />
+            </Button>
+          </div>
           <p className="mt-2 text-muted-foreground">
-            {periodLabels[subject.kpiTypePeriod]} · started {formatDate(subject.startDate)}
+            {periodLabels[subject.kpiTypePeriod]} · cycle started {formatDate(subject.startDate)}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -99,12 +116,35 @@ export function SubjectDetailPage() {
         </div>
       </div>
 
+      <Dialog open={editing} onOpenChange={setEditing}>
+        <DialogContent className="max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit subject</DialogTitle>
+          </DialogHeader>
+          <SubjectForm
+            key={subject.id}
+            initial={{
+              name: subject.name,
+              kpi: subject.kpi,
+              kpiTypePeriod: subject.kpiTypePeriod,
+              kpiType: subject.kpiType,
+              startDate: toDateInput(new Date(subject.startDate)),
+              link: subject.link ?? "",
+            }}
+            submitLabel="Save subject"
+            pending={updateSubject.isPending}
+            error={updateSubject.error?.message}
+            onSubmit={(values) => updateSubject.mutate(values)}
+          />
+        </DialogContent>
+      </Dialog>
+
       <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
         <Card>
           <CardHeader>
             <CardTitle>This period</CardTitle>
             <CardDescription>
-              Set how much you have finished so far. When the window ends, finish fires if current is at least the KPI.
+              Set the total so far, or add what you just finished. Finish fires if current is at least the KPI when the window ends.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -119,7 +159,7 @@ export function SubjectDetailPage() {
             </p>
             <form className="flex items-end gap-3" onSubmit={onProgress}>
               <div className="flex-1 space-y-2">
-                <Label htmlFor="progress">Current {unitLabel(subject.kpiType)}</Label>
+                <Label htmlFor="progress">Set current {unitLabel(subject.kpiType)}</Label>
                 <Input
                   id="progress"
                   type="number"
@@ -136,6 +176,14 @@ export function SubjectDetailPage() {
             {saveProgress.error ? (
               <p className="text-sm text-destructive">{saveProgress.error.message}</p>
             ) : null}
+            <div className="space-y-2">
+              <Label>Add {unitLabel(subject.kpiType)} done</Label>
+              <AddProgressForm
+                subjectId={subject.id}
+                projectId={subject.projectId}
+                kpiType={subject.kpiType}
+              />
+            </div>
             {subject.link ? (
               <a
                 href={subject.link}
@@ -153,28 +201,14 @@ export function SubjectDetailPage() {
         <Card>
           <CardHeader>
             <CardTitle>KPI</CardTitle>
-            <CardDescription>Changing this writes a KPI change to history.</CardDescription>
+            <CardDescription>
+              {periodLabels[subject.kpiTypePeriod]} · {subject.kpi} {unitLabel(subject.kpiType)}
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <form className="flex items-end gap-3" onSubmit={onKpi}>
-              <div className="flex-1 space-y-2">
-                <Label htmlFor="kpi">Target {unitLabel(subject.kpiType)}</Label>
-                <Input
-                  id="kpi"
-                  type="number"
-                  min="1"
-                  step="0.1"
-                  value={kpi}
-                  onChange={(event) => setKpi(event.target.value)}
-                />
-              </div>
-              <Button type="submit" variant="secondary" disabled={saveKpi.isPending}>
-                Update
-              </Button>
-            </form>
-            {saveKpi.error ? (
-              <p className="mt-3 text-sm text-destructive">{saveKpi.error.message}</p>
-            ) : null}
+            <p className="text-sm text-muted-foreground">
+              Edit name, measure, period, cycle, and target from the pencil next to the title.
+            </p>
           </CardContent>
         </Card>
       </div>

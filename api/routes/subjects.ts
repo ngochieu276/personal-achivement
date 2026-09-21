@@ -3,8 +3,10 @@ import { z } from "zod";
 import { authMiddleware, type AuthUser } from "../auth.ts";
 import { prisma } from "../db.ts";
 import {
+  alignCycleStart,
   closeOverdueForSubject,
   getActiveWindow,
+  parseStartDate,
 } from "../period.ts";
 
 const updateSubjectSchema = z.object({
@@ -17,20 +19,15 @@ const updateSubjectSchema = z.object({
 });
 
 const progressSchema = z.object({
-  currentProgress: z.number().min(0),
-});
+  currentProgress: z.number().min(0).optional(),
+  add: z.number().positive().optional(),
+}).refine(
+  (value) => value.currentProgress !== undefined || value.add !== undefined,
+  { message: "currentProgress or add is required" },
+);
 
 export const subjectRoutes = new Hono<{ Variables: { user: AuthUser } }>();
 subjectRoutes.use("*", authMiddleware);
-
-function parseStartDate(value: string) {
-  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-    return new Date(`${value}T00:00:00.000Z`);
-  }
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return null;
-  return date;
-}
 
 async function ownedSubject(userId: string, subjectId: string) {
   return await prisma.subject.findFirst({
@@ -83,10 +80,15 @@ subjectRoutes.patch("/:id", async (c) => {
   await closeOverdueForSubject(existing.id);
 
   let startDate = existing.startDate;
-  if (parsed.data.startDate) {
-    const next = parseStartDate(parsed.data.startDate);
-    if (!next) return c.json({ error: "Invalid startDate" }, 400);
-    startDate = next;
+  if (parsed.data.startDate || parsed.data.kpiTypePeriod) {
+    const raw = parsed.data.startDate
+      ? parseStartDate(parsed.data.startDate)
+      : existing.startDate;
+    if (!raw) return c.json({ error: "Invalid startDate" }, 400);
+    startDate = alignCycleStart(
+      raw,
+      parsed.data.kpiTypePeriod ?? existing.kpiTypePeriod,
+    );
   }
 
   const nextKpi = parsed.data.kpi ?? existing.kpi;
@@ -136,10 +138,14 @@ subjectRoutes.put("/:id/progress", async (c) => {
     return c.json({ error: "Invalid input", details: parsed.error.flatten() }, 400);
   }
 
-  await closeOverdueForSubject(existing.id);
+  const closed = await closeOverdueForSubject(existing.id);
+  const base = closed?.currentProgress ?? existing.currentProgress;
+  const currentProgress = parsed.data.add !== undefined
+    ? base + parsed.data.add
+    : parsed.data.currentProgress!;
   await prisma.subject.update({
     where: { id: existing.id },
-    data: { currentProgress: parsed.data.currentProgress },
+    data: { currentProgress },
   });
 
   const detail = await subjectDetail(existing.id);

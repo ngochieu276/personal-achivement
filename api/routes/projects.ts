@@ -3,8 +3,10 @@ import { z } from "zod";
 import { authMiddleware, type AuthUser } from "../auth.ts";
 import { prisma } from "../db.ts";
 import {
+  alignCycleStart,
   closeOverdueForSubject,
   getActiveWindow,
+  parseStartDate,
 } from "../period.ts";
 
 const createProjectSchema = z.object({
@@ -16,21 +18,12 @@ const createSubjectSchema = z.object({
   kpi: z.number().positive(),
   kpiTypePeriod: z.enum(["day", "week", "twoWeek", "month"]),
   kpiType: z.enum(["totalTime", "totalRepeat"]),
-  startDate: z.string().min(1),
+  startDate: z.string().min(1).optional(),
   link: z.string().url().optional().or(z.literal("")),
 });
 
 export const projectRoutes = new Hono<{ Variables: { user: AuthUser } }>();
 projectRoutes.use("*", authMiddleware);
-
-function parseStartDate(value: string) {
-  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-    return new Date(`${value}T00:00:00.000Z`);
-  }
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return null;
-  return date;
-}
 
 async function ownedProject(userId: string, projectId: string) {
   return await prisma.project.findFirst({
@@ -128,10 +121,13 @@ projectRoutes.post("/:id/subjects", async (c) => {
     return c.json({ error: "Invalid input", details: parsed.error.flatten() }, 400);
   }
 
-  const startDate = parseStartDate(parsed.data.startDate);
-  if (!startDate) {
+  const rawStart = parseStartDate(
+    parsed.data.startDate ?? new Date().toISOString().slice(0, 10),
+  );
+  if (!rawStart) {
     return c.json({ error: "Invalid startDate" }, 400);
   }
+  const startDate = alignCycleStart(rawStart, parsed.data.kpiTypePeriod);
 
   const subject = await prisma.subject.create({
     data: {
