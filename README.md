@@ -6,8 +6,8 @@ Track personal KPIs by project and subject. Log the time or repeats you have fin
 
 - **web/** Vite + React + TanStack Query + shadcn/Tailwind + Zustand
 - **api/** Deno 2 + Hono + Prisma 7 + PostgreSQL
-- Local Postgres via Docker Compose
-- Backend deploys to [Fly.io](https://fly.io/docs/js/frameworks/deno/)
+- Local Postgres via Docker Compose (or Prisma Postgres)
+- Backend deploys to [Fly.io](https://fly.io/docs/js/frameworks/deno/) with [Prisma Postgres](https://www.prisma.io/postgres)
 
 ## Local development
 
@@ -62,27 +62,23 @@ Register with name, email, and password, create a project, add a subject, then s
 
 ## Deploy API to Fly.io
 
-`fly launch` by itself does **not** provision Postgres. The release command (`prisma migrate deploy`) needs `DATABASE_URL` pointing at Fly Postgres, not `localhost`.
+The API reads `DATABASE_URL` from Fly secrets. Production uses Prisma Postgres (not a Fly Postgres app).
 
 From `api/`:
 
 1. Install [flyctl](https://fly.io/docs/flyctl/install/) and `fly auth login`.
-2. Create the app **without deploying**, then create and attach Postgres:
+2. Create the app without deploying, then set secrets (including the Prisma Postgres connection string):
 
 ```bash
 cd api
 fly launch --no-deploy --copy-config --name personal-record
-fly postgres create --name personal-record-db --region sin --initial-cluster-size 1 --vm-size shared-cpu-1x --volume-size 1
-fly postgres attach personal-record-db -a personal-record
+fly secrets set \
+  DATABASE_URL="<prisma-postgres-url>" \
+  JWT_SECRET="$(openssl rand -hex 32)" \
+  FRONTEND_ORIGIN="https://personal-achivement.vercel.app,http://localhost:5173"
 ```
 
-3. Set remaining secrets (`attach` already sets `DATABASE_URL`):
-
-```bash
-fly secrets set JWT_SECRET="$(openssl rand -hex 32)" FRONTEND_ORIGIN="http://localhost:5173"
-```
-
-4. Deploy:
+3. Deploy:
 
 ```bash
 fly deploy
