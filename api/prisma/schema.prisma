@@ -104,13 +104,14 @@ model Subject {
   documents       String[]       @default([])
   typeOfRecord    TypeOfRecord?
   betterDirection BetterDirection?
-  recordNumber    Float?
+  isPriority      Boolean        @default(false)
   currentProgress Float          @default(0)
   currentStreak   Int            @default(0)
   createdAt       DateTime       @default(now())
   project         Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
   events          SubjectEvent[]
   history         SubjectHistory[]
+  records         SubjectRecord[]
 
   @@index([projectId])
 }
@@ -141,6 +142,17 @@ model SubjectHistory {
   createdAt      DateTime      @default(now())
   subject        Subject       @relation(fields: [subjectId], references: [id], onDelete: Cascade)
   subjectEvent   SubjectEvent? @relation(fields: [subjectEventId], references: [id], onDelete: SetNull)
+
+  @@index([subjectId])
+}
+
+model SubjectRecord {
+  id           String   @id @default(cuid())
+  subjectId    String
+  date         DateTime
+  recordNumber Float
+  createdAt    DateTime @default(now())
+  subject      Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
 
   @@index([subjectId])
 }

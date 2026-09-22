@@ -17,6 +17,7 @@ export type Project = {
   icon?: string | null;
   createdAt: string;
   subjectCount?: number;
+  averageProgress?: number;
   groupIds?: string[];
   groups?: ProjectGroup[];
 };
@@ -61,11 +62,20 @@ export type Subject = {
   documents: string[];
   typeOfRecord: TypeOfRecord | null;
   betterDirection: BetterDirection | null;
-  recordNumber: number | null;
+  isPriority: boolean;
   currentProgress: number;
   currentStreak: number;
   createdAt: string;
   activeWindow?: PeriodWindow;
+  records?: SubjectRecord[];
+};
+
+export type SubjectRecord = {
+  id: string;
+  subjectId: string;
+  date: string;
+  recordNumber: number;
+  createdAt: string;
 };
 
 export type SubjectEvent = {

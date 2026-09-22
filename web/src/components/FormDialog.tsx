@@ -6,6 +6,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
 
 export function FormDialog({
   open,
@@ -14,6 +15,7 @@ export function FormDialog({
   children,
   trigger,
   variant = "default",
+  className,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -21,11 +23,17 @@ export function FormDialog({
   children: ReactNode;
   trigger?: ReactNode;
   variant?: "default" | "scroll";
+  className?: string;
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       {trigger ? <DialogTrigger asChild>{trigger}</DialogTrigger> : null}
-      <DialogContent className={variant === "scroll" ? "max-h-[90vh] overflow-y-auto" : undefined}>
+      <DialogContent
+        className={cn(
+          variant === "scroll" && "max-h-[90vh] overflow-y-auto",
+          className,
+        )}
+      >
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>

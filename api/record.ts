@@ -16,7 +16,6 @@ export type BetterDirection = (typeof BETTER_DIRECTION)[number];
 export const recordFieldShape = {
   typeOfRecord: z.enum(TYPE_OF_RECORD).optional().nullable(),
   betterDirection: z.enum(BETTER_DIRECTION).optional().nullable(),
-  recordNumber: z.number().optional().nullable(),
 };
 
 export function withRecordRefine<T extends z.ZodRawShape>(shape: T) {
@@ -35,22 +34,14 @@ export function defaultBetterDirection(typeOfRecord: TypeOfRecord | null | undef
 export function recordWriteData(input: {
   typeOfRecord?: TypeOfRecord | null;
   betterDirection?: BetterDirection | null;
-  recordNumber?: number | null;
 }, existing?: {
   typeOfRecord: TypeOfRecord | null;
   betterDirection: BetterDirection | null;
-  recordNumber: number | null;
 }) {
-  if (
-    existing &&
-    input.typeOfRecord === undefined &&
-    input.betterDirection === undefined &&
-    input.recordNumber === undefined
-  ) {
+  if (existing && input.typeOfRecord === undefined && input.betterDirection === undefined) {
     return {
       typeOfRecord: existing.typeOfRecord,
       betterDirection: existing.betterDirection,
-      recordNumber: existing.recordNumber,
     };
   }
 
@@ -59,16 +50,23 @@ export function recordWriteData(input: {
     : input.typeOfRecord;
 
   if (!typeOfRecord) {
-    return { typeOfRecord: null, betterDirection: null, recordNumber: null };
+    return { typeOfRecord: null, betterDirection: null };
   }
 
   const betterDirection = typeOfRecord === "defineByUser"
     ? (input.betterDirection === undefined ? existing?.betterDirection ?? null : input.betterDirection)
     : defaultBetterDirection(typeOfRecord);
 
-  const recordNumber = input.recordNumber === undefined
-    ? existing?.recordNumber ?? null
-    : input.recordNumber;
+  return { typeOfRecord, betterDirection };
+}
 
-  return { typeOfRecord, betterDirection, recordNumber };
+export function progressPercent(current: number, target: number) {
+  if (target <= 0) return 0;
+  return (current / target) * 100;
+}
+
+export function averageProgressPercent(subjects: Array<{ currentProgress: number; kpi: number }>) {
+  if (subjects.length === 0) return 0;
+  const total = subjects.reduce((sum, subject) => sum + progressPercent(subject.currentProgress, subject.kpi), 0);
+  return total / subjects.length;
 }

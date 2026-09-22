@@ -36,6 +36,7 @@ const createSubjectSchema = withRecordRefine({
   kpiType: z.enum(["totalTime", "totalRepeat"]),
   startDate: z.string().min(1).optional(),
   link: z.string().url().optional().or(z.literal("")),
+  isPriority: z.boolean().optional(),
   ...recordFieldShape,
 });
 
@@ -160,7 +161,8 @@ projectRoutes.get("/:id/subjects", async (c) => {
 
   const subjects = await prisma.subject.findMany({
     where: { projectId: project.id },
-    orderBy: { createdAt: "desc" },
+    include: { records: { orderBy: { date: "desc" } } },
+    orderBy: [{ isPriority: "desc" }, { createdAt: "desc" }],
   });
 
   const now = new Date();
@@ -169,6 +171,7 @@ projectRoutes.get("/:id/subjects", async (c) => {
     const closed = (await closeOverdueForSubject(subject.id, now)) ?? subject;
     payload.push({
       ...closed,
+      records: subject.records,
       activeWindow: getActiveWindow(closed.startDate, closed.kpiTypePeriod, now),
     });
   }
@@ -202,6 +205,7 @@ projectRoutes.post("/:id/subjects", async (c) => {
       kpiType: parsed.data.kpiType,
       startDate,
       link: parsed.data.link ? parsed.data.link : null,
+      isPriority: parsed.data.isPriority ?? false,
       ...recordWriteData(parsed.data),
     },
   });

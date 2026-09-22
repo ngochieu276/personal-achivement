@@ -12,7 +12,8 @@ import { SetProgressForm } from "@/components/SetProgressForm";
 import { RemainingBadge, StreakBadge } from "@/components/StreakBadge";
 import { SubjectDocuments } from "@/components/SubjectDocuments";
 import { SubjectFormDialog } from "@/components/SubjectFormDialog";
-import { KpiDoneList, SubjectHistory } from "@/components/SubjectHistory";
+import { ExceedFlame } from "@/components/ExceedFlame";
+import { SubjectActivityButton, SubjectActivityDialog } from "@/components/SubjectActivityDialog";
 import { SubjectNote } from "@/components/SubjectNote";
 import { subjectToFormValues, type SubjectFormValues } from "@/components/SubjectForm";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,6 +21,7 @@ import { Label } from "@/components/ui/label";
 import { api } from "@/lib/api";
 import { formatDate, periodLabels, unitLabel } from "@/lib/format";
 import { betterDirectionLabels, typeOfRecordLabels } from "@/lib/record";
+import { exceedAmount, latestRecordNumber } from "@/lib/subjects";
 import type { SubjectDetail } from "@/lib/types";
 
 export function SubjectDetailPage() {
@@ -27,6 +29,7 @@ export function SubjectDetailPage() {
   const queryClient = useQueryClient();
   const [progress, setProgress] = useState("");
   const [editing, setEditing] = useState(false);
+  const [activityOpen, setActivityOpen] = useState(false);
 
   const detailQuery = useQuery({
     queryKey: ["subject", id],
@@ -85,6 +88,8 @@ export function SubjectDetailPage() {
 
   const { subject, activeWindow, history } = detailQuery.data;
   const unit = unitLabel(subject.kpiType);
+  const latest = latestRecordNumber(subject);
+  const exceed = exceedAmount(subject.currentProgress, subject.kpi);
 
   return (
     <Page>
@@ -100,16 +105,25 @@ export function SubjectDetailPage() {
           <p className="mt-2 text-muted-foreground">
             {periodLabels[subject.kpiTypePeriod]} · cycle started {formatDate(subject.startDate)}
             {subject.typeOfRecord
-              ? ` · ${typeOfRecordLabels[subject.typeOfRecord]}${subject.recordNumber != null ? ` ${subject.recordNumber}` : ""}${subject.betterDirection ? ` (${betterDirectionLabels[subject.betterDirection]})` : ""}`
+              ? ` · ${typeOfRecordLabels[subject.typeOfRecord]}${latest != null ? ` ${latest}` : ""}${subject.betterDirection ? ` (${betterDirectionLabels[subject.betterDirection]})` : ""}`
               : ""}
           </p>
         }
         actions={
           <>
+            <SubjectActivityButton onClick={() => setActivityOpen(true)} />
             <StreakBadge streak={subject.currentStreak} variant="labeled" />
             <RemainingBadge end={activeWindow.end} />
           </>
         }
+      />
+
+      <SubjectActivityDialog
+        open={activityOpen}
+        onOpenChange={setActivityOpen}
+        history={history}
+        periodStart={activeWindow.start}
+        unit={unit}
       />
 
       <SubjectFormDialog
@@ -134,8 +148,9 @@ export function SubjectDetailPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <ProgressBar current={subject.currentProgress} target={subject.kpi} size="lg" />
-            <p className="text-sm text-muted-foreground">
+            <p className="flex items-center gap-2 text-sm text-muted-foreground">
               {subject.currentProgress} / {subject.kpi} {unit}
+              <ExceedFlame exceed={exceed} />
             </p>
             <SetProgressForm
               unit={unit}
@@ -163,32 +178,12 @@ export function SubjectDetailPage() {
             onSave={(note) => updateExtras.mutate({ note })}
           />
       </div>
-      <Card>
-        <CardHeader>
-          <CardTitle>This period events</CardTitle>
-          <CardDescription>KPI done events logged in the current window.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <KpiDoneList history={history} periodStart={activeWindow.start} unit={unit} />
-        </CardContent>
-      </Card>
-
       <SubjectDocuments
         documents={subject.documents ?? []}
         pending={updateExtras.isPending}
         error={updateExtras.error?.message}
         onChange={(documents) => updateExtras.mutate({ documents })}
       />
-
-      <Card>
-        <CardHeader>
-          <CardTitle>History</CardTitle>
-          <CardDescription>KPI done, KPI updates, period results, and streak hits.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <SubjectHistory history={history} unit={unit} />
-        </CardContent>
-      </Card>
     </Page>
   );
 }

@@ -22,7 +22,7 @@ export type SubjectFormValues = {
   link: string;
   typeOfRecord: TypeOfRecord | null;
   betterDirection: BetterDirection | null;
-  recordNumber: number | null;
+  isPriority: boolean;
 };
 
 export function subjectToFormValues(subject: Subject): SubjectFormValues {
@@ -36,7 +36,7 @@ export function subjectToFormValues(subject: Subject): SubjectFormValues {
     link: subject.link ?? "",
     typeOfRecord: subject.typeOfRecord ?? null,
     betterDirection: subject.betterDirection ?? null,
-    recordNumber: subject.recordNumber ?? null,
+    isPriority: subject.isPriority ?? false,
   };
 }
 
@@ -68,9 +68,7 @@ export function SubjectForm({
   const [betterDirection, setBetterDirection] = useState<BetterDirection | "">(
     initial?.betterDirection ?? defaultBetterDirection(initial?.typeOfRecord ?? ""),
   );
-  const [recordNumber, setRecordNumber] = useState(
-    initial?.recordNumber == null ? "" : String(initial.recordNumber),
-  );
+  const [isPriority, setIsPriority] = useState(initial?.isPriority ?? false);
 
   const aligned = alignCycleStart(new Date(`${startDate}T00:00:00.000Z`), kpiTypePeriod);
   const alignedDate = toDateInput(aligned);
@@ -95,7 +93,7 @@ export function SubjectForm({
           ? betterDirection || null
           : defaultBetterDirection(typeOfRecord) || null
         : null,
-      recordNumber: recordNumber === "" ? null : Number(recordNumber),
+      isPriority,
     });
   }
 
@@ -176,13 +174,19 @@ export function SubjectForm({
           onChange={(event) => setLink(event.target.value)}
         />
       </div>
+      <label className="flex items-center gap-2 text-sm">
+        <input
+          type="checkbox"
+          checked={isPriority}
+          onChange={(event) => setIsPriority(event.target.checked)}
+        />
+        Priority subject
+      </label>
       <SubjectRecordFields
         typeOfRecord={typeOfRecord}
         betterDirection={betterDirection}
-        recordNumber={recordNumber}
         onTypeOfRecordChange={setTypeOfRecord}
         onBetterDirectionChange={setBetterDirection}
-        onRecordNumberChange={setRecordNumber}
       />
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
       <Button type="submit" disabled={pending}>

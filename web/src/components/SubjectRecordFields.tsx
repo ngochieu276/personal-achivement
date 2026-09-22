@@ -1,4 +1,3 @@
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   BETTER_DIRECTION,
@@ -15,22 +14,17 @@ const selectClass =
 export function SubjectRecordFields({
   typeOfRecord,
   betterDirection,
-  recordNumber,
   onTypeOfRecordChange,
   onBetterDirectionChange,
-  onRecordNumberChange,
 }: {
   typeOfRecord: TypeOfRecord | "";
   betterDirection: BetterDirection | "";
-  recordNumber: string;
   onTypeOfRecordChange: (value: TypeOfRecord | "") => void;
   onBetterDirectionChange: (value: BetterDirection | "") => void;
-  onRecordNumberChange: (value: string) => void;
 }) {
   function changeType(value: TypeOfRecord | "") {
     onTypeOfRecordChange(value);
     onBetterDirectionChange(defaultBetterDirection(value));
-    if (!value) onRecordNumberChange("");
   }
 
   return (
@@ -52,46 +46,34 @@ export function SubjectRecordFields({
         </select>
       </div>
       {typeOfRecord ? (
-        <div className="grid gap-4 sm:grid-cols-2">
-          {typeOfRecord === "defineByUser" ? (
-            <div className="space-y-2">
-              <Label htmlFor="better-direction">Better direction</Label>
-              <select
-                id="better-direction"
-                className={selectClass}
-                value={betterDirection}
-                onChange={(event) => onBetterDirectionChange(event.target.value as BetterDirection)}
-                required
-              >
-                <option value="" disabled>
-                  Select direction
-                </option>
-                {BETTER_DIRECTION.map((value) => (
-                  <option key={value} value={value}>
-                    {betterDirectionLabels[value]}
-                  </option>
-                ))}
-              </select>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              <Label>Better direction</Label>
-              <p className="flex h-10 items-center text-sm text-muted-foreground">
-                {betterDirection ? betterDirectionLabels[betterDirection] : "—"}
-              </p>
-            </div>
-          )}
+        typeOfRecord === "defineByUser" ? (
           <div className="space-y-2">
-            <Label htmlFor="record-number">Number</Label>
-            <Input
-              id="record-number"
-              type="number"
-              step="0.1"
-              value={recordNumber}
-              onChange={(event) => onRecordNumberChange(event.target.value)}
-            />
+            <Label htmlFor="better-direction">Better direction</Label>
+            <select
+              id="better-direction"
+              className={selectClass}
+              value={betterDirection}
+              onChange={(event) => onBetterDirectionChange(event.target.value as BetterDirection)}
+              required
+            >
+              <option value="" disabled>
+                Select direction
+              </option>
+              {BETTER_DIRECTION.map((value) => (
+                <option key={value} value={value}>
+                  {betterDirectionLabels[value]}
+                </option>
+              ))}
+            </select>
           </div>
-        </div>
+        ) : (
+          <div className="space-y-2">
+            <Label>Better direction</Label>
+            <p className="flex h-10 items-center text-sm text-muted-foreground">
+              {betterDirection ? betterDirectionLabels[betterDirection] : "—"}
+            </p>
+          </div>
+        )
       ) : null}
     </div>
   );

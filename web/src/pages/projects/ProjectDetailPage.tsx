@@ -11,10 +11,11 @@ import { ListPlaceholder } from "@/components/ListPlaceholder";
 import { Page, PageHeader } from "@/components/PageHeader";
 import { PageLoading } from "@/components/PageLoading";
 import { ProjectForm } from "@/components/ProjectForm";
-import { SubjectCard } from "@/components/SubjectCard";
+import { ProjectRecordsCard } from "@/components/ProjectRecordsCard";
+import { SubjectPeriodGroups } from "@/components/SubjectPeriodGroups";
 import { SubjectFormDialog } from "@/components/SubjectFormDialog";
 import { subjectToFormValues, type SubjectFormValues } from "@/components/SubjectForm";
-import { ViewToggle, viewClass } from "@/components/ViewToggle";
+import { ViewToggle } from "@/components/ViewToggle";
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/api";
 import type { GroupTree, Project, Subject, SubjectDetail } from "@/lib/types";
@@ -60,6 +61,7 @@ export function ProjectDetailPage() {
       await queryClient.invalidateQueries({ queryKey: ["subjects", id] });
       await queryClient.invalidateQueries({ queryKey: ["projects"] });
       await queryClient.invalidateQueries({ queryKey: ["nav"] });
+      await queryClient.invalidateQueries({ queryKey: ["project", id] });
     },
   });
 
@@ -72,6 +74,8 @@ export function ProjectDetailPage() {
     onSuccess: async () => {
       setEditingSubject(null);
       await queryClient.invalidateQueries({ queryKey: ["subjects", id] });
+      await queryClient.invalidateQueries({ queryKey: ["projects"] });
+      await queryClient.invalidateQueries({ queryKey: ["project", id] });
     },
   });
 
@@ -197,16 +201,14 @@ export function ProjectDetailPage() {
           action={deleteControl}
         />
       ) : (
-        <div className={viewClass(mode, "subjects")}>
-          {subjects.map((subject) => (
-            <SubjectCard
-              key={subject.id}
-              subject={subject}
-              variant={mode}
-              onEdit={setEditingSubject}
-            />
-          ))}
-        </div>
+        <>
+          <SubjectPeriodGroups
+            subjects={subjects}
+            variant={mode}
+            onEdit={setEditingSubject}
+          />
+          <ProjectRecordsCard projectId={id ?? ""} subjects={subjects} />
+        </>
       )}
     </Page>
   );

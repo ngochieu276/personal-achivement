@@ -21,7 +21,13 @@ const updateSubjectSchema = withRecordRefine({
   link: z.string().url().optional().or(z.literal("")).nullable(),
   note: z.string().max(8000).optional().nullable(),
   documents: z.array(z.string().trim().url().max(500)).max(50).optional(),
+  isPriority: z.boolean().optional(),
   ...recordFieldShape,
+});
+
+const createRecordSchema = z.object({
+  date: z.string().min(1),
+  recordNumber: z.number(),
 });
 
 const progressSchema = z.object({
@@ -48,7 +54,7 @@ async function subjectDetail(subjectId: string, now = new Date()) {
   const closed = await closeOverdueForSubject(subjectId, now);
   if (!closed) return null;
 
-  const [events, history] = await Promise.all([
+  const [events, history, records] = await Promise.all([
     prisma.subjectEvent.findMany({
       where: { subjectId },
       orderBy: { periodStart: "desc" },
@@ -57,10 +63,14 @@ async function subjectDetail(subjectId: string, now = new Date()) {
       where: { subjectId },
       orderBy: { createdAt: "desc" },
     }),
+    prisma.subjectRecord.findMany({
+      where: { subjectId },
+      orderBy: { date: "desc" },
+    }),
   ]);
 
   return {
-    subject: closed,
+    subject: { ...closed, records },
     activeWindow: getActiveWindow(closed.startDate, closed.kpiTypePeriod, now),
     events,
     history,
@@ -116,6 +126,7 @@ subjectRoutes.patch("/:id", async (c) => {
         ? existing.note
         : parsed.data.note?.trim() || null,
       documents: parsed.data.documents ?? existing.documents,
+      isPriority: parsed.data.isPriority ?? existing.isPriority,
       ...recordWriteData(parsed.data, existing),
     },
   });
@@ -182,6 +193,44 @@ subjectRoutes.put("/:id/progress", async (c) => {
     }),
   ]);
 
+  const detail = await subjectDetail(existing.id);
+  return c.json(detail);
+});
+
+subjectRoutes.post("/:id/records", async (c) => {
+  const existing = await ownedSubject(c.get("user").id, c.req.param("id"));
+  if (!existing) return c.json({ error: "Subject not found" }, 404);
+
+  const parsed = createRecordSchema.safeParse(await c.req.json());
+  if (!parsed.success) {
+    return c.json({ error: "Invalid input", details: parsed.error.flatten() }, 400);
+  }
+
+  const date = parseStartDate(parsed.data.date) ?? new Date(parsed.data.date);
+  if (Number.isNaN(date.getTime())) return c.json({ error: "Invalid date" }, 400);
+
+  await prisma.subjectRecord.create({
+    data: {
+      subjectId: existing.id,
+      date,
+      recordNumber: parsed.data.recordNumber,
+    },
+  });
+
+  const detail = await subjectDetail(existing.id);
+  return c.json(detail, 201);
+});
+
+subjectRoutes.delete("/:id/records/:recordId", async (c) => {
+  const existing = await ownedSubject(c.get("user").id, c.req.param("id"));
+  if (!existing) return c.json({ error: "Subject not found" }, 404);
+
+  const record = await prisma.subjectRecord.findFirst({
+    where: { id: c.req.param("recordId"), subjectId: existing.id },
+  });
+  if (!record) return c.json({ error: "Record not found" }, 404);
+
+  await prisma.subjectRecord.delete({ where: { id: record.id } });
   const detail = await subjectDetail(existing.id);
   return c.json(detail);
 });

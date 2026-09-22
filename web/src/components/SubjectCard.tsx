@@ -1,6 +1,8 @@
+import { Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { AddProgressForm } from "@/components/AddProgressForm";
 import { EditButton } from "@/components/EditButton";
+import { ExceedFlame } from "@/components/ExceedFlame";
 import { ProgressBar } from "@/components/ProgressBar";
 import { ResourceLink } from "@/components/ResourceLink";
 import { RemainingBadge, StreakBadge } from "@/components/StreakBadge";
@@ -8,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { EntityIcon } from "@/lib/icons";
 import { periodLabels, unitLabel } from "@/lib/format";
 import { typeOfRecordLabels } from "@/lib/record";
+import { exceedAmount, latestRecordNumber } from "@/lib/subjects";
 import type { Subject } from "@/lib/types";
 import type { ViewMode } from "@/stores/view";
 
@@ -23,9 +26,11 @@ export function SubjectCard({
   const navigate = useNavigate();
   const unit = unitLabel(subject.kpiType);
   const period = periodLabels[subject.kpiTypePeriod];
+  const latest = latestRecordNumber(subject);
   const recordLabel = subject.typeOfRecord
-    ? `${typeOfRecordLabels[subject.typeOfRecord]}${subject.recordNumber != null ? ` · ${subject.recordNumber}` : ""}`
+    ? `${typeOfRecordLabels[subject.typeOfRecord]}${latest != null ? ` · ${latest}` : ""}`
     : null;
+  const exceed = exceedAmount(subject.currentProgress, subject.kpi);
 
   function openSubject() {
     navigate(`/subjects/${subject.id}`);
@@ -38,7 +43,10 @@ export function SubjectCard({
           <div className="flex min-w-0 flex-1 items-center gap-3">
             <EntityIcon name={subject.icon} className="h-5 w-5 shrink-0 text-secondary" />
             <span className="min-w-0">
-              <CardTitle>{subject.name}</CardTitle>
+              <CardTitle className="flex items-center gap-1.5">
+                {subject.isPriority ? <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" /> : null}
+                {subject.name}
+              </CardTitle>
               <CardDescription>
                 {period} · {subject.currentProgress} / {subject.kpi} {unit}
                 {recordLabel ? ` · ${recordLabel}` : ""}
@@ -46,6 +54,7 @@ export function SubjectCard({
             </span>
           </div>
           <ProgressBar current={subject.currentProgress} target={subject.kpi} size="inline" />
+          <ExceedFlame exceed={exceed} />
           <StreakBadge streak={subject.currentStreak} />
           <AddProgressForm
             compact
@@ -66,7 +75,10 @@ export function SubjectCard({
           <div className="flex min-w-0 items-start gap-3">
             <EntityIcon name={subject.icon} className="mt-0.5 h-5 w-5 shrink-0 text-secondary" />
             <span className="min-w-0">
-              <CardTitle>{subject.name}</CardTitle>
+              <CardTitle className="flex items-center gap-1.5">
+                {subject.isPriority ? <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" /> : null}
+                {subject.name}
+              </CardTitle>
               <CardDescription>
                 {period} · {subject.kpi} {unit}
                 {recordLabel ? ` · ${recordLabel}` : ""}
@@ -74,6 +86,7 @@ export function SubjectCard({
             </span>
           </div>
           <div className="flex items-center gap-1">
+            <ExceedFlame exceed={exceed} />
             <StreakBadge streak={subject.currentStreak} />
             {subject.activeWindow ? <RemainingBadge end={subject.activeWindow.end} /> : null}
             <EditButton label={`Edit ${subject.name}`} onClick={() => onEdit(subject)} />

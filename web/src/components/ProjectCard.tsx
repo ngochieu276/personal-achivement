@@ -1,12 +1,46 @@
 import { FolderKanban } from "lucide-react";
 import { CardLink } from "@/components/CardLink";
 import { EditButton } from "@/components/EditButton";
+import { ExceedFlame } from "@/components/ExceedFlame";
+import { ProgressBar } from "@/components/ProgressBar";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatDate } from "@/lib/format";
 import { EntityIcon } from "@/lib/icons";
 import type { Project } from "@/lib/types";
 import type { ViewMode } from "@/stores/view";
+
+function ProjectProgress({
+  average,
+  size = "md",
+}: {
+  average: number;
+  size?: "inline" | "md";
+}) {
+  const current = Math.round(average);
+  const label = (
+    <span className="flex items-center gap-2 text-sm text-muted-foreground">
+      {current} / 100 %
+      <ExceedFlame exceed={average > 100 ? average - 100 : 0} suffix="%" />
+    </span>
+  );
+
+  if (size === "inline") {
+    return (
+      <div className="flex items-center gap-2">
+        <ProgressBar current={average} target={100} size="inline" />
+        {label}
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      <ProgressBar current={average} target={100} />
+      {label}
+    </div>
+  );
+}
 
 export function ProjectCard({
   project,
@@ -18,6 +52,7 @@ export function ProjectCard({
   onEdit: (project: Project) => void;
 }) {
   const count = project.subjectCount ?? 0;
+  const average = project.averageProgress ?? 0;
   const edit = <EditButton label={`Edit ${project.name}`} onClick={() => onEdit(project)} />;
 
   if (variant === "list") {
@@ -35,6 +70,7 @@ export function ProjectCard({
                   : ""}
               </CardDescription>
             </div>
+            <ProjectProgress average={average} size="inline" />
             {edit}
           </CardHeader>
         </Card>
@@ -63,6 +99,9 @@ export function ProjectCard({
             {edit}
           </div>
         </CardHeader>
+        <CardContent>
+          <ProjectProgress average={average} />
+        </CardContent>
       </Card>
     </CardLink>
   );
