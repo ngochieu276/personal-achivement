@@ -9,6 +9,7 @@ import {
   getActiveWindow,
   parseStartDate,
 } from "../period.ts";
+import { recordFieldShape, recordWriteData, withRecordRefine } from "../record.ts";
 import { projectInclude, toProjectDto } from "../serialize.ts";
 
 const createProjectSchema = z.object({
@@ -27,7 +28,7 @@ const updateProjectSchema = z.object({
   { message: "name, icon, or groupIds is required" },
 );
 
-const createSubjectSchema = z.object({
+const createSubjectSchema = withRecordRefine({
   name: z.string().trim().min(1).max(120),
   icon: iconSchema,
   kpi: z.number().positive(),
@@ -35,6 +36,7 @@ const createSubjectSchema = z.object({
   kpiType: z.enum(["totalTime", "totalRepeat"]),
   startDate: z.string().min(1).optional(),
   link: z.string().url().optional().or(z.literal("")),
+  ...recordFieldShape,
 });
 
 export const projectRoutes = new Hono<{ Variables: { user: AuthUser } }>();
@@ -200,6 +202,7 @@ projectRoutes.post("/:id/subjects", async (c) => {
       kpiType: parsed.data.kpiType,
       startDate,
       link: parsed.data.link ? parsed.data.link : null,
+      ...recordWriteData(parsed.data),
     },
   });
 

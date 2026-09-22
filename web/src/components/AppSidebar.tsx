@@ -88,11 +88,11 @@ export function AppSidebar() {
   }
 
   return (
-    <Sidebar>
+    <Sidebar collapsible="icon">
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild size="lg" isActive={location.pathname === "/"}>
+            <SidebarMenuButton asChild size="lg" isActive={location.pathname === "/"} tooltip="Projects">
               <Link to="/" onClick={closeMobile}>
                 <FolderKanban />
                 <span className="font-serif text-base">Personal Record</span>
@@ -100,15 +100,15 @@ export function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
-        <div className="grid gap-2 px-2">
+        <div className="grid gap-2 px-2 group-data-[collapsible=icon]:px-0">
           <FormDialog
             open={projectOpen}
             onOpenChange={setProjectOpen}
             title="New project"
             trigger={
-              <Button size="sm" className="w-full justify-start">
+              <Button size="sm" className="w-full justify-start group-data-[collapsible=icon]:pointer-events-none group-data-[collapsible=icon]:opacity-0">
                 <Plus className="h-4 w-4" />
-                Create project
+                <span className="group-data-[collapsible=icon]:hidden">Create project</span>
               </Button>
             }
           >
@@ -138,7 +138,7 @@ export function AppSidebar() {
               onOpenChange={setGroupOpen}
               title="New group"
               trigger={
-                <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0">
+                <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0 group-data-[collapsible=icon]:hidden">
                   <Plus className="h-4 w-4" />
                   <span className="sr-only">Create group</span>
                 </Button>
@@ -166,7 +166,7 @@ export function AppSidebar() {
                 </SidebarMenuItem>
               </SidebarMenu>
             ) : groups.length === 0 ? (
-              <p className="px-2 text-xs text-muted-foreground">No groups yet.</p>
+              <p className="px-2 text-xs text-muted-foreground group-data-[collapsible=icon]:hidden">No groups yet.</p>
             ) : (
               <SidebarMenu>
                 {groups.map((group) => (
@@ -177,6 +177,7 @@ export function AppSidebar() {
                           asChild
                           className="flex-1"
                           isActive={location.pathname === `/groups/${group.id}`}
+                          tooltip={group.name}
                         >
                           <Link to={`/groups/${group.id}`} onClick={closeMobile}>
                             <EntityIcon name={group.icon} className="h-4 w-4" />
@@ -185,7 +186,7 @@ export function AppSidebar() {
                         </SidebarMenuButton>
                         {group.projects.length > 0 ? (
                           <CollapsibleTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0">
+                            <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0 group-data-[collapsible=icon]:hidden">
                               <ChevronRight className="h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-90" />
                               <span className="sr-only">Toggle {group.name}</span>
                             </Button>
@@ -222,12 +223,12 @@ export function AppSidebar() {
           <SidebarGroupLabel>Projects</SidebarGroupLabel>
           <SidebarGroupContent>
             {ungrouped.length === 0 && groups.length > 0 ? (
-              <p className="px-2 text-xs text-muted-foreground">All projects are in a group.</p>
+              <p className="px-2 text-xs text-muted-foreground group-data-[collapsible=icon]:hidden">All projects are in a group.</p>
             ) : (
               <SidebarMenu>
                 {ungrouped.map((project) => (
                   <SidebarMenuItem key={project.id}>
-                    <SidebarMenuButton asChild isActive={location.pathname === `/projects/${project.id}`}>
+                    <SidebarMenuButton asChild isActive={location.pathname === `/projects/${project.id}`} tooltip={project.name}>
                       <Link to={`/projects/${project.id}`} onClick={closeMobile}>
                         <EntityIcon name={project.icon} fallback={FolderKanban} className="h-4 w-4" />
                         <span>{project.name}</span>
@@ -241,7 +242,7 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-        <p className="truncate px-2 text-xs text-muted-foreground">{user?.name}</p>
+        <p className="truncate px-2 text-xs text-muted-foreground group-data-[collapsible=icon]:hidden">{user?.name}</p>
       </SidebarFooter>
     </Sidebar>
   );

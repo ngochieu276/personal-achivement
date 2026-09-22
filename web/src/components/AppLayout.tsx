@@ -34,8 +34,8 @@ export function AppLayout() {
             </Button>
           </div>
         </header>
-        <div className="flex-1 p-4 md:p-6">
-          <div className="mx-auto max-w-5xl">
+        <div className="min-w-0 flex-1 overflow-x-clip overflow-y-auto p-4 md:p-6">
+          <div className="mx-auto w-full min-w-0 max-w-6xl">
             <Outlet />
           </div>
         </div>

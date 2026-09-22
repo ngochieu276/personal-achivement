@@ -1,4 +1,5 @@
 import { ExternalLink } from "lucide-react";
+import type { MouseEvent } from "react";
 import { cn } from "@/lib/utils";
 
 export function ResourceLink({
@@ -8,13 +9,18 @@ export function ResourceLink({
   href: string;
   variant?: "compact" | "full";
 }) {
+  function stop(event: MouseEvent<HTMLAnchorElement>) {
+    event.stopPropagation();
+  }
+
   return (
     <a
       href={href}
       target="_blank"
       rel="noreferrer"
+      onClick={stop}
       className={cn(
-        "inline-flex items-center",
+        "relative z-10 inline-flex items-center",
         variant === "full" ? "gap-2 text-sm text-primary" : "gap-1",
       )}
     >

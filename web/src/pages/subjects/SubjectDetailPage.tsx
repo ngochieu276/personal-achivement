@@ -19,6 +19,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { api } from "@/lib/api";
 import { formatDate, periodLabels, unitLabel } from "@/lib/format";
+import { betterDirectionLabels, typeOfRecordLabels } from "@/lib/record";
 import type { SubjectDetail } from "@/lib/types";
 
 export function SubjectDetailPage() {
@@ -98,6 +99,9 @@ export function SubjectDetailPage() {
         subtitle={
           <p className="mt-2 text-muted-foreground">
             {periodLabels[subject.kpiTypePeriod]} · cycle started {formatDate(subject.startDate)}
+            {subject.typeOfRecord
+              ? ` · ${typeOfRecordLabels[subject.typeOfRecord]}${subject.recordNumber != null ? ` ${subject.recordNumber}` : ""}${subject.betterDirection ? ` (${betterDirectionLabels[subject.betterDirection]})` : ""}`
+              : ""}
           </p>
         }
         actions={

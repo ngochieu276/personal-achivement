@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { AddProgressForm } from "@/components/AddProgressForm";
 import { EditButton } from "@/components/EditButton";
 import { ProgressBar } from "@/components/ProgressBar";
@@ -7,6 +7,7 @@ import { RemainingBadge, StreakBadge } from "@/components/StreakBadge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { EntityIcon } from "@/lib/icons";
 import { periodLabels, unitLabel } from "@/lib/format";
+import { typeOfRecordLabels } from "@/lib/record";
 import type { Subject } from "@/lib/types";
 import type { ViewMode } from "@/stores/view";
 
@@ -19,22 +20,31 @@ export function SubjectCard({
   variant: ViewMode;
   onEdit: (subject: Subject) => void;
 }) {
+  const navigate = useNavigate();
   const unit = unitLabel(subject.kpiType);
   const period = periodLabels[subject.kpiTypePeriod];
+  const recordLabel = subject.typeOfRecord
+    ? `${typeOfRecordLabels[subject.typeOfRecord]}${subject.recordNumber != null ? ` · ${subject.recordNumber}` : ""}`
+    : null;
+
+  function openSubject() {
+    navigate(`/subjects/${subject.id}`);
+  }
 
   if (variant === "list") {
     return (
-      <Card>
+      <Card className="cursor-pointer transition-colors hover:bg-muted/40" onClick={openSubject}>
         <CardHeader className="flex-row items-center gap-4 p-4">
-          <Link to={`/subjects/${subject.id}`} className="flex min-w-0 flex-1 items-center gap-3">
+          <div className="flex min-w-0 flex-1 items-center gap-3">
             <EntityIcon name={subject.icon} className="h-5 w-5 shrink-0 text-secondary" />
             <span className="min-w-0">
-              <CardTitle className="hover:underline">{subject.name}</CardTitle>
+              <CardTitle>{subject.name}</CardTitle>
               <CardDescription>
                 {period} · {subject.currentProgress} / {subject.kpi} {unit}
+                {recordLabel ? ` · ${recordLabel}` : ""}
               </CardDescription>
             </span>
-          </Link>
+          </div>
           <ProgressBar current={subject.currentProgress} target={subject.kpi} size="inline" />
           <StreakBadge streak={subject.currentStreak} />
           <AddProgressForm
@@ -50,18 +60,19 @@ export function SubjectCard({
   }
 
   return (
-    <Card className="transition-transform hover:-translate-y-0.5">
+    <Card className="cursor-pointer transition-transform hover:-translate-y-0.5" onClick={openSubject}>
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-3">
-          <Link to={`/subjects/${subject.id}`} className="flex min-w-0 items-start gap-3">
+          <div className="flex min-w-0 items-start gap-3">
             <EntityIcon name={subject.icon} className="mt-0.5 h-5 w-5 shrink-0 text-secondary" />
             <span className="min-w-0">
-              <CardTitle className="hover:underline">{subject.name}</CardTitle>
+              <CardTitle>{subject.name}</CardTitle>
               <CardDescription>
                 {period} · {subject.kpi} {unit}
+                {recordLabel ? ` · ${recordLabel}` : ""}
               </CardDescription>
             </span>
-          </Link>
+          </div>
           <div className="flex items-center gap-1">
             <StreakBadge streak={subject.currentStreak} />
             {subject.activeWindow ? <RemainingBadge end={subject.activeWindow.end} /> : null}

@@ -36,6 +36,8 @@ export type GroupTree = {
 
 export type KpiTypePeriod = "day" | "week" | "twoWeek" | "month";
 export type KpiType = "totalTime" | "totalRepeat";
+export type TypeOfRecord = "timePerRep" | "repPerTime" | "maximum" | "fastest" | "defineByUser";
+export type BetterDirection = "lowerIsBetter" | "higherIsBetter";
 export type EventStatus = "miss" | "finish";
 export type HistoryType = "streak_hit" | "kpi_change" | "subject_event" | "kpi_done";
 
@@ -57,6 +59,9 @@ export type Subject = {
   link: string | null;
   note: string | null;
   documents: string[];
+  typeOfRecord: TypeOfRecord | null;
+  betterDirection: BetterDirection | null;
+  recordNumber: number | null;
   currentProgress: number;
   currentStreak: number;
   createdAt: string;

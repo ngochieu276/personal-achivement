@@ -45,7 +45,7 @@ export function AddProgressForm({
   }
 
   return (
-    <form className={compact ? "flex items-center gap-1" : "flex items-end gap-3"} onSubmit={onSubmit} onClick={stop}>
+    <form className={compact ? "relative z-10 flex items-center gap-1" : "flex items-end gap-3"} onSubmit={onSubmit} onClick={stop}>
       <Input
         type="number"
         min="0.1"

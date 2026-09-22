@@ -32,6 +32,19 @@ enum HistoryType {
   kpi_done
 }
 
+enum TypeOfRecord {
+  timePerRep
+  repPerTime
+  maximum
+  fastest
+  defineByUser
+}
+
+enum BetterDirection {
+  lowerIsBetter
+  higherIsBetter
+}
+
 model User {
   id           String    @id @default(cuid())
   name         String
@@ -89,6 +102,9 @@ model Subject {
   link            String?
   note            String?
   documents       String[]       @default([])
+  typeOfRecord    TypeOfRecord?
+  betterDirection BetterDirection?
+  recordNumber    Float?
   currentProgress Float          @default(0)
   currentStreak   Int            @default(0)
   createdAt       DateTime       @default(now())

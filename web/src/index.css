@@ -73,17 +73,21 @@ html,
 body,
 #root {
   min-height: 100%;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+html {
+  scrollbar-gutter: stable;
 }
 
 body {
   margin: 0;
+  overscroll-behavior-x: none;
   background:
     radial-gradient(circle at top left, rgba(201, 132, 42, 0.12), transparent 28%),
     linear-gradient(180deg, #f7f1e7 0%, #efe4d4 100%);
   color: var(--foreground);
   font-family: var(--font-sans);
-}
-
-#root {
-  width: 100%;
 }

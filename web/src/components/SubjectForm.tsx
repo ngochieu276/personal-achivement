@@ -1,11 +1,13 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { IconPicker } from "@/components/IconPicker";
+import { SubjectRecordFields } from "@/components/SubjectRecordFields";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { alignCycleStart, cycleStartHint, toDateInput } from "@/lib/cycle";
 import { formatDate } from "@/lib/format";
-import type { KpiType, KpiTypePeriod, Subject } from "@/lib/types";
+import { defaultBetterDirection } from "@/lib/record";
+import type { BetterDirection, KpiType, KpiTypePeriod, Subject, TypeOfRecord } from "@/lib/types";
 
 const selectClass =
   "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring";
@@ -18,6 +20,9 @@ export type SubjectFormValues = {
   kpiType: KpiType;
   startDate: string;
   link: string;
+  typeOfRecord: TypeOfRecord | null;
+  betterDirection: BetterDirection | null;
+  recordNumber: number | null;
 };
 
 export function subjectToFormValues(subject: Subject): SubjectFormValues {
@@ -29,6 +34,9 @@ export function subjectToFormValues(subject: Subject): SubjectFormValues {
     kpiType: subject.kpiType,
     startDate: toDateInput(new Date(subject.startDate)),
     link: subject.link ?? "",
+    typeOfRecord: subject.typeOfRecord ?? null,
+    betterDirection: subject.betterDirection ?? null,
+    recordNumber: subject.recordNumber ?? null,
   };
 }
 
@@ -56,6 +64,13 @@ export function SubjectForm({
     initial?.startDate ?? toDateInput(new Date()),
   );
   const [link, setLink] = useState(initial?.link ?? "");
+  const [typeOfRecord, setTypeOfRecord] = useState<TypeOfRecord | "">(initial?.typeOfRecord ?? "");
+  const [betterDirection, setBetterDirection] = useState<BetterDirection | "">(
+    initial?.betterDirection ?? defaultBetterDirection(initial?.typeOfRecord ?? ""),
+  );
+  const [recordNumber, setRecordNumber] = useState(
+    initial?.recordNumber == null ? "" : String(initial.recordNumber),
+  );
 
   const aligned = alignCycleStart(new Date(`${startDate}T00:00:00.000Z`), kpiTypePeriod);
   const alignedDate = toDateInput(aligned);
@@ -74,6 +89,13 @@ export function SubjectForm({
       kpiType,
       startDate: toDateInput(aligned),
       link,
+      typeOfRecord: typeOfRecord || null,
+      betterDirection: typeOfRecord
+        ? typeOfRecord === "defineByUser"
+          ? betterDirection || null
+          : defaultBetterDirection(typeOfRecord) || null
+        : null,
+      recordNumber: recordNumber === "" ? null : Number(recordNumber),
     });
   }
 
@@ -154,6 +176,14 @@ export function SubjectForm({
           onChange={(event) => setLink(event.target.value)}
         />
       </div>
+      <SubjectRecordFields
+        typeOfRecord={typeOfRecord}
+        betterDirection={betterDirection}
+        recordNumber={recordNumber}
+        onTypeOfRecordChange={setTypeOfRecord}
+        onBetterDirectionChange={setBetterDirection}
+        onRecordNumberChange={setRecordNumber}
+      />
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
       <Button type="submit" disabled={pending}>
         {submitLabel}

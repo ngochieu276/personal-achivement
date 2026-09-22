@@ -106,7 +106,7 @@ export function SidebarProvider({
         <div
           data-slot="sidebar-wrapper"
           style={{ "--sidebar-width": SIDEBAR_WIDTH, "--sidebar-width-icon": SIDEBAR_WIDTH_ICON, ...style } as CSSProperties}
-          className={cn("group/sidebar-wrapper flex min-h-svh w-full", className)}
+          className={cn("group/sidebar-wrapper flex min-h-svh w-full overflow-x-clip", className)}
           {...props}
         >
           {children}
@@ -239,7 +239,7 @@ export function SidebarRail({ className, ...props }: ComponentProps<"button">) {
 export function SidebarInset({ className, ...props }: ComponentProps<"main">) {
   return (
     <main
-      className={cn("relative flex w-full flex-1 flex-col bg-background", className)}
+      className={cn("relative flex min-h-svh min-w-0 w-full flex-1 flex-col overflow-hidden bg-background", className)}
       {...props}
     />
   );
@@ -286,7 +286,7 @@ export function SidebarGroupLabel({
   return (
     <Comp
       className={cn(
-        "flex h-8 shrink-0 items-center rounded-md px-2 text-xs font-medium text-sidebar-foreground/70",
+        "flex h-8 shrink-0 items-center rounded-md px-2 text-xs font-medium text-sidebar-foreground/70 group-data-[collapsible=icon]:hidden",
         className,
       )}
       {...props}
@@ -363,7 +363,7 @@ export function SidebarMenuSub({ className, ...props }: ComponentProps<"ul">) {
   return (
     <ul
       className={cn(
-        "mx-3.5 flex min-w-0 translate-x-px flex-col gap-1 border-l border-sidebar-border px-2.5 py-0.5",
+        "mx-3.5 flex min-w-0 translate-x-px flex-col gap-1 border-l border-sidebar-border px-2.5 py-0.5 group-data-[collapsible=icon]:hidden",
         className,
       )}
       {...props}

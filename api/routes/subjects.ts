@@ -9,8 +9,9 @@ import {
   getActiveWindow,
   parseStartDate,
 } from "../period.ts";
+import { recordFieldShape, recordWriteData, withRecordRefine } from "../record.ts";
 
-const updateSubjectSchema = z.object({
+const updateSubjectSchema = withRecordRefine({
   name: z.string().trim().min(1).max(120).optional(),
   icon: iconSchema,
   kpi: z.number().positive().optional(),
@@ -20,6 +21,7 @@ const updateSubjectSchema = z.object({
   link: z.string().url().optional().or(z.literal("")).nullable(),
   note: z.string().max(8000).optional().nullable(),
   documents: z.array(z.string().trim().url().max(500)).max(50).optional(),
+  ...recordFieldShape,
 });
 
 const progressSchema = z.object({
@@ -114,6 +116,7 @@ subjectRoutes.patch("/:id", async (c) => {
         ? existing.note
         : parsed.data.note?.trim() || null,
       documents: parsed.data.documents ?? existing.documents,
+      ...recordWriteData(parsed.data, existing),
     },
   });
 
