@@ -18,6 +18,8 @@ const updateSubjectSchema = z.object({
   kpiType: z.enum(["totalTime", "totalRepeat"]).optional(),
   startDate: z.string().min(1).optional(),
   link: z.string().url().optional().or(z.literal("")).nullable(),
+  note: z.string().max(8000).optional().nullable(),
+  documents: z.array(z.string().trim().url().max(500)).max(50).optional(),
 });
 
 const progressSchema = z.object({
@@ -108,6 +110,10 @@ subjectRoutes.patch("/:id", async (c) => {
         : parsed.data.link
         ? parsed.data.link
         : null,
+      note: parsed.data.note === undefined
+        ? existing.note
+        : parsed.data.note?.trim() || null,
+      documents: parsed.data.documents ?? existing.documents,
     },
   });
 

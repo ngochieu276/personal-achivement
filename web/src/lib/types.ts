@@ -55,6 +55,8 @@ export type Subject = {
   kpiType: KpiType;
   startDate: string;
   link: string | null;
+  note: string | null;
+  documents: string[];
   currentProgress: number;
   currentStreak: number;
   createdAt: string;

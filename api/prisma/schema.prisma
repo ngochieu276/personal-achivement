@@ -87,6 +87,8 @@ model Subject {
   kpiType         KpiType
   startDate       DateTime
   link            String?
+  note            String?
+  documents       String[]       @default([])
   currentProgress Float          @default(0)
   currentStreak   Int            @default(0)
   createdAt       DateTime       @default(now())

@@ -9,8 +9,10 @@ import { ProgressBar } from "@/components/ProgressBar";
 import { ResourceLink } from "@/components/ResourceLink";
 import { SetProgressForm } from "@/components/SetProgressForm";
 import { RemainingBadge, StreakBadge } from "@/components/StreakBadge";
+import { SubjectDocuments } from "@/components/SubjectDocuments";
 import { SubjectFormDialog } from "@/components/SubjectFormDialog";
 import { KpiDoneList, SubjectHistory } from "@/components/SubjectHistory";
+import { SubjectNote } from "@/components/SubjectNote";
 import { subjectToFormValues, type SubjectFormValues } from "@/components/SubjectForm";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -57,6 +59,18 @@ export function SubjectDetailPage() {
       queryClient.setQueryData(["subject", id], data);
       await queryClient.invalidateQueries({ queryKey: ["subjects", data.subject.projectId] });
       setEditing(false);
+    },
+  });
+
+  const updateExtras = useMutation({
+    mutationFn: (body: { note?: string | null; documents?: string[] }) =>
+      api<SubjectDetail>(`/subjects/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify(body),
+      }),
+    onSuccess: async (data) => {
+      queryClient.setQueryData(["subject", id], data);
+      await queryClient.invalidateQueries({ queryKey: ["subjects", data.subject.projectId] });
     },
   });
 
@@ -110,8 +124,8 @@ export function SubjectDetailPage() {
           <CardHeader>
             <CardTitle>This period</CardTitle>
             <CardDescription>
-              Set the total so far, or add what you just finished. Finish fires if current is at least the KPI when the window ends.
-            </CardDescription>
+                {periodLabels[subject.kpiTypePeriod]} · {subject.kpi} {unit}
+              </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <ProgressBar current={subject.currentProgress} target={subject.kpi} size="lg" />
@@ -135,27 +149,34 @@ export function SubjectDetailPage() {
               />
             </div>
             {subject.link ? <ResourceLink href={subject.link} variant="full" /> : null}
-            <div className="space-y-2">
-              <Label>This period events</Label>
-              <KpiDoneList history={history} periodStart={activeWindow.start} unit={unit} />
-            </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>KPI</CardTitle>
-            <CardDescription>
-              {periodLabels[subject.kpiTypePeriod]} · {subject.kpi} {unit}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              Edit name, measure, period, cycle, and target from the pencil next to the title.
-            </p>
-          </CardContent>
-        </Card>
+        
+          <SubjectNote
+            value={subject.note ?? ""}
+            pending={updateExtras.isPending}
+            error={updateExtras.error?.message}
+            onSave={(note) => updateExtras.mutate({ note })}
+          />
+        
       </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>This period events</CardTitle>
+          <CardDescription>KPI done events logged in the current window.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <KpiDoneList history={history} periodStart={activeWindow.start} unit={unit} />
+        </CardContent>
+      </Card>
+
+      <SubjectDocuments
+        documents={subject.documents ?? []}
+        pending={updateExtras.isPending}
+        error={updateExtras.error?.message}
+        onChange={(documents) => updateExtras.mutate({ documents })}
+      />
 
       <Card>
         <CardHeader>

@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChevronRight, FolderKanban, FolderPlus, Plus } from "lucide-react";
+import { ChevronRight, FolderKanban, Plus } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { FormDialog } from "@/components/FormDialog";
@@ -102,30 +102,6 @@ export function AppSidebar() {
         </SidebarMenu>
         <div className="grid gap-2 px-2">
           <FormDialog
-            open={groupOpen}
-            onOpenChange={setGroupOpen}
-            title="New group"
-            trigger={
-              <Button variant="outline" size="sm" className="w-full justify-start">
-                <FolderPlus className="h-4 w-4" />
-                Create group
-              </Button>
-            }
-          >
-            <GroupForm
-              id={groupId}
-              name={groupName}
-              icon={groupIcon}
-              onIdChange={setGroupId}
-              onNameChange={setGroupName}
-              onIconChange={setGroupIcon}
-              onSubmit={() => createGroup.mutate()}
-              pending={createGroup.isPending}
-              error={createGroup.error?.message}
-              submitLabel="Create"
-            />
-          </FormDialog>
-          <FormDialog
             open={projectOpen}
             onOpenChange={setProjectOpen}
             title="New project"
@@ -155,7 +131,33 @@ export function AppSidebar() {
       <SidebarSeparator />
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Groups</SidebarGroupLabel>
+          <div className="flex items-center justify-between gap-1">
+            <SidebarGroupLabel>Groups</SidebarGroupLabel>
+            <FormDialog
+              open={groupOpen}
+              onOpenChange={setGroupOpen}
+              title="New group"
+              trigger={
+                <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0">
+                  <Plus className="h-4 w-4" />
+                  <span className="sr-only">Create group</span>
+                </Button>
+              }
+            >
+              <GroupForm
+                id={groupId}
+                name={groupName}
+                icon={groupIcon}
+                onIdChange={setGroupId}
+                onNameChange={setGroupName}
+                onIconChange={setGroupIcon}
+                onSubmit={() => createGroup.mutate()}
+                pending={createGroup.isPending}
+                error={createGroup.error?.message}
+                submitLabel="Create"
+              />
+            </FormDialog>
+          </div>
           <SidebarGroupContent>
             {navQuery.isLoading ? (
               <SidebarMenu>
