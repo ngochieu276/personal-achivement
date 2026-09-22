@@ -3,11 +3,14 @@ import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AddProjectsToGroup } from "@/components/AddProjectsToGroup";
 import { BackLink } from "@/components/BackLink";
+import { CardListSkeleton } from "@/components/CardListSkeleton";
 import { DeleteButton } from "@/components/DeleteButton";
+import { DetailHeaderSkeleton } from "@/components/DetailHeaderSkeleton";
 import { FormDialog } from "@/components/FormDialog";
 import { GroupForm } from "@/components/GroupForm";
 import { ListPlaceholder } from "@/components/ListPlaceholder";
 import { Page, PageHeader } from "@/components/PageHeader";
+import { PageLoading } from "@/components/PageLoading";
 import { ProjectCard } from "@/components/ProjectCard";
 import { ProjectForm } from "@/components/ProjectForm";
 import { ViewToggle, viewClass } from "@/components/ViewToggle";
@@ -90,28 +93,32 @@ export function GroupDetailPage() {
   return (
     <Page>
       <BackLink to="/">All projects</BackLink>
-      <PageHeader
-        eyebrow="Group"
-        title={group ? `${group.name}` : "Loading"}
-        icon={group?.icon}
-        subtitle={group ? <p className="mt-1 text-sm text-muted-foreground">ID {group.id}</p> : null}
-        onEdit={
-          group
-            ? () => {
-                setGroupName(group.name);
-                setGroupIcon(group.icon ?? "");
-                setEditingGroup(true);
-              }
-            : undefined
-        }
-        editLabel="Edit group"
-        actions={
-          <>
-            <ViewToggle />
-            {deleteControl}
-          </>
-        }
-      />
+      {groupQuery.isLoading ? (
+        <DetailHeaderSkeleton eyebrow="Group" />
+      ) : (
+        <PageHeader
+          eyebrow="Group"
+          title={group ? `${group.name}` : "Group"}
+          icon={group?.icon}
+          subtitle={group ? <p className="mt-1 text-sm text-muted-foreground">ID {group.id}</p> : null}
+          onEdit={
+            group
+              ? () => {
+                  setGroupName(group.name);
+                  setGroupIcon(group.icon ?? "");
+                  setEditingGroup(true);
+                }
+              : undefined
+          }
+          editLabel="Edit group"
+          actions={
+            <>
+              <ViewToggle />
+              {deleteControl}
+            </>
+          }
+        />
+      )}
 
       <FormDialog open={editingGroup} onOpenChange={setEditingGroup} title="Edit group">
         <GroupForm
@@ -152,7 +159,9 @@ export function GroupDetailPage() {
       </FormDialog>
 
       {groupQuery.isLoading ? (
-        <ListPlaceholder variant="loading" label="Loading group..." />
+        <PageLoading label="Loading group...">
+          <CardListSkeleton kind="projects" />
+        </PageLoading>
       ) : !group ? (
         <ListPlaceholder variant="error" label="Group not found." />
       ) : (

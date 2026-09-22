@@ -3,10 +3,13 @@ import { Plus } from "lucide-react";
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { BackLink } from "@/components/BackLink";
+import { CardListSkeleton } from "@/components/CardListSkeleton";
 import { DeleteButton } from "@/components/DeleteButton";
+import { DetailHeaderSkeleton } from "@/components/DetailHeaderSkeleton";
 import { FormDialog } from "@/components/FormDialog";
 import { ListPlaceholder } from "@/components/ListPlaceholder";
 import { Page, PageHeader } from "@/components/PageHeader";
+import { PageLoading } from "@/components/PageLoading";
 import { ProjectForm } from "@/components/ProjectForm";
 import { SubjectCard } from "@/components/SubjectCard";
 import { SubjectFormDialog } from "@/components/SubjectFormDialog";
@@ -109,44 +112,48 @@ export function ProjectDetailPage() {
   return (
     <Page>
       <BackLink to="/">All projects</BackLink>
-      <PageHeader
-        eyebrow="Project"
-        title={project?.name ?? "Loading"}
-        icon={project?.icon}
-        onEdit={
-          project
-            ? () => {
-                setProjectName(project.name);
-                setProjectIcon(project.icon ?? "");
-                setProjectGroupIds(project.groupIds ?? []);
-                setEditingProject(true);
-              }
-            : undefined
-        }
-        editLabel="Edit project"
-        actions={
-          <>
-            <ViewToggle />
-            {deleteControl}
-            <SubjectFormDialog
-              open={open}
-              onOpenChange={setOpen}
-              title="New subject"
-              formKey={String(open)}
-              submitLabel="Create subject"
-              pending={createSubject.isPending}
-              error={createSubject.error?.message}
-              onSubmit={(values) => createSubject.mutate(values)}
-              trigger={
-                <Button>
-                  <Plus className="h-4 w-4" />
-                  New subject
-                </Button>
-              }
-            />
-          </>
-        }
-      />
+      {projectQuery.isLoading ? (
+        <DetailHeaderSkeleton eyebrow="Project" />
+      ) : (
+        <PageHeader
+          eyebrow="Project"
+          title={project?.name ?? "Project"}
+          icon={project?.icon}
+          onEdit={
+            project
+              ? () => {
+                  setProjectName(project.name);
+                  setProjectIcon(project.icon ?? "");
+                  setProjectGroupIds(project.groupIds ?? []);
+                  setEditingProject(true);
+                }
+              : undefined
+          }
+          editLabel="Edit project"
+          actions={
+            <>
+              <ViewToggle />
+              {deleteControl}
+              <SubjectFormDialog
+                open={open}
+                onOpenChange={setOpen}
+                title="New subject"
+                formKey={String(open)}
+                submitLabel="Create subject"
+                pending={createSubject.isPending}
+                error={createSubject.error?.message}
+                onSubmit={(values) => createSubject.mutate(values)}
+                trigger={
+                  <Button>
+                    <Plus className="h-4 w-4" />
+                    New subject
+                  </Button>
+                }
+              />
+            </>
+          }
+        />
+      )}
 
       <FormDialog open={editingProject} onOpenChange={setEditingProject} title="Edit project">
         <ProjectForm
@@ -179,7 +186,9 @@ export function ProjectDetailPage() {
       />
 
       {subjectsQuery.isLoading ? (
-        <ListPlaceholder variant="loading" label="Loading subjects..." />
+        <PageLoading label="Loading subjects...">
+          <CardListSkeleton kind="subjects" />
+        </PageLoading>
       ) : subjects.length === 0 ? (
         <ListPlaceholder
           variant="empty"

@@ -5,6 +5,7 @@ import { AddProgressForm } from "@/components/AddProgressForm";
 import { BackLink } from "@/components/BackLink";
 import { ListPlaceholder } from "@/components/ListPlaceholder";
 import { Page, PageHeader } from "@/components/PageHeader";
+import { SubjectPageSkeleton } from "@/components/SubjectPageSkeleton";
 import { ProgressBar } from "@/components/ProgressBar";
 import { ResourceLink } from "@/components/ResourceLink";
 import { SetProgressForm } from "@/components/SetProgressForm";
@@ -75,7 +76,7 @@ export function SubjectDetailPage() {
   });
 
   if (detailQuery.isLoading) {
-    return <ListPlaceholder variant="loading" label="Loading subject..." />;
+    return <SubjectPageSkeleton />;
   }
   if (!detailQuery.data) {
     return <ListPlaceholder variant="error" label="Subject not found." />;
@@ -151,15 +152,12 @@ export function SubjectDetailPage() {
             {subject.link ? <ResourceLink href={subject.link} variant="full" /> : null}
           </CardContent>
         </Card>
-
-        
           <SubjectNote
             value={subject.note ?? ""}
             pending={updateExtras.isPending}
             error={updateExtras.error?.message}
             onSave={(note) => updateExtras.mutate({ note })}
           />
-        
       </div>
       <Card>
         <CardHeader>

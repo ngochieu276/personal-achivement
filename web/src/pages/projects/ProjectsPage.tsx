@@ -1,8 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { FormDialog } from "@/components/FormDialog";
+import { CardListSkeleton } from "@/components/CardListSkeleton";
 import { ListPlaceholder } from "@/components/ListPlaceholder";
 import { Page, PageHeader } from "@/components/PageHeader";
+import { PageLoading } from "@/components/PageLoading";
 import { ProjectCard } from "@/components/ProjectCard";
 import { ProjectForm } from "@/components/ProjectForm";
 import { ViewToggle, viewClass } from "@/components/ViewToggle";
@@ -71,7 +73,9 @@ export function ProjectsPage() {
       </FormDialog>
 
       {projectsQuery.isLoading ? (
-        <ListPlaceholder variant="loading" label="Loading projects..." />
+        <PageLoading label="Loading projects...">
+          <CardListSkeleton kind="projects" />
+        </PageLoading>
       ) : projects.length === 0 ? (
         <ListPlaceholder
           variant="empty"
