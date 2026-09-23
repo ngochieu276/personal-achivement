@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { EditButton } from "@/components/EditButton";
+import { EditButton } from "@/components/shared/EditButton";
 import { EntityIcon } from "@/lib/icons";
 import { cn } from "@/lib/utils";
 

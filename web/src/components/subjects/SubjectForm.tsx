@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { IconPicker } from "@/components/IconPicker";
-import { SubjectRecordFields } from "@/components/SubjectRecordFields";
+import { IconPicker } from "@/components/shared/IconPicker";
+import { SubjectRecordFields } from "@/components/subjects/SubjectRecordFields";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

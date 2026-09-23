@@ -1,11 +1,11 @@
 import { Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { AddProgressForm } from "@/components/AddProgressForm";
-import { EditButton } from "@/components/EditButton";
-import { ExceedFlame } from "@/components/ExceedFlame";
-import { ProgressBar } from "@/components/ProgressBar";
-import { ResourceLink } from "@/components/ResourceLink";
-import { RemainingBadge, StreakBadge } from "@/components/StreakBadge";
+import { AddProgressForm } from "@/components/subjects/AddProgressForm";
+import { EditButton } from "@/components/shared/EditButton";
+import { ExceedFlame } from "@/components/shared/ExceedFlame";
+import { ProgressBar } from "@/components/shared/ProgressBar";
+import { ResourceLink } from "@/components/shared/ResourceLink";
+import { RemainingBadge, StreakBadge } from "@/components/subjects/StreakBadge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { EntityIcon } from "@/lib/icons";
 import { periodLabels, unitLabel } from "@/lib/format";

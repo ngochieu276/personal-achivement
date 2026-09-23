@@ -1,8 +1,8 @@
 import { FolderKanban } from "lucide-react";
-import { CardLink } from "@/components/CardLink";
-import { EditButton } from "@/components/EditButton";
-import { ExceedFlame } from "@/components/ExceedFlame";
-import { ProgressBar } from "@/components/ProgressBar";
+import { CardLink } from "@/components/shared/CardLink";
+import { EditButton } from "@/components/shared/EditButton";
+import { ExceedFlame } from "@/components/shared/ExceedFlame";
+import { ProgressBar } from "@/components/shared/ProgressBar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatDate } from "@/lib/format";

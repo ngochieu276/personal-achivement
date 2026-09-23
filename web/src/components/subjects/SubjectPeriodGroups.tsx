@@ -1,8 +1,8 @@
-import { SubjectCard } from "@/components/SubjectCard";
+import { SubjectCard } from "@/components/subjects/SubjectCard";
 import { periodGroupLabels, groupSubjectsByPeriod } from "@/lib/subjects";
 import type { Subject } from "@/lib/types";
 import type { ViewMode } from "@/stores/view";
-import { viewClass } from "@/components/ViewToggle";
+import { viewClass } from "@/components/layout/ViewToggle";
 
 export function SubjectPeriodGroups({
   subjects,

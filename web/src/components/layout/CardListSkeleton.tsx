@@ -1,6 +1,6 @@
 import { Card, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { viewClass } from "@/components/ViewToggle";
+import { viewClass } from "@/components/layout/ViewToggle";
 import { useViewStore, type ViewMode } from "@/stores/view";
 
 export function CardListSkeleton({

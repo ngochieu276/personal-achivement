@@ -1,7 +1,7 @@
 import { History } from "lucide-react";
-import { KpiDoneList, SubjectHistory } from "@/components/SubjectHistory";
+import { KpiDoneList, SubjectHistory } from "@/components/subjects/SubjectHistory";
 import { Button } from "@/components/ui/button";
-import { FormDialog } from "@/components/FormDialog";
+import { FormDialog } from "@/components/shared/FormDialog";
 import type { SubjectHistory as SubjectHistoryItem } from "@/lib/types";
 
 export function SubjectActivityDialog({

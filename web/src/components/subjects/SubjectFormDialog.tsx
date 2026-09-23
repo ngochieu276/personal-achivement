@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import { FormDialog } from "@/components/FormDialog";
-import { SubjectForm, type SubjectFormValues } from "@/components/SubjectForm";
+import { FormDialog } from "@/components/shared/FormDialog";
+import { SubjectForm, type SubjectFormValues } from "@/components/subjects/SubjectForm";
 
 export function SubjectFormDialog({
   open,

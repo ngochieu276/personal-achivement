@@ -2,9 +2,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChevronRight, FolderKanban, Plus } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { FormDialog } from "@/components/FormDialog";
-import { GroupForm } from "@/components/GroupForm";
-import { ProjectForm } from "@/components/ProjectForm";
+import { FormDialog } from "@/components/shared/FormDialog";
+import { GroupForm } from "@/components/projects/GroupForm";
+import { ProjectForm } from "@/components/projects/ProjectForm";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
 import {

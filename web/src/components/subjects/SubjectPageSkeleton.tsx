@@ -1,5 +1,5 @@
-import { Page } from "@/components/PageHeader";
-import { PageLoading } from "@/components/PageLoading";
+import { Page } from "@/components/layout/PageHeader";
+import { PageLoading } from "@/components/layout/PageLoading";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 

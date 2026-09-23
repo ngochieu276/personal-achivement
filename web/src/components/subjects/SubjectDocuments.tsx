@@ -1,7 +1,7 @@
 import { Plus, Trash2 } from "lucide-react";
 import { useState, type FormEvent } from "react";
-import { ResourceLink } from "@/components/ResourceLink";
-import { YouTubePlayer } from "@/components/YouTubePlayer";
+import { ResourceLink } from "@/components/shared/ResourceLink";
+import { YouTubePlayer } from "@/components/subjects/YouTubePlayer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
