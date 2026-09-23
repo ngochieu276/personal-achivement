@@ -15,6 +15,7 @@ import { SubjectFormDialog } from "@/components/subjects/SubjectFormDialog";
 import { ExceedFlame } from "@/components/shared/ExceedFlame";
 import { SubjectActivityButton, SubjectActivityDialog } from "@/components/subjects/SubjectActivityDialog";
 import { SubjectNote } from "@/components/subjects/SubjectNote";
+import { SubjectRecordsCard } from "@/components/subjects/SubjectRecordsCard";
 import { subjectToFormValues, type SubjectFormValues } from "@/components/subjects/SubjectForm";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -178,6 +179,7 @@ export function SubjectDetailPage() {
             onSave={(note) => updateExtras.mutate({ note })}
           />
       </div>
+      <SubjectRecordsCard subject={subject} />
       <SubjectDocuments
         documents={subject.documents ?? []}
         pending={updateExtras.isPending}

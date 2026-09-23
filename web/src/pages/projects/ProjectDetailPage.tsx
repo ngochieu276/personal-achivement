@@ -207,7 +207,7 @@ export function ProjectDetailPage() {
             variant={mode}
             onEdit={setEditingSubject}
           />
-          <ProjectRecordsCard projectId={id ?? ""} subjects={subjects} />
+          <ProjectRecordsCard subjects={subjects} />
         </>
       )}
     </Page>
