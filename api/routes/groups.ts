@@ -3,7 +3,7 @@ import { z } from "zod";
 import { authMiddleware, type AuthUser } from "../auth.ts";
 import { prisma } from "../db.ts";
 import { iconSchema, normalizeIcon } from "../icon.ts";
-import { projectInclude, toGroupDto, toProjectDto } from "../serialize.ts";
+import { projectInclude, projectNavInclude, toGroupDto, toProjectDto } from "../serialize.ts";
 
 const groupIdSchema = z
   .string()
@@ -51,14 +51,14 @@ groupRoutes.get("/", async (c) => {
       orderBy: { name: "asc" },
       include: {
         projects: {
-          include: { project: { include: projectInclude } },
+          include: { project: { include: projectNavInclude } },
         },
       },
     }),
     prisma.project.findMany({
       where: { userId },
       orderBy: { createdAt: "desc" },
-      include: projectInclude,
+      include: projectNavInclude,
     }),
   ]);
 

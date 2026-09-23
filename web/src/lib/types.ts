@@ -105,3 +105,14 @@ export type SubjectDetail = {
   events: SubjectEvent[];
   history: SubjectHistory[];
 };
+
+export type DashboardStats = {
+  summary: {
+    subjectCount: number;
+    onTrack: number;
+    atRisk: number;
+    streakCount: number;
+    averageProgress: number;
+    hitRate: number | null;
+  };
+};

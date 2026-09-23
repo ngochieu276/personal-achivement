@@ -18,6 +18,10 @@ type ProjectWithGroups = {
   }>;
 };
 
+export const projectNavInclude = {
+  groups: { include: { group: { select: { id: true, name: true, icon: true } } } },
+} as const;
+
 export const projectInclude = {
   _count: { select: { subjects: true } },
   subjects: { select: { currentProgress: true, kpi: true } },

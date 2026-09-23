@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChevronRight, FolderKanban, Plus } from "lucide-react";
+import { ChevronRight, FolderKanban, LayoutDashboard, Plus } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { FormDialog } from "@/components/shared/FormDialog";
@@ -47,6 +47,7 @@ export function AppSidebar() {
   const navQuery = useQuery({
     queryKey: ["nav"],
     queryFn: () => api<GroupTree>("/groups"),
+    staleTime: 60_000,
   });
 
   const createGroup = useMutation({
@@ -96,6 +97,22 @@ export function AppSidebar() {
               <Link to="/" onClick={closeMobile}>
                 <FolderKanban />
                 <span className="font-serif text-base">Personal Record</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={location.pathname === "/dashboard"} tooltip="Dashboard">
+              <Link to="/dashboard" onClick={closeMobile}>
+                <LayoutDashboard />
+                <span>Dashboard</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={location.pathname === "/projects"} tooltip="Projects">
+              <Link to="/projects" onClick={closeMobile}>
+                <LayoutDashboard />
+                <span>Projects</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

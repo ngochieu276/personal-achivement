@@ -3,6 +3,7 @@ import { cors } from "hono/cors";
 import { authRoutes } from "./routes/auth.ts";
 import { groupRoutes } from "./routes/groups.ts";
 import { projectRoutes } from "./routes/projects.ts";
+import { statsRoutes } from "./routes/stats.ts";
 import { subjectRoutes } from "./routes/subjects.ts";
 import { closeAllOverdue } from "./period.ts";
 
@@ -58,6 +59,7 @@ app.route("/auth", authRoutes);
 app.route("/groups", groupRoutes);
 app.route("/projects", projectRoutes);
 app.route("/subjects", subjectRoutes);
+app.route("/stats", statsRoutes);
 
 const port = Number(Deno.env.get("PORT") ?? 8080);
 
