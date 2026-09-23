@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { GoogleAuthButton } from "@/components/shared/GoogleAuthButton";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -42,9 +43,17 @@ export function RegisterPage() {
         <CardHeader>
           <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Start a log</p>
           <CardTitle>Create account</CardTitle>
-          <CardDescription>Name, email, and a password. That is all.</CardDescription>
+          <CardDescription>Use Google or a name, email, and password.</CardDescription>
         </CardHeader>
         <CardContent>
+          <GoogleAuthButton
+            label="Continue with Google"
+            onAuthenticated={(token, user) => {
+              setAuth(token, user);
+              navigate("/");
+            }}
+            onError={setError}
+          />
           <form className="space-y-4" onSubmit={onSubmit}>
             <div className="space-y-2">
               <Label htmlFor="name">Name</Label>
