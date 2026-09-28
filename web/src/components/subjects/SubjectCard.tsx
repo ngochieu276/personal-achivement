@@ -54,8 +54,8 @@ export function SubjectCard({
               </CardDescription>
             </span>
           </div>
-          <ProgressBar current={subject.currentProgress} target={subject.kpi} size="inline" />
           <ExceedFlame exceed={exceed} />
+          <ProgressBar current={subject.currentProgress} target={subject.kpi} size="inline" />
           <StreakBadge streak={subject.currentStreak} />
           <AddProgressForm
             compact
