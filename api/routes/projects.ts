@@ -5,11 +5,12 @@ import { prisma } from "../db.ts";
 import { iconSchema, normalizeIcon } from "../icon.ts";
 import {
   alignCycleStart,
-  closeOverdueForSubject,
   getActiveWindow,
+  nextCloseAtFor,
   parseStartDate,
 } from "../period.ts";
 import { recordFieldShape, recordWriteData, withRecordRefine } from "../record.ts";
+import { cacheGet, cacheSet, invalidateUserReads } from "../cache.ts";
 import { projectInclude, toProjectDto } from "../serialize.ts";
 
 const createProjectSchema = z.object({
@@ -46,6 +47,7 @@ projectRoutes.use("*", authMiddleware);
 async function ownedProject(userId: string, projectId: string) {
   return await prisma.project.findFirst({
     where: { id: projectId, userId },
+    select: { id: true, name: true, icon: true },
   });
 }
 
@@ -59,9 +61,9 @@ async function ownedGroupIds(userId: string, groupIds: string[]) {
   return unique;
 }
 
-async function projectDto(projectId: string) {
-  const project = await prisma.project.findUnique({
-    where: { id: projectId },
+async function projectDto(projectId: string, userId?: string) {
+  const project = await prisma.project.findFirst({
+    where: userId ? { id: projectId, userId } : { id: projectId },
     include: projectInclude,
   });
   return project ? toProjectDto(project) : null;
@@ -69,14 +71,17 @@ async function projectDto(projectId: string) {
 
 projectRoutes.get("/", async (c) => {
   const user = c.get("user");
+  const cached = cacheGet<{ projects: ReturnType<typeof toProjectDto>[] }>(user.id, "projects");
+  if (cached) return c.json(cached);
+
   const projects = await prisma.project.findMany({
     where: { userId: user.id },
     orderBy: { createdAt: "desc" },
     include: projectInclude,
   });
-  return c.json({
-    projects: projects.map(toProjectDto),
-  });
+  const payload = { projects: projects.map(toProjectDto) };
+  cacheSet(user.id, "projects", payload);
+  return c.json(payload);
 });
 
 projectRoutes.post("/", async (c) => {
@@ -101,13 +106,14 @@ projectRoutes.post("/", async (c) => {
       },
     },
   });
+  invalidateUserReads(userId);
   return c.json({ project: await projectDto(created.id) }, 201);
 });
 
 projectRoutes.get("/:id", async (c) => {
-  const existing = await ownedProject(c.get("user").id, c.req.param("id"));
-  if (!existing) return c.json({ error: "Project not found" }, 404);
-  return c.json({ project: await projectDto(existing.id) });
+  const project = await projectDto(c.req.param("id"), c.get("user").id);
+  if (!project) return c.json({ error: "Project not found" }, 404);
+  return c.json({ project });
 });
 
 projectRoutes.patch("/:id", async (c) => {
@@ -145,6 +151,7 @@ projectRoutes.patch("/:id", async (c) => {
     }
   });
 
+  invalidateUserReads(userId);
   return c.json({ project: await projectDto(existing.id) });
 });
 
@@ -152,6 +159,7 @@ projectRoutes.delete("/:id", async (c) => {
   const existing = await ownedProject(c.get("user").id, c.req.param("id"));
   if (!existing) return c.json({ error: "Project not found" }, 404);
   await prisma.project.delete({ where: { id: existing.id } });
+  invalidateUserReads(c.get("user").id);
   return c.json({ ok: true });
 });
 
@@ -161,21 +169,17 @@ projectRoutes.get("/:id/subjects", async (c) => {
 
   const subjects = await prisma.subject.findMany({
     where: { projectId: project.id },
-    include: { records: { orderBy: { date: "desc" } } },
+    include: { records: { orderBy: { date: "desc" }, take: 20 } },
     orderBy: [{ isPriority: "desc" }, { createdAt: "desc" }],
   });
 
   const now = new Date();
-  const payload = [];
-  for (const subject of subjects) {
-    const closed = (await closeOverdueForSubject(subject.id, now)) ?? subject;
-    payload.push({
-      ...closed,
-      records: subject.records,
-      activeWindow: getActiveWindow(closed.startDate, closed.kpiTypePeriod, now),
-    });
-  }
-  return c.json({ subjects: payload });
+  return c.json({
+    subjects: subjects.map((subject) => ({
+      ...subject,
+      activeWindow: getActiveWindow(subject.startDate, subject.kpiTypePeriod, now),
+    })),
+  });
 });
 
 projectRoutes.post("/:id/subjects", async (c) => {
@@ -204,12 +208,14 @@ projectRoutes.post("/:id/subjects", async (c) => {
       kpiTypePeriod: parsed.data.kpiTypePeriod,
       kpiType: parsed.data.kpiType,
       startDate,
+      nextCloseAt: nextCloseAtFor(startDate, parsed.data.kpiTypePeriod),
       link: parsed.data.link ? parsed.data.link : null,
       isPriority: parsed.data.isPriority ?? false,
       ...recordWriteData(parsed.data),
     },
   });
 
+  invalidateUserReads(c.get("user").id);
   return c.json({
     subject: {
       ...subject,

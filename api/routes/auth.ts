@@ -119,6 +119,10 @@ authRoutes.post("/google", async (c) => {
   return c.json({ token, user: publicUser(user) }, existing ? 200 : 201);
 });
 
-authRoutes.get("/me", authMiddleware, (c) => {
-  return c.json({ user: c.get("user") });
+authRoutes.get("/me", authMiddleware, async (c) => {
+  const user = await prisma.user.findUnique({
+    where: { id: c.get("user").id },
+  });
+  if (!user) return c.json({ error: "Unauthorized" }, 401);
+  return c.json({ user: publicUser(user) });
 });

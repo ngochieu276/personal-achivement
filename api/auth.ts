@@ -1,7 +1,6 @@
 import bcrypt from "bcryptjs";
 import * as jose from "jose";
 import type { MiddlewareHandler } from "hono";
-import { prisma } from "./db.ts";
 
 const encoder = new TextEncoder();
 
@@ -69,12 +68,13 @@ export const authMiddleware: MiddlewareHandler<{
   }
 
   try {
-    const { userId } = await verifyToken(token);
-    const user = await prisma.user.findUnique({ where: { id: userId } });
-    if (!user) {
-      return c.json({ error: "Unauthorized" }, 401);
-    }
-    c.set("user", publicUser(user));
+    const { userId, email } = await verifyToken(token);
+    c.set("user", {
+      id: userId,
+      email,
+      name: "",
+      createdAt: new Date(0),
+    });
     await next();
   } catch {
     return c.json({ error: "Unauthorized" }, 401);

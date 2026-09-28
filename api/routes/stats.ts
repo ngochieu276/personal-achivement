@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { authMiddleware, type AuthUser } from "../auth.ts";
 import { prisma } from "../db.ts";
+import { cacheGet, cacheSet } from "../cache.ts";
 import { addPeriod, startOfIsoWeekUtc } from "../period.ts";
 import { averageProgressPercent, progressPercent } from "../record.ts";
 
@@ -9,6 +10,9 @@ statsRoutes.use("*", authMiddleware);
 
 statsRoutes.get("/dashboard", async (c) => {
   const userId = c.get("user").id;
+  const cached = cacheGet<Record<string, unknown>>(userId, "dashboard");
+  if (cached) return c.json(cached);
+
   const since = addPeriod(startOfIsoWeekUtc(new Date()), "week", -11);
 
   const [subjects, eventGroups] = await Promise.all([
@@ -30,7 +34,7 @@ statsRoutes.get("/dashboard", async (c) => {
   const misses = eventGroups.find((item) => item.status === "miss")?._count._all ?? 0;
   const closed = finishes + misses;
 
-  return c.json({
+  const payload = {
     summary: {
       subjectCount: subjects.length,
       onTrack: subjects.filter((subject) => progressPercent(subject.currentProgress, subject.kpi) >= 100).length,
@@ -39,5 +43,7 @@ statsRoutes.get("/dashboard", async (c) => {
       averageProgress: Math.round(averageProgressPercent(subjects) * 10) / 10,
       hitRate: closed === 0 ? null : Math.round((finishes / closed) * 1000) / 10,
     },
-  });
+  };
+  cacheSet(userId, "dashboard", payload);
+  return c.json(payload);
 });

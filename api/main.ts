@@ -67,7 +67,7 @@ const closer = setInterval(() => {
   closeAllOverdue().catch((error) => {
     console.error("Failed to close overdue periods", error);
   });
-}, 60_000);
+}, 60 * 60 * 1000);
 
 try {
   Deno.addSignalListener("SIGINT", () => {

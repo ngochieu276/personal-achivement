@@ -7,9 +7,12 @@ import {
   alignCycleStart,
   closeOverdueForSubject,
   getActiveWindow,
+  nextCloseAtFor,
   parseStartDate,
 } from "../period.ts";
+import { invalidateUserReads } from "../cache.ts";
 import { recordFieldShape, recordWriteData, withRecordRefine } from "../record.ts";
+import type { Subject } from "../generated/prisma/client.ts";
 
 const updateSubjectSchema = withRecordRefine({
   name: z.string().trim().min(1).max(120).optional(),
@@ -50,29 +53,34 @@ async function ownedSubject(userId: string, subjectId: string) {
   });
 }
 
-async function subjectDetail(subjectId: string, now = new Date()) {
-  const closed = await closeOverdueForSubject(subjectId, now);
+async function subjectDetail(
+  existing: Subject,
+  now = new Date(),
+  options: { close?: boolean } = {},
+) {
+  const closed = options.close === false
+    ? existing
+    : await closeOverdueForSubject(existing.id, now, existing);
   if (!closed) return null;
 
-  const [events, history, records] = await Promise.all([
-    prisma.subjectEvent.findMany({
-      where: { subjectId },
-      orderBy: { periodStart: "desc" },
-    }),
+  const [history, records] = await Promise.all([
     prisma.subjectHistory.findMany({
-      where: { subjectId },
+      where: { subjectId: existing.id },
       orderBy: { createdAt: "desc" },
+      take: 100,
+      select: { id: true, type: true, payload: true, createdAt: true, subjectEventId: true, subjectId: true },
     }),
     prisma.subjectRecord.findMany({
-      where: { subjectId },
+      where: { subjectId: existing.id },
       orderBy: { date: "desc" },
+      take: 100,
     }),
   ]);
 
   return {
     subject: { ...closed, records },
     activeWindow: getActiveWindow(closed.startDate, closed.kpiTypePeriod, now),
-    events,
+    events: [],
     history,
   };
 }
@@ -80,7 +88,7 @@ async function subjectDetail(subjectId: string, now = new Date()) {
 subjectRoutes.get("/:id", async (c) => {
   const existing = await ownedSubject(c.get("user").id, c.req.param("id"));
   if (!existing) return c.json({ error: "Subject not found" }, 404);
-  const detail = await subjectDetail(existing.id);
+  const detail = await subjectDetail(existing);
   return c.json(detail);
 });
 
@@ -92,8 +100,6 @@ subjectRoutes.patch("/:id", async (c) => {
   if (!parsed.success) {
     return c.json({ error: "Invalid input", details: parsed.error.flatten() }, 400);
   }
-
-  await closeOverdueForSubject(existing.id);
 
   let startDate = existing.startDate;
   if (parsed.data.startDate || parsed.data.kpiTypePeriod) {
@@ -127,6 +133,10 @@ subjectRoutes.patch("/:id", async (c) => {
         : parsed.data.note?.trim() || null,
       documents: parsed.data.documents ?? existing.documents,
       isPriority: parsed.data.isPriority ?? existing.isPriority,
+      nextCloseAt: nextCloseAtFor(
+        startDate,
+        parsed.data.kpiTypePeriod ?? existing.kpiTypePeriod,
+      ),
       ...recordWriteData(parsed.data, existing),
     },
   });
@@ -141,7 +151,8 @@ subjectRoutes.patch("/:id", async (c) => {
     });
   }
 
-  const detail = await subjectDetail(subject.id);
+  invalidateUserReads(c.get("user").id);
+  const detail = await subjectDetail(subject);
   return c.json(detail);
 });
 
@@ -149,6 +160,7 @@ subjectRoutes.delete("/:id", async (c) => {
   const existing = await ownedSubject(c.get("user").id, c.req.param("id"));
   if (!existing) return c.json({ error: "Subject not found" }, 404);
   await prisma.subject.delete({ where: { id: existing.id } });
+  invalidateUserReads(c.get("user").id);
   return c.json({ ok: true });
 });
 
@@ -161,7 +173,7 @@ subjectRoutes.put("/:id/progress", async (c) => {
     return c.json({ error: "Invalid input", details: parsed.error.flatten() }, 400);
   }
 
-  const closed = await closeOverdueForSubject(existing.id);
+  const closed = await closeOverdueForSubject(existing.id, new Date(), existing);
   const subject = closed ?? existing;
   const base = subject.currentProgress;
   const currentProgress = parsed.data.add !== undefined
@@ -193,7 +205,12 @@ subjectRoutes.put("/:id/progress", async (c) => {
     }),
   ]);
 
-  const detail = await subjectDetail(existing.id);
+  invalidateUserReads(c.get("user").id);
+  const detail = await subjectDetail(
+    { ...subject, currentProgress },
+    new Date(),
+    { close: false },
+  );
   return c.json(detail);
 });
 
@@ -217,7 +234,8 @@ subjectRoutes.post("/:id/records", async (c) => {
     },
   });
 
-  const detail = await subjectDetail(existing.id);
+  invalidateUserReads(c.get("user").id);
+  const detail = await subjectDetail(existing, new Date(), { close: false });
   return c.json(detail, 201);
 });
 
@@ -231,6 +249,7 @@ subjectRoutes.delete("/:id/records/:recordId", async (c) => {
   if (!record) return c.json({ error: "Record not found" }, 404);
 
   await prisma.subjectRecord.delete({ where: { id: record.id } });
-  const detail = await subjectDetail(existing.id);
+  invalidateUserReads(c.get("user").id);
+  const detail = await subjectDetail(existing, new Date(), { close: false });
   return c.json(detail);
 });

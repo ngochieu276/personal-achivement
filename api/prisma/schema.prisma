@@ -108,13 +108,20 @@ model Subject {
   isPriority      Boolean        @default(false)
   currentProgress Float          @default(0)
   currentStreak   Int            @default(0)
+  nextCloseAt     DateTime?
   createdAt       DateTime       @default(now())
   project         Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
   events          SubjectEvent[]
   history         SubjectHistory[]
   records         SubjectRecord[]
 
-  @@index([projectId])
+  @@index([projectId, isPriority, createdAt])
+  @@index([nextCloseAt])
+}
+
+model JobLock {
+  id       String   @id
+  lockedAt DateTime
 }
 
 model SubjectEvent {
@@ -132,6 +139,7 @@ model SubjectEvent {
 
   @@unique([subjectId, periodStart])
   @@index([subjectId])
+  @@index([periodEnd])
 }
 
 model SubjectHistory {
@@ -144,7 +152,7 @@ model SubjectHistory {
   subject        Subject       @relation(fields: [subjectId], references: [id], onDelete: Cascade)
   subjectEvent   SubjectEvent? @relation(fields: [subjectEventId], references: [id], onDelete: SetNull)
 
-  @@index([subjectId])
+  @@index([subjectId, createdAt])
 }
 
 model SubjectRecord {
@@ -155,5 +163,5 @@ model SubjectRecord {
   createdAt    DateTime @default(now())
   subject      Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
 
-  @@index([subjectId])
+  @@index([subjectId, date])
 }

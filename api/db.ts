@@ -6,5 +6,5 @@ if (!connectionString) {
   throw new Error("DATABASE_URL is required");
 }
 
-const adapter = new PrismaPg({ connectionString });
+const adapter = new PrismaPg({ connectionString, max: 3 });
 export const prisma = new PrismaClient({ adapter });
