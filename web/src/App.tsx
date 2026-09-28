@@ -8,6 +8,7 @@ import { ProjectDetailPage } from "@/pages/projects/ProjectDetailPage";
 import { ProjectsPage } from "@/pages/projects/ProjectsPage";
 import { RegisterPage } from "@/pages/auth/RegisterPage";
 import { SubjectDetailPage } from "@/pages/subjects/SubjectDetailPage";
+import { SubjectTimelinePage } from "@/pages/subjects/SubjectTimelinePage";
 
 export default function App() {
   return (
@@ -23,6 +24,7 @@ export default function App() {
           <Route path="/projects" element={<ProjectsPage />} />
           <Route path="/groups/:id" element={<GroupDetailPage />} />
           <Route path="/projects/:id" element={<ProjectDetailPage />} />
+          <Route path="/subjects/:id/timeline" element={<SubjectTimelinePage />} />
           <Route path="/subjects/:id" element={<SubjectDetailPage />} />
         </Route>
       </Route>

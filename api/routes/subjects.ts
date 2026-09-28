@@ -9,6 +9,7 @@ import {
   getActiveWindow,
   nextCloseAtFor,
   parseStartDate,
+  recomputeCurrentStreak,
 } from "../period.ts";
 import { invalidateUserReads } from "../cache.ts";
 import { recordFieldShape, recordWriteData, withRecordRefine } from "../record.ts";
@@ -39,6 +40,14 @@ const progressSchema = z.object({
 }).refine(
   (value) => value.currentProgress !== undefined || value.add !== undefined,
   { message: "currentProgress or add is required" },
+);
+
+const eventPatchSchema = z.object({
+  kpi: z.number().positive().optional(),
+  progress: z.number().min(0).optional(),
+}).refine(
+  (value) => value.kpi !== undefined || value.progress !== undefined,
+  { message: "kpi or progress is required" },
 );
 
 export const subjectRoutes = new Hono<{ Variables: { user: AuthUser } }>();
@@ -90,6 +99,69 @@ subjectRoutes.get("/:id", async (c) => {
   if (!existing) return c.json({ error: "Subject not found" }, 404);
   const detail = await subjectDetail(existing);
   return c.json(detail);
+});
+
+subjectRoutes.get("/:id/events", async (c) => {
+  const existing = await ownedSubject(c.get("user").id, c.req.param("id"));
+  if (!existing) return c.json({ error: "Subject not found" }, 404);
+
+  await closeOverdueForSubject(existing.id, new Date(), existing);
+  const events = await prisma.subjectEvent.findMany({
+    where: { subjectId: existing.id },
+    orderBy: { periodStart: "desc" },
+    take: 100,
+  });
+  return c.json({ events });
+});
+
+subjectRoutes.patch("/:id/events/:eventId", async (c) => {
+  const existing = await ownedSubject(c.get("user").id, c.req.param("id"));
+  if (!existing) return c.json({ error: "Subject not found" }, 404);
+
+  const parsed = eventPatchSchema.safeParse(await c.req.json());
+  if (!parsed.success) {
+    return c.json({ error: "Invalid input", details: parsed.error.flatten() }, 400);
+  }
+
+  const event = await prisma.subjectEvent.findFirst({
+    where: { id: c.req.param("eventId"), subjectId: existing.id },
+  });
+  if (!event) return c.json({ error: "Period not found" }, 404);
+
+  const kpiSnapshot = parsed.data.kpi ?? event.kpiSnapshot;
+  const progress = parsed.data.progress ?? event.progress;
+  if (kpiSnapshot === event.kpiSnapshot && progress === event.progress) {
+    return c.json({ event, currentStreak: existing.currentStreak });
+  }
+  const status = progress >= kpiSnapshot ? "finish" : "miss";
+
+  const { updated, currentStreak } = await prisma.$transaction(async (tx) => {
+    const updated = await tx.subjectEvent.update({
+      where: { id: event.id },
+      data: { kpiSnapshot, progress, status },
+    });
+    const { currentStreak } = await recomputeCurrentStreak(tx, existing.id);
+    await tx.subjectHistory.create({
+      data: {
+        subjectId: existing.id,
+        type: "kpi_change",
+        subjectEventId: event.id,
+        payload: {
+          oldKpi: event.kpiSnapshot,
+          newKpi: kpiSnapshot,
+          oldProgress: event.progress,
+          newProgress: progress,
+          oldStatus: event.status,
+          newStatus: status,
+          periodStart: event.periodStart.toISOString(),
+        },
+      },
+    });
+    return { updated, currentStreak };
+  });
+
+  invalidateUserReads(c.get("user").id);
+  return c.json({ event: updated, currentStreak });
 });
 
 subjectRoutes.patch("/:id", async (c) => {

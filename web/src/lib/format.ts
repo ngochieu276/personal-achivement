@@ -19,6 +19,10 @@ export function formatDate(value: string) {
   }).format(new Date(value));
 }
 
+export function formatPeriodRange(start: string, end: string) {
+  return `${formatDate(start)} – ${formatDate(end)}`;
+}
+
 export function formatDateTime(value: string) {
   return new Intl.DateTimeFormat(undefined, {
     month: "short",

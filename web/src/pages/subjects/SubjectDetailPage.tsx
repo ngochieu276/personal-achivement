@@ -16,6 +16,7 @@ import { SubjectDocuments } from "@/components/subjects/SubjectDocuments";
 import { SubjectFormDialog } from "@/components/subjects/SubjectFormDialog";
 import { ExceedFlame } from "@/components/shared/ExceedFlame";
 import { SubjectActivityButton, SubjectActivityDialog } from "@/components/subjects/SubjectActivityDialog";
+import { SubjectTimelineButton } from "@/components/subjects/PeriodTimeline";
 import { SubjectNote } from "@/components/subjects/SubjectNote";
 import { SubjectRecordsCard } from "@/components/subjects/SubjectRecordsCard";
 import { subjectToFormValues, type SubjectFormValues } from "@/components/subjects/SubjectForm";
@@ -131,6 +132,7 @@ export function SubjectDetailPage() {
         actions={
           <>
             <SubjectActivityButton onClick={() => setActivityOpen(true)} />
+            <SubjectTimelineButton subjectId={subject.id} />
             <StreakBadge streak={subject.currentStreak} variant="labeled" />
             <RemainingBadge end={activeWindow.end} />
             <DeleteButton

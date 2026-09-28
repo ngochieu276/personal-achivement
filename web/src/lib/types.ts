@@ -106,6 +106,15 @@ export type SubjectDetail = {
   history: SubjectHistory[];
 };
 
+export type SubjectEventsResponse = {
+  events: SubjectEvent[];
+};
+
+export type SubjectEventPatchResponse = {
+  event: SubjectEvent;
+  currentStreak: number;
+};
+
 export type DashboardStats = {
   summary: {
     subjectCount: number;

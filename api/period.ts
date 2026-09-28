@@ -250,6 +250,26 @@ async function closeLoadedSubject(
   });
 }
 
+export async function recomputeCurrentStreak(
+  tx: Prisma.TransactionClient,
+  subjectId: string,
+) {
+  const events = await tx.subjectEvent.findMany({
+    where: { subjectId },
+    orderBy: { periodStart: "asc" },
+    select: { status: true },
+  });
+  let currentStreak = 0;
+  for (const event of events) {
+    currentStreak = event.status === "finish" ? currentStreak + 1 : 0;
+  }
+  return await tx.subject.update({
+    where: { id: subjectId },
+    data: { currentStreak },
+    select: { currentStreak: true },
+  });
+}
+
 export async function closeOverdueForSubject(
   subjectId: string,
   now = new Date(),
