@@ -7,6 +7,7 @@ import { ProgressBar } from "@/components/shared/ProgressBar";
 import { ResourceLink } from "@/components/shared/ResourceLink";
 import { RemainingBadge, StreakBadge } from "@/components/subjects/StreakBadge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { EntityIcon } from "@/lib/icons";
 import { periodLabels, unitLabel } from "@/lib/format";
 import { typeOfRecordLabels } from "@/lib/record";
@@ -70,22 +71,27 @@ export function SubjectCard({
 
   return (
     <Card className="cursor-pointer transition-transform hover:-translate-y-0.5" onClick={openSubject}>
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex min-w-0 items-start gap-3">
-            <EntityIcon name={subject.icon} className="mt-0.5 h-5 w-5 shrink-0 text-secondary" />
-            <span className="min-w-0">
-              <CardTitle className="flex items-center gap-1.5">
-                {subject.isPriority ? <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" /> : null}
-                {subject.name}
-              </CardTitle>
-              <CardDescription>
-                {period} · {subject.kpi} {unit}
-                {recordLabel ? ` · ${recordLabel}` : ""}
-              </CardDescription>
-            </span>
-          </div>
-          <div className="flex items-center gap-1">
+      <CardHeader className="space-y-1.5 pb-3">
+        <div className="flex min-w-0 items-center gap-2">
+          <EntityIcon name={subject.icon} className="h-5 w-5 shrink-0 text-secondary" />
+          <TooltipProvider delayDuration={200}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <CardTitle className="flex min-w-0 items-center gap-1.5 overflow-visible leading-normal">
+                  {subject.isPriority ? <Star className="h-3.5 w-3.5 shrink-0 fill-amber-400 text-amber-400" /> : null}
+                  <span className="block truncate py-0.5 leading-normal">{subject.name}</span>
+                </CardTitle>
+              </TooltipTrigger>
+              <TooltipContent>{subject.name}</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+        <div className="flex items-center justify-between gap-2">
+          <CardDescription className="min-w-0 truncate">
+            {period} · {subject.kpi} {unit}
+            {recordLabel ? ` · ${recordLabel}` : ""}
+          </CardDescription>
+          <div className="flex shrink-0 items-center gap-1">
             <ExceedFlame exceed={exceed} />
             <StreakBadge streak={subject.currentStreak} />
             {subject.activeWindow ? <RemainingBadge end={subject.activeWindow.end} /> : null}

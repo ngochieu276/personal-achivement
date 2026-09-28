@@ -1,8 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { AddProgressForm } from "@/components/subjects/AddProgressForm";
 import { BackLink } from "@/components/layout/BackLink";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { DeleteButton } from "@/components/shared/DeleteButton";
 import { ListPlaceholder } from "@/components/layout/ListPlaceholder";
 import { Page, PageHeader } from "@/components/layout/PageHeader";
 import { SubjectPageSkeleton } from "@/components/subjects/SubjectPageSkeleton";
@@ -27,10 +29,12 @@ import type { SubjectDetail } from "@/lib/types";
 
 export function SubjectDetailPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [progress, setProgress] = useState("");
   const [editing, setEditing] = useState(false);
   const [activityOpen, setActivityOpen] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const detailQuery = useQuery({
     queryKey: ["subject", id],
@@ -65,6 +69,20 @@ export function SubjectDetailPage() {
       queryClient.setQueryData(["subject", id], data);
       await queryClient.invalidateQueries({ queryKey: ["subjects", data.subject.projectId] });
       setEditing(false);
+    },
+  });
+
+  const deleteSubject = useMutation({
+    mutationFn: () => api(`/subjects/${id}`, { method: "DELETE" }),
+    onSuccess: async () => {
+      const projectId = detailQuery.data?.subject.projectId;
+      setConfirmDelete(false);
+      await queryClient.invalidateQueries({ queryKey: ["subjects", projectId] });
+      await queryClient.invalidateQueries({ queryKey: ["projects"] });
+      await queryClient.invalidateQueries({ queryKey: ["project", projectId] });
+      await queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      if (projectId) navigate(`/projects/${projectId}`);
+      else navigate("/");
     },
   });
 
@@ -115,6 +133,11 @@ export function SubjectDetailPage() {
             <SubjectActivityButton onClick={() => setActivityOpen(true)} />
             <StreakBadge streak={subject.currentStreak} variant="labeled" />
             <RemainingBadge end={activeWindow.end} />
+            <DeleteButton
+              label="Delete subject"
+              pending={deleteSubject.isPending}
+              onClick={() => setConfirmDelete(true)}
+            />
           </>
         }
       />
@@ -137,6 +160,17 @@ export function SubjectDetailPage() {
         pending={updateSubject.isPending}
         error={updateSubject.error?.message}
         onSubmit={(values) => updateSubject.mutate(values)}
+      />
+
+      <ConfirmDialog
+        open={confirmDelete}
+        onOpenChange={setConfirmDelete}
+        title="Delete subject?"
+        description={`This permanently deletes “${subject.name}” and its progress, events, history, and records.`}
+        confirmLabel={deleteSubject.isPending ? "Deleting..." : "Delete subject"}
+        pending={deleteSubject.isPending}
+        error={deleteSubject.error?.message}
+        onConfirm={() => deleteSubject.mutate()}
       />
 
       <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
