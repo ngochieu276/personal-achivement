@@ -9,3 +9,6 @@ web/dist
 api/generated
 api/.env
 web/.env
+landing/node_modules
+landing/.next
+landing/.env.local

@@ -6,6 +6,7 @@ Track personal KPIs by project and subject. Log the time or repeats you have fin
 
 - **web/** Vite + React + TanStack Query + shadcn/Tailwind + Zustand
 - **api/** Deno 2 + Hono + Prisma 7 + PostgreSQL
+- **landing/** Next.js marketing site (SEO)
 - Local Postgres via Docker Compose (or Prisma Postgres)
 - Backend deploys to [Fly.io](https://fly.io/docs/js/frameworks/deno/) with [Prisma Postgres](https://www.prisma.io/postgres)
 
@@ -47,6 +48,19 @@ npm run dev
 App: http://localhost:5173
 
 Register with name, email, and password, create a project, add a subject, then set current progress for the period.
+
+### 4. Landing
+
+```bash
+cd landing
+cp .env.example .env.local
+npm install
+npm run dev
+```
+
+Landing: http://localhost:3000
+
+`NEXT_PUBLIC_APP_URL` should point at the SPA (`http://localhost:5173` locally). `NEXT_PUBLIC_SITE_URL` is the landing origin for canonical and Open Graph URLs. Deploy `landing/` as its own Vercel project.
 
 ## Product rules
 
