@@ -1,7 +1,10 @@
+"use client";
+
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChevronRight, FolderKanban, LayoutDashboard, Plus } from "lucide-react";
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { FormDialog } from "@/components/shared/FormDialog";
 import { GroupForm } from "@/components/projects/GroupForm";
 import { ProjectForm } from "@/components/projects/ProjectForm";
@@ -31,7 +34,7 @@ import type { GroupTree } from "@/lib/types";
 import { useAuthStore } from "@/stores/auth";
 
 export function AppSidebar() {
-  const location = useLocation();
+  const pathname = usePathname();
   const { isMobile, setOpenMobile } = useSidebar();
   const queryClient = useQueryClient();
   const user = useAuthStore((state) => state.user);
@@ -93,24 +96,24 @@ export function AppSidebar() {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild size="lg" isActive={location.pathname === "/"} tooltip="Projects">
-              <Link to="/" onClick={closeMobile}>
+            <SidebarMenuButton asChild size="lg" isActive={pathname === "/projects"} tooltip="Projects">
+              <Link href="/projects" onClick={closeMobile}>
                 <FolderKanban />
                 <span className="font-serif text-base">Personal Record</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={location.pathname === "/dashboard"} tooltip="Dashboard">
-              <Link to="/dashboard" onClick={closeMobile}>
+            <SidebarMenuButton asChild isActive={pathname === "/dashboard"} tooltip="Dashboard">
+              <Link href="/dashboard" onClick={closeMobile}>
                 <LayoutDashboard />
                 <span>Dashboard</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={location.pathname === "/projects"} tooltip="Projects">
-              <Link to="/projects" onClick={closeMobile}>
+            <SidebarMenuButton asChild isActive={pathname === "/projects"} tooltip="Projects">
+              <Link href="/projects" onClick={closeMobile}>
                 <LayoutDashboard />
                 <span>Projects</span>
               </Link>
@@ -193,10 +196,10 @@ export function AppSidebar() {
                         <SidebarMenuButton
                           asChild
                           className="flex-1"
-                          isActive={location.pathname === `/groups/${group.id}`}
+                          isActive={pathname === `/groups/${group.id}`}
                           tooltip={group.name}
                         >
-                          <Link to={`/groups/${group.id}`} onClick={closeMobile}>
+                          <Link href={`/groups/${group.id}`} onClick={closeMobile}>
                             <EntityIcon name={group.icon} className="h-4 w-4" />
                             <span>{group.name}</span>
                           </Link>
@@ -217,9 +220,9 @@ export function AppSidebar() {
                               <SidebarMenuSubItem key={project.id}>
                                 <SidebarMenuSubButton
                                   asChild
-                                  isActive={location.pathname === `/projects/${project.id}`}
+                                  isActive={pathname === `/projects/${project.id}`}
                                 >
-                                  <Link to={`/projects/${project.id}`} onClick={closeMobile}>
+                                  <Link href={`/projects/${project.id}`} onClick={closeMobile}>
                                     <EntityIcon name={project.icon} fallback={FolderKanban} className="h-4 w-4" />
                                     <span>{project.name}</span>
                                   </Link>
@@ -245,8 +248,8 @@ export function AppSidebar() {
               <SidebarMenu>
                 {ungrouped.map((project) => (
                   <SidebarMenuItem key={project.id}>
-                    <SidebarMenuButton asChild isActive={location.pathname === `/projects/${project.id}`} tooltip={project.name}>
-                      <Link to={`/projects/${project.id}`} onClick={closeMobile}>
+                    <SidebarMenuButton asChild isActive={pathname === `/projects/${project.id}`} tooltip={project.name}>
+                      <Link href={`/projects/${project.id}`} onClick={closeMobile}>
                         <EntityIcon name={project.icon} fallback={FolderKanban} className="h-4 w-4" />
                         <span>{project.name}</span>
                       </Link>

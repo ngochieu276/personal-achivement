@@ -1,5 +1,5 @@
 import { CalendarRange } from "lucide-react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { PeriodTimelineItem } from "@/components/subjects/PeriodTimelineItem";
 import { Button } from "@/components/ui/button";
 import { Timeline } from "@/components/ui/timeline";
@@ -34,7 +34,7 @@ export function PeriodTimeline({
 export function SubjectTimelineButton({ subjectId }: { subjectId: string }) {
   return (
     <Button type="button" variant="outline" asChild>
-      <Link to={`/subjects/${subjectId}/timeline`}>
+      <Link href={`/subjects/${subjectId}/timeline`}>
         <CalendarRange className="h-4 w-4" />
         Timeline
       </Link>

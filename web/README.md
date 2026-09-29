@@ -1,6 +1,6 @@
 # Personal Record web
 
-Vite + React client. See the [root README](../README.md) for local setup and API URL config.
+Next.js App Router frontend: landing at `/`, authenticated app at `/projects`. See the [root README](../README.md) for local setup and env config.
 
 ```bash
 cp .env.example .env

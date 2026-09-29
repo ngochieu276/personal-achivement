@@ -6,9 +6,8 @@ generated
 *.log
 .vite
 web/dist
+web/.next
+landing/.next
 api/generated
 api/.env
 web/.env
-landing/node_modules
-landing/.next
-landing/.env.local

@@ -4,10 +4,10 @@ Track personal KPIs by project and subject. Log the time or repeats you have fin
 
 ## Stack
 
-- **web/** Vite + React + TanStack Query + shadcn/Tailwind + Zustand
+- **web/** Next.js App Router (marketing at `/`, signed-in app at `/projects` and related paths) + TanStack Query + shadcn/Tailwind + Zustand
 - **api/** Deno 2 + Hono + Prisma 7 + PostgreSQL
-- **landing/** Next.js marketing site (SEO)
 - Local Postgres via Docker Compose (or Prisma Postgres)
+- Frontend deploys to one Vercel project with root directory `web`
 - Backend deploys to [Fly.io](https://fly.io/docs/js/frameworks/deno/) with [Prisma Postgres](https://www.prisma.io/postgres)
 
 ## Local development
@@ -40,27 +40,16 @@ Health: http://localhost:8080/health
 
 ```bash
 cd web
-cp .env.example .env   # VITE_API_URL=http://localhost:8080
+cp .env.example .env
 npm install
 npm run dev
 ```
 
-App: http://localhost:5173
+Site: http://localhost:5173
 
-Register with name, email, and password, create a project, add a subject, then set current progress for the period.
+`/` is the public landing page. `/login` and `/register` are guest routes. After sign-in, the app lives at `/projects`, `/dashboard`, `/activities`, and nested project/subject URLs.
 
-### 4. Landing
-
-```bash
-cd landing
-cp .env.example .env.local
-npm install
-npm run dev
-```
-
-Landing: http://localhost:3000
-
-`NEXT_PUBLIC_APP_URL` should point at the SPA (`http://localhost:5173` locally). `NEXT_PUBLIC_SITE_URL` is the landing origin for canonical and Open Graph URLs. Deploy `landing/` as its own Vercel project.
+`NEXT_PUBLIC_API_URL` is the API origin. `NEXT_PUBLIC_SITE_URL` is this frontend origin (canonical and Open Graph). `NEXT_PUBLIC_GOOGLE_CLIENT_ID` is optional if the API already returns a Google client id.
 
 ## Product rules
 
@@ -100,14 +89,12 @@ fly deploy
 
 `fly.toml` listens on port 8080, checks `/health`, and runs `prisma migrate deploy` as the release command.
 
-Point the frontend at the API:
+Point the frontend at the API in Vercel (project root `web`):
 
 ```bash
-# web/.env or your static host env
-VITE_API_URL=https://personal-record.fly.dev
+NEXT_PUBLIC_API_URL=https://personal-record.fly.dev
+NEXT_PUBLIC_SITE_URL=https://personal-achivement.vercel.app
 ```
-
-Then `npm run build` in `web/` and host `web/dist` anywhere (Vercel, Netlify, or similar).
 
 ## API overview
 

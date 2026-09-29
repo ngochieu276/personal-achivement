@@ -1,4 +1,8 @@
-import { Link, Outlet, useNavigate } from "react-router-dom";
+"use client";
+
+import type { ReactNode } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ActivitiesNavButton } from "@/components/layout/ActivitiesNavButton";
 import { AppSidebar } from "@/components/layout/AppSidebar";
 import { Button } from "@/components/ui/button";
@@ -6,10 +10,10 @@ import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { useAuthStore } from "@/stores/auth";
 
-export function AppLayout() {
+export function AppLayout({ children }: { children: ReactNode }) {
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
-  const navigate = useNavigate();
+  const router = useRouter();
 
   return (
     <SidebarProvider>
@@ -18,7 +22,7 @@ export function AppLayout() {
         <header className="flex h-14 shrink-0 items-center gap-2 border-b bg-card px-4">
           <SidebarTrigger />
           <Separator orientation="vertical" className="h-4" />
-          <Link to="/" className="font-serif text-lg tracking-tight">
+          <Link href="/projects" className="font-serif text-lg tracking-tight">
             Personal Record
           </Link>
           <div className="ml-auto flex items-center gap-3 text-sm">
@@ -29,7 +33,7 @@ export function AppLayout() {
               size="sm"
               onClick={() => {
                 logout();
-                navigate("/login");
+                router.push("/login");
               }}
             >
               Log out
@@ -37,9 +41,7 @@ export function AppLayout() {
           </div>
         </header>
         <div data-scroll-root className="min-w-0 flex-1 overflow-x-clip overflow-y-auto p-4 md:p-6">
-          <div className="mx-auto w-full min-w-0 max-w-6xl">
-            <Outlet />
-          </div>
+          <div className="mx-auto w-full min-w-0 max-w-6xl">{children}</div>
         </div>
       </SidebarInset>
     </SidebarProvider>

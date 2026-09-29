@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 export function CardLink({
@@ -15,7 +15,7 @@ export function CardLink({
 }) {
   return (
     <Link
-      to={to}
+      href={to}
       aria-label={label}
       className={cn(
         "block rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-ring",

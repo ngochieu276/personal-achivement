@@ -17,7 +17,7 @@ export function GoogleAuthButton({
   const onAuthenticatedRef = useRef(onAuthenticated);
   const onErrorRef = useRef(onError);
   const [clientId, setClientId] = useState<string | null>(
-    import.meta.env.VITE_GOOGLE_CLIENT_ID || null,
+    process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || null,
   );
   const [pending, setPending] = useState(false);
 
@@ -37,7 +37,7 @@ export function GoogleAuthButton({
   }, []);
 
   async function signIn() {
-    const id = clientId || import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    const id = clientId || process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
     if (!id) {
       onErrorRef.current("Add GOOGLE_CLIENT_ID to api/.env and restart the API.");
       return;

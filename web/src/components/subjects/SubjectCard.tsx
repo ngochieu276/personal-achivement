@@ -1,5 +1,5 @@
 import { Star } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import { AddProgressForm } from "@/components/subjects/AddProgressForm";
 import { EditButton } from "@/components/shared/EditButton";
 import { ExceedFlame } from "@/components/shared/ExceedFlame";
@@ -24,7 +24,7 @@ export function SubjectCard({
   variant: ViewMode;
   onEdit: (subject: Subject) => void;
 }) {
-  const navigate = useNavigate();
+  const router = useRouter();
   const unit = unitLabel(subject.kpiType);
   const period = periodLabels[subject.kpiTypePeriod];
   const latest = latestRecordNumber(subject);
@@ -34,7 +34,7 @@ export function SubjectCard({
   const exceed = exceedAmount(subject.currentProgress, subject.kpi);
 
   function openSubject() {
-    navigate(`/subjects/${subject.id}`);
+    router.push(`/subjects/${subject.id}`);
   }
 
   if (variant === "list") {

@@ -93,7 +93,7 @@ export function HistoryLine({
   return <p>Logged event</p>;
 }
 
-function kpiDoneLabel(item: SubjectHistory, unit: string) {
+function kpiDoneLabel(item: Pick<SubjectHistory, "payload">, unit: string) {
   const kind = String(item.payload.kind ?? "add");
   const amount = Number(item.payload.amount ?? 0);
   const total = Number(item.payload.total ?? 0);
