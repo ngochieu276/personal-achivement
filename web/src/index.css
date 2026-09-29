@@ -20,6 +20,8 @@
   --color-destructive: var(--destructive);
   --color-ring: var(--ring);
   --color-hit: var(--hit);
+  --color-progress: var(--progress);
+  --color-streak: var(--streak);
   --color-miss: var(--miss);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
@@ -52,7 +54,9 @@
   --accent-foreground: #384959;
   --destructive: #8f3d4a;
   --ring: #88bdf2;
-  --hit: #6a89a7;
+  --hit: #22c55e;
+  --progress: #3b82f6;
+  --streak: #f97316;
   --miss: #8f3d4a;
   --sidebar: #e8f3fc;
   --sidebar-foreground: #384959;

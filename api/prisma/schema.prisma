@@ -153,6 +153,7 @@ model SubjectHistory {
   subjectEvent   SubjectEvent? @relation(fields: [subjectEventId], references: [id], onDelete: SetNull)
 
   @@index([subjectId, createdAt])
+  @@index([createdAt])
 }
 
 model SubjectRecord {

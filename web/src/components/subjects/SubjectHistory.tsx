@@ -64,7 +64,7 @@ export function HistoryLine({
   item,
   unit,
 }: {
-  item: SubjectHistory;
+  item: Pick<SubjectHistory, "type" | "payload">;
   unit: string;
 }) {
   if (item.type === "kpi_done") {

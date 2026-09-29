@@ -1,4 +1,5 @@
 import { Link, Outlet, useNavigate } from "react-router-dom";
+import { ActivitiesNavButton } from "@/components/layout/ActivitiesNavButton";
 import { AppSidebar } from "@/components/layout/AppSidebar";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -21,6 +22,7 @@ export function AppLayout() {
             Personal Record
           </Link>
           <div className="ml-auto flex items-center gap-3 text-sm">
+            <ActivitiesNavButton />
             <span className="hidden text-muted-foreground sm:inline">{user?.name}</span>
             <Button
               variant="outline"
@@ -34,7 +36,7 @@ export function AppLayout() {
             </Button>
           </div>
         </header>
-        <div className="min-w-0 flex-1 overflow-x-clip overflow-y-auto p-4 md:p-6">
+        <div data-scroll-root className="min-w-0 flex-1 overflow-x-clip overflow-y-auto p-4 md:p-6">
           <div className="mx-auto w-full min-w-0 max-w-6xl">
             <Outlet />
           </div>

@@ -58,6 +58,7 @@ export function PeriodTimelineItem({
       });
       await queryClient.invalidateQueries({ queryKey: ["subjects", projectId] });
       await queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      await queryClient.invalidateQueries({ queryKey: ["activities"] });
     },
   });
 

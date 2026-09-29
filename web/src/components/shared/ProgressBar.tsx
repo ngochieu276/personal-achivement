@@ -20,7 +20,7 @@ export function ProgressBar({
       )}
     >
       <div
-        className={cn("h-full rounded-full", ratio >= 1 ? "bg-hit" : "bg-primary")}
+        className={cn("h-full rounded-full", ratio >= 1 ? "bg-hit" : "bg-progress")}
         style={{ width: `${ratio * 100}%` }}
       />
     </div>

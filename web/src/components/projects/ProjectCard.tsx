@@ -20,16 +20,16 @@ function ProjectProgress({
   const current = Math.round(average);
   const label = (
     <span className="flex items-center gap-2 text-sm text-muted-foreground">
-      {current} / 100 %
       <ExceedFlame exceed={average > 100 ? average - 100 : 0} suffix="%" />
+      {current} / 100 %
     </span>
   );
 
   if (size === "inline") {
     return (
       <div className="flex items-center gap-2">
+         {label}
         <ProgressBar current={average} target={100} size="inline" />
-        {label}
       </div>
     );
   }

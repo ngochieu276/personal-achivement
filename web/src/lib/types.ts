@@ -115,6 +115,30 @@ export type SubjectEventPatchResponse = {
   currentStreak: number;
 };
 
+export type ActivityRange = "week" | "month";
+
+export type ActivityItem = {
+  id: string;
+  type: HistoryType;
+  payload: Record<string, unknown>;
+  createdAt: string;
+  subjectId: string;
+  subject: {
+    id: string;
+    name: string;
+    icon?: string | null;
+    kpiType: KpiType;
+    projectId: string;
+    projectName: string;
+  };
+};
+
+export type ActivitiesPage = {
+  range: ActivityRange;
+  items: ActivityItem[];
+  nextCursor: string | null;
+};
+
 export type DashboardStats = {
   summary: {
     subjectCount: number;

@@ -32,6 +32,31 @@ export function formatDateTime(value: string) {
   }).format(new Date(value));
 }
 
+export function formatTime(value: string) {
+  return new Intl.DateTimeFormat(undefined, {
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(new Date(value));
+}
+
+export function localDayKey(value: string | Date) {
+  const date = typeof value === "string" ? new Date(value) : value;
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+export function formatDayHeading(dayKey: string) {
+  const today = localDayKey(new Date());
+  const yesterdayDate = new Date();
+  yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+  const yesterday = localDayKey(yesterdayDate);
+  if (dayKey === today) return "Today";
+  if (dayKey === yesterday) return "Yesterday";
+  return formatDate(`${dayKey}T12:00:00`);
+}
+
 export function remainingLabel(endIso: string) {
   const ms = new Date(endIso).getTime() - Date.now();
   if (ms <= 0) return "Period ending";

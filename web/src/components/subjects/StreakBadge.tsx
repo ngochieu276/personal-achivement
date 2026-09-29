@@ -11,7 +11,7 @@ export function StreakBadge({
 }) {
   return (
     <Badge variant="outline" className="gap-1">
-      <Flame className="h-3 w-3" />
+      <Flame className="h-3 w-3 fill-streak text-streak" />
       {variant === "labeled" ? `${streak} streak` : streak}
     </Badge>
   );

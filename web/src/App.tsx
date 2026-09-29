@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { GuestRoute, ProtectedRoute } from "@/components/layout/RouteGuards";
 import { LoginPage } from "@/pages/auth/LoginPage";
+import { ActivitiesPage } from "@/pages/activities/ActivitiesPage";
 import { DashboardPage } from "@/pages/dashboard/DashboardPage";
 import { GroupDetailPage } from "@/pages/groups/GroupDetailPage";
 import { ProjectDetailPage } from "@/pages/projects/ProjectDetailPage";
@@ -21,6 +22,7 @@ export default function App() {
         <Route element={<AppLayout />}>
           <Route path="/" element={<ProjectsPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/activities" element={<ActivitiesPage />} />
           <Route path="/projects" element={<ProjectsPage />} />
           <Route path="/groups/:id" element={<GroupDetailPage />} />
           <Route path="/projects/:id" element={<ProjectDetailPage />} />

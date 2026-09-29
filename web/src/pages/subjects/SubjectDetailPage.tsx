@@ -57,6 +57,7 @@ export function SubjectDetailPage() {
     onSuccess: async (data) => {
       queryClient.setQueryData(["subject", id], data);
       await queryClient.invalidateQueries({ queryKey: ["subjects", data.subject.projectId] });
+      await queryClient.invalidateQueries({ queryKey: ["activities"] });
     },
   });
 
@@ -69,6 +70,7 @@ export function SubjectDetailPage() {
     onSuccess: async (data) => {
       queryClient.setQueryData(["subject", id], data);
       await queryClient.invalidateQueries({ queryKey: ["subjects", data.subject.projectId] });
+      await queryClient.invalidateQueries({ queryKey: ["activities"] });
       setEditing(false);
     },
   });

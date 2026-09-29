@@ -30,6 +30,7 @@ export function AddProgressForm({
     onSuccess: async (data) => {
       queryClient.setQueryData(["subject", subjectId], data);
       await queryClient.invalidateQueries({ queryKey: ["subjects", projectId] });
+      await queryClient.invalidateQueries({ queryKey: ["activities"] });
       setAdd("1");
     },
   });
