@@ -114,6 +114,7 @@ model Subject {
   events          SubjectEvent[]
   history         SubjectHistory[]
   records         SubjectRecord[]
+  files           File[]
 
   @@index([projectId, isPriority, createdAt])
   @@index([nextCloseAt])
@@ -165,4 +166,16 @@ model SubjectRecord {
   subject      Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
 
   @@index([subjectId, date])
+}
+
+model File {
+  id        String   @id @default(cuid())
+  subjectId String
+  content   Bytes
+  name      String
+  mimeType  String
+  createdAt DateTime @default(now())
+  subject   Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  @@index([subjectId])
 }

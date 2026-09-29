@@ -101,9 +101,18 @@ export type SubjectHistory = {
 
 export type SubjectDetail = {
   subject: Subject;
+  files: SubjectFile[];
   activeWindow: PeriodWindow;
   events: SubjectEvent[];
   history: SubjectHistory[];
+};
+
+export type SubjectFile = {
+  id: string;
+  subjectId: string;
+  name: string;
+  mimeType: string;
+  createdAt: string;
 };
 
 export type SubjectEventsResponse = {

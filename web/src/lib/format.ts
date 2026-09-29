@@ -65,3 +65,11 @@ export function remainingLabel(endIso: string) {
   const days = Math.floor(hours / 24);
   return `${days}d left`;
 }
+
+export function fileKind(mimeType: string) {
+  if (mimeType.startsWith("image/")) return "image" as const;
+  if (mimeType === "application/pdf") return "pdf" as const;
+  if (mimeType.includes("spreadsheet") || mimeType.includes("excel")) return "sheet" as const;
+  if (mimeType.includes("word") || mimeType.includes("document")) return "doc" as const;
+  return "file" as const;
+}

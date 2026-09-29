@@ -23,7 +23,12 @@ export function SubjectPageSkeleton() {
           <CardSkeleton lines={4} />
           <CardSkeleton lines={3} />
         </div>
-        <CardSkeleton lines={2} />
+        <div className="grid gap-4 lg:grid-cols-3">
+          <CardSkeleton lines={2} />
+          <div className="lg:col-span-2">
+            <CardSkeleton lines={3} />
+          </div>
+        </div>
         <CardSkeleton lines={3} />
         <CardSkeleton lines={3} />
       </PageLoading>

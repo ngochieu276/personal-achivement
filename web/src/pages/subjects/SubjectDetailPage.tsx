@@ -19,6 +19,7 @@ import { SubjectActivityButton, SubjectActivityDialog } from "@/components/subje
 import { SubjectTimelineButton } from "@/components/subjects/PeriodTimeline";
 import { SubjectNote } from "@/components/subjects/SubjectNote";
 import { SubjectRecordsCard } from "@/components/subjects/SubjectRecordsCard";
+import { SubjectFiles } from "@/components/subjects/SubjectFiles";
 import { subjectToFormValues, type SubjectFormValues } from "@/components/subjects/SubjectForm";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -108,7 +109,7 @@ export function SubjectDetailPage() {
     return <ListPlaceholder variant="error" label="Subject not found." />;
   }
 
-  const { subject, activeWindow, history } = detailQuery.data;
+  const { subject, activeWindow, history, files } = detailQuery.data;
   const unit = unitLabel(subject.kpiType);
   const latest = latestRecordNumber(subject);
   const exceed = exceedAmount(subject.currentProgress, subject.kpi);
@@ -217,7 +218,12 @@ export function SubjectDetailPage() {
             onSave={(note) => updateExtras.mutate({ note })}
           />
       </div>
-      <SubjectRecordsCard subject={subject} />
+      <div className="grid gap-4 lg:grid-cols-3">
+        <SubjectRecordsCard subject={subject} />
+        <div className="lg:col-span-2">
+          <SubjectFiles subjectId={subject.id} files={files ?? []} />
+        </div>
+      </div>
       <SubjectDocuments
         documents={subject.documents ?? []}
         pending={updateExtras.isPending}

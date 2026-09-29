@@ -31,7 +31,7 @@ export function SubjectDocuments({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Documents</CardTitle>
+        <CardTitle>Youtube</CardTitle>
         <CardDescription>Links and videos for this subject. YouTube URLs play here.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -50,7 +50,7 @@ export function SubjectDocuments({
         </form>
         {error ? <p className="text-sm text-destructive">{error}</p> : null}
         {documents.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No documents yet.</p>
+          <p className="text-sm text-muted-foreground">No videos yet.</p>
         ) : (
           <ul className="space-y-4">
             {documents.map((document) => (

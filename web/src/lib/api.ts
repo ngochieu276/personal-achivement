@@ -14,7 +14,7 @@ export class ApiError extends Error {
 export async function api<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = useAuthStore.getState().token;
   const headers = new Headers(options.headers);
-  if (!headers.has("Content-Type") && options.body) {
+  if (!headers.has("Content-Type") && options.body && !(options.body instanceof FormData)) {
     headers.set("Content-Type", "application/json");
   }
   if (token) headers.set("Authorization", `Bearer ${token}`);
@@ -30,4 +30,20 @@ export async function api<T>(path: string, options: RequestInit = {}): Promise<T
     );
   }
   return body as T;
+}
+
+export async function apiBlob(path: string): Promise<Blob> {
+  const token = useAuthStore.getState().token;
+  const headers = new Headers();
+  if (token) headers.set("Authorization", `Bearer ${token}`);
+
+  const res = await fetch(`${API_URL}${path}`, { headers });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new ApiError(
+      typeof body.error === "string" ? body.error : res.statusText,
+      res.status,
+    );
+  }
+  return res.blob();
 }

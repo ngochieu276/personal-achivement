@@ -12,6 +12,14 @@ import {
   recomputeCurrentStreak,
 } from "../period.ts";
 import { invalidateUserReads } from "../cache.ts";
+import {
+  contentDisposition,
+  fileMeta,
+  isAllowedUpload,
+  MAX_FILE_BYTES,
+  MAX_FILES_PER_SUBJECT,
+  resolveMimeType,
+} from "../files.ts";
 import { recordFieldShape, recordWriteData, withRecordRefine } from "../record.ts";
 import type { Subject } from "../generated/prisma/client.ts";
 
@@ -72,7 +80,7 @@ async function subjectDetail(
     : await closeOverdueForSubject(existing.id, now, existing);
   if (!closed) return null;
 
-  const [history, records] = await Promise.all([
+  const [history, records, files] = await Promise.all([
     prisma.subjectHistory.findMany({
       where: { subjectId: existing.id },
       orderBy: { createdAt: "desc" },
@@ -84,10 +92,16 @@ async function subjectDetail(
       orderBy: { date: "desc" },
       take: 100,
     }),
+    prisma.file.findMany({
+      where: { subjectId: existing.id },
+      orderBy: { createdAt: "desc" },
+      select: { id: true, subjectId: true, name: true, mimeType: true, createdAt: true },
+    }),
   ]);
 
   return {
     subject: { ...closed, records },
+    files,
     activeWindow: getActiveWindow(closed.startDate, closed.kpiTypePeriod, now),
     events: [],
     history,
@@ -325,3 +339,77 @@ subjectRoutes.delete("/:id/records/:recordId", async (c) => {
   const detail = await subjectDetail(existing, new Date(), { close: false });
   return c.json(detail);
 });
+
+subjectRoutes.post("/:id/files", async (c) => {
+  const existing = await ownedSubject(c.get("user").id, c.req.param("id"));
+  if (!existing) return c.json({ error: "Subject not found" }, 404);
+
+  const form = await c.req.formData();
+  const uploads = form.getAll("files").filter((item): item is globalThis.File => item instanceof globalThis.File);
+  if (uploads.length === 0) return c.json({ error: "No files uploaded" }, 400);
+
+  const existingCount = await prisma.file.count({ where: { subjectId: existing.id } });
+  if (existingCount + uploads.length > MAX_FILES_PER_SUBJECT) {
+    return c.json({ error: `A subject can have at most ${MAX_FILES_PER_SUBJECT} files` }, 400);
+  }
+
+  for (const upload of uploads) {
+    if (upload.size > MAX_FILE_BYTES) {
+      return c.json({ error: `${upload.name} is larger than 8 MB` }, 400);
+    }
+    if (!isAllowedUpload(upload.name, upload.type)) {
+      return c.json({ error: `${upload.name} must be an image, PDF, Word, or Excel file` }, 400);
+    }
+  }
+
+  const created = [];
+  for (const upload of uploads) {
+    const content = new Uint8Array(await upload.arrayBuffer());
+    const row = await prisma.file.create({
+      data: {
+        subjectId: existing.id,
+        content,
+        name: upload.name.trim().slice(0, 200) || "file",
+        mimeType: resolveMimeType(upload.name, upload.type),
+      },
+      select: { id: true, subjectId: true, name: true, mimeType: true, createdAt: true },
+    });
+    created.push(fileMeta(row));
+  }
+
+  return c.json({ files: created }, 201);
+});
+
+subjectRoutes.get("/:id/files/:fileId", async (c) => {
+  const existing = await ownedSubject(c.get("user").id, c.req.param("id"));
+  if (!existing) return c.json({ error: "Subject not found" }, 404);
+
+  const file = await prisma.file.findFirst({
+    where: { id: c.req.param("fileId"), subjectId: existing.id },
+  });
+  if (!file) return c.json({ error: "File not found" }, 404);
+
+  const inline = file.mimeType.startsWith("image/") || file.mimeType === "application/pdf";
+  return new Response(file.content, {
+    headers: {
+      "Content-Type": file.mimeType,
+      "Content-Disposition": contentDisposition(file.name, inline ? "inline" : "attachment"),
+      "Content-Length": String(file.content.byteLength),
+    },
+  });
+});
+
+subjectRoutes.delete("/:id/files/:fileId", async (c) => {
+  const existing = await ownedSubject(c.get("user").id, c.req.param("id"));
+  if (!existing) return c.json({ error: "Subject not found" }, 404);
+
+  const file = await prisma.file.findFirst({
+    where: { id: c.req.param("fileId"), subjectId: existing.id },
+    select: { id: true },
+  });
+  if (!file) return c.json({ error: "File not found" }, 404);
+
+  await prisma.file.delete({ where: { id: file.id } });
+  return c.json({ ok: true });
+});
+
