@@ -1,5 +1,8 @@
+"use client";
+
 import type { ReactNode } from "react";
 import Link from "next/link";
+import { useI18n } from "@/i18n";
 import { cn } from "@/lib/utils";
 
 export function AppLink({
@@ -30,17 +33,19 @@ export function AppLink({
 }
 
 export function SignInLink({ className }: { className?: string }) {
+  const { t } = useI18n();
   return (
     <AppLink href="/login" variant="ghost" className={className}>
-      Sign in
+      {t("nav.signIn")}
     </AppLink>
   );
 }
 
 export function GetStartedLink({ className }: { className?: string }) {
+  const { t } = useI18n();
   return (
     <AppLink href="/register" variant="primary" className={className}>
-      Get started
+      {t("nav.getStarted")}
     </AppLink>
   );
 }

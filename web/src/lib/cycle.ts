@@ -1,4 +1,5 @@
 import type { KpiTypePeriod } from "@/lib/types";
+import { t } from "@/i18n";
 
 export function startOfUtcDay(date: Date) {
   return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
@@ -39,14 +40,11 @@ export function toDateInput(date: Date) {
 }
 
 export function cycleStartHint(period: KpiTypePeriod) {
-  switch (period) {
-    case "day":
-      return "Starts at the beginning of that day.";
-    case "week":
-      return "Starts on Monday of that week.";
-    case "twoWeek":
-      return "Starts on Monday of the two-week cycle.";
-    case "month":
-      return "Starts on the first day of that month.";
-  }
+  const keys = {
+    day: "cycle.day",
+    week: "cycle.week",
+    twoWeek: "cycle.twoWeek",
+    month: "cycle.month",
+  } as const;
+  return t(keys[period]);
 }

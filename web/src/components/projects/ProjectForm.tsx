@@ -1,9 +1,12 @@
+"use client";
+
 import type { FormEvent } from "react";
 import { IconPicker } from "@/components/shared/IconPicker";
 import { MultiSelect } from "@/components/shared/MultiSelect";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useI18n } from "@/i18n";
 import type { Group } from "@/lib/types";
 
 export function ProjectForm({
@@ -31,6 +34,8 @@ export function ProjectForm({
   error?: string;
   submitLabel: string;
 }) {
+  const { t } = useI18n();
+
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
     onSubmit();
@@ -39,7 +44,7 @@ export function ProjectForm({
   return (
     <form className="space-y-4" onSubmit={handleSubmit}>
       <div className="space-y-2">
-        <Label htmlFor="project-form-name">Name</Label>
+        <Label htmlFor="project-form-name">{t("common.name")}</Label>
         <Input
           id="project-form-name"
           value={name}
@@ -50,12 +55,12 @@ export function ProjectForm({
       <IconPicker value={icon} onChange={onIconChange} />
       {groups.length > 0 ? (
         <div className="space-y-2">
-          <Label>Groups (optional)</Label>
+          <Label>{t("projects.groupsOptional")}</Label>
           <MultiSelect
             options={groups.map((group) => ({ value: group.id, label: `${group.name} (${group.id})` }))}
             value={groupIds}
             onChange={onGroupIdsChange}
-            placeholder="Select groups"
+            placeholder={t("projects.selectGroups")}
           />
         </div>
       ) : null}

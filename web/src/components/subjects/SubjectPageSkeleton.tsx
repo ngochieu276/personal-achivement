@@ -1,13 +1,17 @@
+"use client";
+
 import { Page } from "@/components/layout/PageHeader";
 import { PageLoading } from "@/components/layout/PageLoading";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useI18n } from "@/i18n";
 
 export function SubjectPageSkeleton() {
+  const { t } = useI18n();
   return (
     <Page>
       <Skeleton className="h-4 w-28" />
-      <PageLoading label="Loading subject...">
+      <PageLoading label={t("subjects.loading")}>
         <div className="flex items-end justify-between gap-4">
           <div className="space-y-2">
             <Skeleton className="h-3 w-16" />

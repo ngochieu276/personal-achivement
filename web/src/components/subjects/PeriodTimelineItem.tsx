@@ -1,3 +1,5 @@
+"use client";
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState, type FormEvent } from "react";
 import { ProgressBar } from "@/components/shared/ProgressBar";
@@ -6,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { TimelineContent, TimelineItem } from "@/components/ui/timeline";
+import { useI18n } from "@/i18n";
 import { api } from "@/lib/api";
 import { formatPeriodRange } from "@/lib/format";
 import type { SubjectDetail, SubjectEvent, SubjectEventPatchResponse } from "@/lib/types";
@@ -21,6 +24,7 @@ export function PeriodTimelineItem({
   event: SubjectEvent;
   unit: string;
 }) {
+  const { t } = useI18n();
   const queryClient = useQueryClient();
   const [kpi, setKpi] = useState(String(event.kpiSnapshot));
   const [progress, setProgress] = useState(String(event.progress));
@@ -88,12 +92,12 @@ export function PeriodTimelineItem({
               {event.progress} / {event.kpiSnapshot} {unit}
             </p>
           </div>
-          <Badge variant={hit ? "hit" : "miss"}>{hit ? "Finished" : "Missed"}</Badge>
+          <Badge variant={hit ? "hit" : "miss"}>{hit ? t("landing.finished") : t("landing.missed")}</Badge>
         </div>
         <ProgressBar current={event.progress} target={event.kpiSnapshot} />
         <form className="flex flex-wrap items-end gap-3" onSubmit={handleSubmit}>
           <div className="min-w-28 flex-1 space-y-1.5">
-            <Label htmlFor={`kpi-${event.id}`}>Period KPI</Label>
+            <Label htmlFor={`kpi-${event.id}`}>{t("subjects.periodKpi")}</Label>
             <Input
               id={`kpi-${event.id}`}
               type="number"
@@ -104,7 +108,7 @@ export function PeriodTimelineItem({
             />
           </div>
           <div className="min-w-28 flex-1 space-y-1.5">
-            <Label htmlFor={`progress-${event.id}`}>Logged {unit}</Label>
+            <Label htmlFor={`progress-${event.id}`}>{t("subjects.loggedUnit", { unit })}</Label>
             <Input
               id={`progress-${event.id}`}
               type="number"
@@ -115,7 +119,7 @@ export function PeriodTimelineItem({
             />
           </div>
           <Button type="submit" disabled={save.isPending || unchanged || invalid}>
-            {save.isPending ? "Saving..." : "Save"}
+            {save.isPending ? t("common.saving") : t("common.save")}
           </Button>
         </form>
         {save.error ? <p className="text-sm text-destructive">{save.error.message}</p> : null}

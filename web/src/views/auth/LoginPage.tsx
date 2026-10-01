@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -7,11 +9,13 @@ import { Spinner } from "@/components/ui/spinner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useI18n } from "@/i18n";
 import { api } from "@/lib/api";
 import type { User } from "@/lib/types";
 import { useAuthStore } from "@/stores/auth";
 
 export function LoginPage() {
+  const { t } = useI18n();
   const router = useRouter();
   const setAuth = useAuthStore((state) => state.setAuth);
   const [email, setEmail] = useState("");
@@ -31,7 +35,7 @@ export function LoginPage() {
       setAuth(data.token, data.user);
       router.push("/projects");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Login failed");
+      setError(err instanceof Error ? err.message : t("auth.loginFailed"));
     } finally {
       setPending(false);
     }
@@ -41,13 +45,13 @@ export function LoginPage() {
     <div className="mx-auto flex min-h-svh max-w-md items-center px-4">
       <Card className="w-full">
         <CardHeader>
-          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Ledger</p>
-          <CardTitle>Sign in</CardTitle>
-          <CardDescription>Track time and reps against your own KPIs.</CardDescription>
+          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{t("auth.ledger")}</p>
+          <CardTitle>{t("auth.signIn")}</CardTitle>
+          <CardDescription>{t("auth.signInDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
           <GoogleAuthButton
-            label="Continue with Google"
+            label={t("auth.google")}
             onAuthenticated={(token, user) => {
               setAuth(token, user);
               router.push("/projects");
@@ -56,7 +60,7 @@ export function LoginPage() {
           />
           <form className="space-y-4" onSubmit={onSubmit}>
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t("common.email")}</Label>
               <Input
                 id="email"
                 type="email"
@@ -66,7 +70,7 @@ export function LoginPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t("common.password")}</Label>
               <Input
                 id="password"
                 type="password"
@@ -78,13 +82,13 @@ export function LoginPage() {
             {error ? <p className="text-sm text-destructive">{error}</p> : null}
             <Button className="w-full" type="submit" disabled={pending}>
               {pending ? <Spinner /> : null}
-              {pending ? "Signing in..." : "Sign in"}
+              {pending ? t("auth.signingIn") : t("auth.signIn")}
             </Button>
           </form>
           <p className="mt-4 text-sm text-muted-foreground">
-            New here?{" "}
+            {t("auth.newHere")}{" "}
             <Link className="text-primary underline-offset-4 hover:underline" href="/register">
-              Create an account
+              {t("auth.createAccount")}
             </Link>
           </p>
         </CardContent>

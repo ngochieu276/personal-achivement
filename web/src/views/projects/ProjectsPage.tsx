@@ -1,3 +1,5 @@
+"use client";
+
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { FormDialog } from "@/components/shared/FormDialog";
@@ -8,11 +10,13 @@ import { PageLoading } from "@/components/layout/PageLoading";
 import { ProjectCard } from "@/components/projects/ProjectCard";
 import { ProjectForm } from "@/components/projects/ProjectForm";
 import { ViewToggle, viewClass } from "@/components/layout/ViewToggle";
+import { useI18n } from "@/i18n";
 import { api } from "@/lib/api";
 import type { GroupTree, Project } from "@/lib/types";
 import { useViewStore } from "@/stores/view";
 
 export function ProjectsPage() {
+  const { t } = useI18n();
   const queryClient = useQueryClient();
   const mode = useViewStore((state) => state.mode);
   const [editing, setEditing] = useState<Project | null>(null);
@@ -48,14 +52,14 @@ export function ProjectsPage() {
 
   return (
     <Page>
-      <PageHeader eyebrow="Collections" title="Projects" actions={<ViewToggle />} />
+      <PageHeader eyebrow={t("projects.collections")} title={t("projects.title")} actions={<ViewToggle />} />
 
       <FormDialog
         open={Boolean(editing)}
         onOpenChange={(next) => {
           if (!next) setEditing(null);
         }}
-        title="Edit project"
+        title={t("projects.edit")}
       >
         <ProjectForm
           name={editName}
@@ -68,19 +72,19 @@ export function ProjectsPage() {
           onSubmit={() => updateProject.mutate()}
           pending={updateProject.isPending}
           error={updateProject.error?.message}
-          submitLabel="Save"
+          submitLabel={t("common.save")}
         />
       </FormDialog>
 
       {projectsQuery.isLoading ? (
-        <PageLoading label="Loading projects...">
+        <PageLoading label={t("projects.loading")}>
           <CardListSkeleton kind="projects" />
         </PageLoading>
       ) : projects.length === 0 ? (
         <ListPlaceholder
           variant="empty"
-          title="No projects yet"
-          description="Use Create project in the header, then add subjects like running, writing, or practice reps."
+          title={t("projects.emptyTitle")}
+          description={t("projects.emptyDesc")}
         />
       ) : (
         <div className={viewClass(mode, "projects")}>

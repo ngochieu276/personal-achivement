@@ -1,12 +1,16 @@
+"use client";
+
 import { useQuery } from "@tanstack/react-query";
 import { StatCards } from "@/components/dashboard/StatCards";
 import { ListPlaceholder } from "@/components/layout/ListPlaceholder";
 import { Page, PageHeader } from "@/components/layout/PageHeader";
 import { PageLoading } from "@/components/layout/PageLoading";
+import { useI18n } from "@/i18n";
 import { api } from "@/lib/api";
 import type { DashboardStats } from "@/lib/types";
 
 export function DashboardPage() {
+  const { t } = useI18n();
   const statsQuery = useQuery({
     queryKey: ["dashboard"],
     queryFn: () => api<DashboardStats>("/stats/dashboard"),
@@ -16,14 +20,14 @@ export function DashboardPage() {
   if (statsQuery.isLoading) {
     return (
       <Page>
-        <PageHeader eyebrow="Overview" title="Dashboard" />
-        <PageLoading label="Loading stats..." />
+        <PageHeader eyebrow={t("dashboard.overview")} title={t("dashboard.title")} />
+        <PageLoading label={t("dashboard.loading")} />
       </Page>
     );
   }
 
   if (!statsQuery.data) {
-    return <ListPlaceholder variant="error" label="Could not load dashboard." />;
+    return <ListPlaceholder variant="error" label={t("dashboard.error")} />;
   }
 
   const { summary } = statsQuery.data;
@@ -31,11 +35,11 @@ export function DashboardPage() {
   return (
     <Page>
       <PageHeader
-        eyebrow="Overview"
-        title="Dashboard"
+        eyebrow={t("dashboard.overview")}
+        title={t("dashboard.title")}
         subtitle={
           <p className="mt-2 text-muted-foreground">
-            {summary.subjectCount} subjects in the current cycle.
+            {t("dashboard.subjectCount", { count: summary.subjectCount })}
           </p>
         }
       />

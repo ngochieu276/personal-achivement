@@ -1,6 +1,9 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
+import { useI18n } from "@/i18n";
 
 export function SubjectNote({
   value,
@@ -13,6 +16,7 @@ export function SubjectNote({
   error?: string;
   onSave: (note: string) => void;
 }) {
+  const { t } = useI18n();
   const [note, setNote] = useState(value);
 
   useEffect(() => {
@@ -22,8 +26,8 @@ export function SubjectNote({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Note</CardTitle>
-        <CardDescription>Write anything you want to remember for this subject.</CardDescription>
+        <CardTitle>{t("subjects.note")}</CardTitle>
+        <CardDescription>{t("subjects.noteDesc")}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-2">
         <Textarea
@@ -32,7 +36,7 @@ export function SubjectNote({
           onBlur={() => {
             if (note !== value) onSave(note);
           }}
-          placeholder="Add a note..."
+          placeholder={t("subjects.notePlaceholder")}
           disabled={pending}
           rows={10}
         />

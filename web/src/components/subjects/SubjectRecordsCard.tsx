@@ -1,10 +1,13 @@
+"use client";
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { SubjectRecordForm } from "@/components/subjects/SubjectRecordForm";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Timeline, TimelineContent, TimelineItem } from "@/components/ui/timeline";
+import { useI18n } from "@/i18n";
 import { api } from "@/lib/api";
 import { formatDate } from "@/lib/format";
-import { betterDirectionLabels, typeOfRecordLabels } from "@/lib/record";
+import { betterDirectionLabel, typeOfRecordLabel } from "@/lib/record";
 import type { Subject, SubjectDetail, SubjectRecord } from "@/lib/types";
 
 function recordList(records: SubjectRecord[]) {
@@ -14,11 +17,12 @@ function recordList(records: SubjectRecord[]) {
 }
 
 export function SubjectRecordsCard({ subject }: { subject: Subject }) {
+  const { t } = useI18n();
   const queryClient = useQueryClient();
   const records = recordList(subject.records ?? []);
-  const typeLabel = subject.typeOfRecord ? typeOfRecordLabels[subject.typeOfRecord] : null;
+  const typeLabel = subject.typeOfRecord ? typeOfRecordLabel(subject.typeOfRecord) : null;
   const directionLabel = subject.betterDirection
-    ? betterDirectionLabels[subject.betterDirection]
+    ? betterDirectionLabel(subject.betterDirection)
     : null;
 
   const addRecord = useMutation({
@@ -36,11 +40,11 @@ export function SubjectRecordsCard({ subject }: { subject: Subject }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Records</CardTitle>
+        <CardTitle>{t("subjects.records")}</CardTitle>
         <CardDescription>
           {typeLabel
             ? `${typeLabel}${directionLabel ? ` · ${directionLabel}` : ""}`
-            : "Set a record type on this subject to start logging numbers."}
+            : t("subjects.recordsHint")}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -52,7 +56,7 @@ export function SubjectRecordsCard({ subject }: { subject: Subject }) {
           />
         ) : null}
         {records.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No records yet.</p>
+          <p className="text-sm text-muted-foreground">{t("subjects.noRecords")}</p>
         ) : (
           <Timeline>
             {records.map((record) => (

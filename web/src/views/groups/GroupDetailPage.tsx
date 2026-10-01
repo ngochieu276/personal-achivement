@@ -1,3 +1,5 @@
+"use client";
+
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
@@ -14,11 +16,13 @@ import { PageLoading } from "@/components/layout/PageLoading";
 import { ProjectCard } from "@/components/projects/ProjectCard";
 import { ProjectForm } from "@/components/projects/ProjectForm";
 import { ViewToggle, viewClass } from "@/components/layout/ViewToggle";
+import { useI18n } from "@/i18n";
 import { api } from "@/lib/api";
 import type { Group, GroupTree, Project } from "@/lib/types";
 import { useViewStore } from "@/stores/view";
 
 export function GroupDetailPage() {
+  const { t } = useI18n();
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -84,7 +88,7 @@ export function GroupDetailPage() {
   const canDelete = Boolean(group) && projects.length === 0;
   const deleteControl = canDelete ? (
     <DeleteButton
-      label="Delete group"
+      label={t("groups.delete")}
       pending={deleteGroup.isPending}
       onClick={() => deleteGroup.mutate()}
     />
@@ -92,15 +96,19 @@ export function GroupDetailPage() {
 
   return (
     <Page>
-      <BackLink to="/projects">All projects</BackLink>
+      <BackLink to="/projects">{t("projects.all")}</BackLink>
       {groupQuery.isLoading ? (
-        <DetailHeaderSkeleton eyebrow="Group" />
+        <DetailHeaderSkeleton eyebrow={t("groups.eyebrow")} />
       ) : (
         <PageHeader
-          eyebrow="Group"
-          title={group ? `${group.name}` : "Group"}
+          eyebrow={t("groups.eyebrow")}
+          title={group ? `${group.name}` : t("groups.eyebrow")}
           icon={group?.icon}
-          subtitle={group ? <p className="mt-1 text-sm text-muted-foreground">ID {group.id}</p> : null}
+          subtitle={
+            group ? (
+              <p className="mt-1 text-sm text-muted-foreground">{t("groups.idValue", { id: group.id })}</p>
+            ) : null
+          }
           onEdit={
             group
               ? () => {
@@ -110,7 +118,7 @@ export function GroupDetailPage() {
                 }
               : undefined
           }
-          editLabel="Edit group"
+          editLabel={t("groups.edit")}
           actions={
             <>
               <ViewToggle />
@@ -120,7 +128,7 @@ export function GroupDetailPage() {
         />
       )}
 
-      <FormDialog open={editingGroup} onOpenChange={setEditingGroup} title="Edit group">
+      <FormDialog open={editingGroup} onOpenChange={setEditingGroup} title={t("groups.edit")}>
         <GroupForm
           id={group?.id ?? ""}
           name={groupName}
@@ -131,7 +139,7 @@ export function GroupDetailPage() {
           onSubmit={() => updateGroup.mutate()}
           pending={updateGroup.isPending}
           error={updateGroup.error?.message}
-          submitLabel="Save"
+          submitLabel={t("common.save")}
           idLocked
         />
       </FormDialog>
@@ -141,7 +149,7 @@ export function GroupDetailPage() {
         onOpenChange={(next) => {
           if (!next) setEditingProject(null);
         }}
-        title="Edit project"
+        title={t("projects.edit")}
       >
         <ProjectForm
           name={projectName}
@@ -154,24 +162,24 @@ export function GroupDetailPage() {
           onSubmit={() => updateProject.mutate()}
           pending={updateProject.isPending}
           error={updateProject.error?.message}
-          submitLabel="Save"
+          submitLabel={t("common.save")}
         />
       </FormDialog>
 
       {groupQuery.isLoading ? (
-        <PageLoading label="Loading group...">
+        <PageLoading label={t("groups.loading")}>
           <CardListSkeleton kind="projects" />
         </PageLoading>
       ) : !group ? (
-        <ListPlaceholder variant="error" label="Group not found." />
+        <ListPlaceholder variant="error" label={t("groups.notFound")} />
       ) : (
         <>
           <AddProjectsToGroup groupId={group.id} assignedIds={projects.map((project) => project.id)} />
           {projects.length === 0 ? (
             <ListPlaceholder
               variant="empty"
-              title="No projects in this group"
-              description="Select existing projects above, or delete this group."
+              title={t("groups.emptyTitle")}
+              description={t("groups.emptyDesc")}
               action={deleteControl}
             />
           ) : (

@@ -1,7 +1,10 @@
+"use client";
+
 import type { FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useI18n } from "@/i18n";
 
 export function SetProgressForm({
   unit,
@@ -18,6 +21,8 @@ export function SetProgressForm({
   pending: boolean;
   error?: string;
 }) {
+  const { t } = useI18n();
+
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
     onSubmit();
@@ -27,7 +32,7 @@ export function SetProgressForm({
     <>
       <form className="flex items-end gap-3" onSubmit={handleSubmit}>
         <div className="flex-1 space-y-2">
-          <Label htmlFor="progress">Set current {unit}</Label>
+          <Label htmlFor="progress">{t("subjects.setCurrentUnit", { unit })}</Label>
           <Input
             id="progress"
             type="number"
@@ -38,7 +43,7 @@ export function SetProgressForm({
           />
         </div>
         <Button type="submit" disabled={pending}>
-          Save
+          {t("common.save")}
         </Button>
       </form>
       {error ? <p className="text-sm text-destructive">{error}</p> : null}

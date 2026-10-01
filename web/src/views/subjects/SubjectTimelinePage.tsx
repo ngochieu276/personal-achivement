@@ -1,3 +1,5 @@
+"use client";
+
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { BackLink } from "@/components/layout/BackLink";
@@ -7,11 +9,13 @@ import { PeriodTimeline } from "@/components/subjects/PeriodTimeline";
 import { SubjectPageSkeleton } from "@/components/subjects/SubjectPageSkeleton";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useI18n } from "@/i18n";
 import { api } from "@/lib/api";
 import { unitLabel } from "@/lib/format";
 import type { SubjectDetail, SubjectEventsResponse } from "@/lib/types";
 
 export function SubjectTimelinePage() {
+  const { t } = useI18n();
   const { id } = useParams<{ id: string }>();
 
   const detailQuery = useQuery({
@@ -30,7 +34,7 @@ export function SubjectTimelinePage() {
     return <SubjectPageSkeleton />;
   }
   if (!detailQuery.data) {
-    return <ListPlaceholder variant="error" label="Subject not found." />;
+    return <ListPlaceholder variant="error" label={t("subjects.notFound")} />;
   }
 
   const { subject } = detailQuery.data;
@@ -39,24 +43,24 @@ export function SubjectTimelinePage() {
 
   return (
     <Page>
-      <BackLink to={`/subjects/${subject.id}`}>Back to subject</BackLink>
+      <BackLink to={`/subjects/${subject.id}`}>{t("subjects.backToSubject")}</BackLink>
       <PageHeader
-        eyebrow="Timeline"
+        eyebrow={t("breadcrumb.timeline")}
         title={subject.name}
         icon={subject.icon}
         align="start"
         subtitle={
           <p className="mt-2 text-muted-foreground">
-            Closed periods. Edit a period’s KPI or logged {unit} if you forgot to fill it in.
+            {t("subjects.timelineHint", { unit })}
           </p>
         }
       />
 
       <Card>
         <CardHeader>
-          <CardTitle>Passing periods</CardTitle>
+          <CardTitle>{t("subjects.passingPeriods")}</CardTitle>
           <CardDescription>
-            Newest first. Saving a period updates its result and the subject streak.
+            {t("subjects.passingDesc")}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -67,10 +71,10 @@ export function SubjectTimelinePage() {
               <Skeleton className="h-24 w-full" />
             </div>
           ) : eventsQuery.isError ? (
-            <p className="text-sm text-destructive">Could not load closed periods.</p>
+            <p className="text-sm text-destructive">{t("subjects.loadPeriodsError")}</p>
           ) : events.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              No closed periods yet. When a cycle ends, it shows up here so you can fill in a missed KPI or progress.
+              {t("subjects.noClosedPeriods")}
             </p>
           ) : (
             <PeriodTimeline

@@ -1,11 +1,9 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/i18n";
 import { cn } from "@/lib/utils";
 import type { ActivityRange } from "@/lib/types";
-
-const options: { id: ActivityRange; label: string }[] = [
-  { id: "week", label: "This week" },
-  { id: "month", label: "Past month" },
-];
 
 export function ActivityFilters({
   value,
@@ -14,6 +12,12 @@ export function ActivityFilters({
   value: ActivityRange;
   onChange: (value: ActivityRange) => void;
 }) {
+  const { t } = useI18n();
+  const options: { id: ActivityRange; label: string }[] = [
+    { id: "week", label: t("activities.thisWeek") },
+    { id: "month", label: t("activities.pastMonth") },
+  ];
+
   return (
     <div className="inline-flex rounded-md border border-border bg-card p-0.5">
       {options.map((option) => (

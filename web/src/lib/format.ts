@@ -1,18 +1,22 @@
 import type { KpiType, KpiTypePeriod } from "@/lib/types";
+import { t, localeTag } from "@/i18n";
 
-export const periodLabels: Record<KpiTypePeriod, string> = {
-  day: "Per day",
-  week: "Per week",
-  twoWeek: "Per 2 weeks",
-  month: "Per month",
-};
+export function periodLabel(period: KpiTypePeriod) {
+  const keys = {
+    day: "period.day",
+    week: "period.week",
+    twoWeek: "period.twoWeek",
+    month: "period.month",
+  } as const;
+  return t(keys[period]);
+}
 
 export function unitLabel(kpiType: KpiType) {
-  return kpiType === "totalTime" ? "min" : "reps";
+  return kpiType === "totalTime" ? t("unit.min") : t("unit.reps");
 }
 
 export function formatDate(value: string) {
-  return new Intl.DateTimeFormat(undefined, {
+  return new Intl.DateTimeFormat(localeTag(), {
     month: "short",
     day: "numeric",
     year: "numeric",
@@ -24,7 +28,7 @@ export function formatPeriodRange(start: string, end: string) {
 }
 
 export function formatDateTime(value: string) {
-  return new Intl.DateTimeFormat(undefined, {
+  return new Intl.DateTimeFormat(localeTag(), {
     month: "short",
     day: "numeric",
     hour: "numeric",
@@ -33,7 +37,7 @@ export function formatDateTime(value: string) {
 }
 
 export function formatTime(value: string) {
-  return new Intl.DateTimeFormat(undefined, {
+  return new Intl.DateTimeFormat(localeTag(), {
     hour: "numeric",
     minute: "2-digit",
   }).format(new Date(value));
@@ -52,18 +56,18 @@ export function formatDayHeading(dayKey: string) {
   const yesterdayDate = new Date();
   yesterdayDate.setDate(yesterdayDate.getDate() - 1);
   const yesterday = localDayKey(yesterdayDate);
-  if (dayKey === today) return "Today";
-  if (dayKey === yesterday) return "Yesterday";
+  if (dayKey === today) return t("time.today");
+  if (dayKey === yesterday) return t("time.yesterday");
   return formatDate(`${dayKey}T12:00:00`);
 }
 
 export function remainingLabel(endIso: string) {
   const ms = new Date(endIso).getTime() - Date.now();
-  if (ms <= 0) return "Period ending";
+  if (ms <= 0) return t("time.periodEnding");
   const hours = Math.floor(ms / 3_600_000);
-  if (hours < 24) return `${Math.max(1, hours)}h left`;
+  if (hours < 24) return t("time.hoursLeft", { count: Math.max(1, hours) });
   const days = Math.floor(hours / 24);
-  return `${days}d left`;
+  return t("time.daysLeft", { count: days });
 }
 
 export function fileKind(mimeType: string) {

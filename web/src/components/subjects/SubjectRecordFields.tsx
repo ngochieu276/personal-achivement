@@ -1,10 +1,13 @@
+"use client";
+
 import { Label } from "@/components/ui/label";
+import { useI18n } from "@/i18n";
 import {
   BETTER_DIRECTION,
   TYPE_OF_RECORD,
-  betterDirectionLabels,
+  betterDirectionLabel,
   defaultBetterDirection,
-  typeOfRecordLabels,
+  typeOfRecordLabel,
 } from "@/lib/record";
 import type { BetterDirection, TypeOfRecord } from "@/lib/types";
 
@@ -22,6 +25,8 @@ export function SubjectRecordFields({
   onTypeOfRecordChange: (value: TypeOfRecord | "") => void;
   onBetterDirectionChange: (value: BetterDirection | "") => void;
 }) {
+  const { t } = useI18n();
+
   function changeType(value: TypeOfRecord | "") {
     onTypeOfRecordChange(value);
     onBetterDirectionChange(defaultBetterDirection(value));
@@ -30,17 +35,17 @@ export function SubjectRecordFields({
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="type-of-record">Type of record (optional)</Label>
+        <Label htmlFor="type-of-record">{t("subjects.typeOfRecord")}</Label>
         <select
           id="type-of-record"
           className={selectClass}
           value={typeOfRecord}
           onChange={(event) => changeType(event.target.value as TypeOfRecord | "")}
         >
-          <option value="">None</option>
+          <option value="">{t("common.none")}</option>
           {TYPE_OF_RECORD.map((value) => (
             <option key={value} value={value}>
-              {typeOfRecordLabels[value]}
+              {typeOfRecordLabel(value)}
             </option>
           ))}
         </select>
@@ -48,7 +53,7 @@ export function SubjectRecordFields({
       {typeOfRecord ? (
         typeOfRecord === "defineByUser" ? (
           <div className="space-y-2">
-            <Label htmlFor="better-direction">Better direction</Label>
+            <Label htmlFor="better-direction">{t("subjects.betterDirection")}</Label>
             <select
               id="better-direction"
               className={selectClass}
@@ -57,20 +62,20 @@ export function SubjectRecordFields({
               required
             >
               <option value="" disabled>
-                Select direction
+                {t("subjects.selectDirection")}
               </option>
               {BETTER_DIRECTION.map((value) => (
                 <option key={value} value={value}>
-                  {betterDirectionLabels[value]}
+                  {betterDirectionLabel(value)}
                 </option>
               ))}
             </select>
           </div>
         ) : (
           <div className="space-y-2">
-            <Label>Better direction</Label>
+            <Label>{t("subjects.betterDirection")}</Label>
             <p className="flex h-10 items-center text-sm text-muted-foreground">
-              {betterDirection ? betterDirectionLabels[betterDirection] : "—"}
+              {betterDirection ? betterDirectionLabel(betterDirection) : "—"}
             </p>
           </div>
         )

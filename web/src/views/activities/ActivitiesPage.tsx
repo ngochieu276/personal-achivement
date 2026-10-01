@@ -1,3 +1,5 @@
+"use client";
+
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useCallback, useMemo, useState } from "react";
 import { ActivityDayGroup } from "@/components/activities/ActivityDayList";
@@ -7,6 +9,7 @@ import { Page, PageHeader } from "@/components/layout/PageHeader";
 import { PageLoading } from "@/components/layout/PageLoading";
 import { InfiniteScrollSentinel } from "@/components/shared/InfiniteScrollSentinel";
 import { Spinner } from "@/components/ui/spinner";
+import { useI18n } from "@/i18n";
 import { api } from "@/lib/api";
 import { groupActivitiesByDay } from "@/lib/activities";
 import type {
@@ -16,6 +19,7 @@ import type {
 } from "@/lib/types";
 
 export function ActivitiesPage() {
+  const { t, locale } = useI18n();
   const [range, setRange] = useState<ActivityRange>("week");
 
   const feedQuery = useInfiniteQuery({
@@ -43,7 +47,7 @@ export function ActivitiesPage() {
     return next;
   }, [feedQuery.data]);
 
-  const days = useMemo(() => groupActivitiesByDay(items), [items]);
+  const days = useMemo(() => groupActivitiesByDay(items), [items, locale]);
   const hasMore = Boolean(feedQuery.hasNextPage);
   const isFetchingNextPage = feedQuery.isFetchingNextPage;
   const fetchNextPage = feedQuery.fetchNextPage;
@@ -55,30 +59,26 @@ export function ActivitiesPage() {
   return (
     <Page>
       <PageHeader
-        eyebrow="Log"
-        title="Activities"
+        eyebrow={t("activities.log")}
+        title={t("activities.title")}
         align="start"
         subtitle={
           <p className="mt-2 text-muted-foreground">
-            KPI progress logged and period results, grouped by day, newest first.
+            {t("activities.subtitle")}
           </p>
         }
         actions={<ActivityFilters value={range} onChange={setRange} />}
       />
 
       {feedQuery.isLoading ? (
-        <PageLoading label="Loading activities..." />
+        <PageLoading label={t("activities.loading")} />
       ) : feedQuery.isError ? (
-        <ListPlaceholder variant="error" label="Could not load activities." />
+        <ListPlaceholder variant="error" label={t("activities.error")} />
       ) : days.length === 0 ? (
         <ListPlaceholder
           variant="empty"
-          title="No activity yet"
-          description={
-            range === "week"
-              ? "No KPI progress this week. Track a subject to start the log."
-              : "No KPI progress in the past 30 days."
-          }
+          title={t("activities.emptyTitle")}
+          description={range === "week" ? t("activities.emptyWeek") : t("activities.emptyMonth")}
         />
       ) : (
         <div className="space-y-8">
@@ -89,11 +89,11 @@ export function ActivitiesPage() {
           {feedQuery.isFetchingNextPage ? (
             <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
               <Spinner />
-              Loading more...
+              {t("activities.loadingMore")}
             </div>
           ) : null}
           {!hasMore && (feedQuery.data?.pages.length ?? 0) > 1 ? (
-            <p className="text-center text-sm text-muted-foreground">End of this range.</p>
+            <p className="text-center text-sm text-muted-foreground">{t("activities.endRange")}</p>
           ) : null}
         </div>
       )}

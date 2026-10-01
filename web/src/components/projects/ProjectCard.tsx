@@ -1,3 +1,5 @@
+"use client";
+
 import { FolderKanban } from "lucide-react";
 import { CardLink } from "@/components/shared/CardLink";
 import { EditButton } from "@/components/shared/EditButton";
@@ -5,6 +7,7 @@ import { ExceedFlame } from "@/components/shared/ExceedFlame";
 import { ProgressBar } from "@/components/shared/ProgressBar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useI18n } from "@/i18n";
 import { formatDate } from "@/lib/format";
 import { EntityIcon } from "@/lib/icons";
 import type { Project } from "@/lib/types";
@@ -51,9 +54,10 @@ export function ProjectCard({
   variant: ViewMode;
   onEdit: (project: Project) => void;
 }) {
+  const { t } = useI18n();
   const count = project.subjectCount ?? 0;
   const average = project.averageProgress ?? 0;
-  const edit = <EditButton label={`Edit ${project.name}`} onClick={() => onEdit(project)} />;
+  const edit = <EditButton label={t("common.editNamed", { name: project.name })} onClick={() => onEdit(project)} />;
 
   if (variant === "list") {
     return (

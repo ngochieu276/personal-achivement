@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -7,11 +9,13 @@ import { Spinner } from "@/components/ui/spinner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useI18n } from "@/i18n";
 import { api } from "@/lib/api";
 import type { User } from "@/lib/types";
 import { useAuthStore } from "@/stores/auth";
 
 export function RegisterPage() {
+  const { t } = useI18n();
   const router = useRouter();
   const setAuth = useAuthStore((state) => state.setAuth);
   const [name, setName] = useState("");
@@ -32,7 +36,7 @@ export function RegisterPage() {
       setAuth(data.token, data.user);
       router.push("/projects");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Registration failed");
+      setError(err instanceof Error ? err.message : t("auth.registerFailed"));
     } finally {
       setPending(false);
     }
@@ -42,13 +46,13 @@ export function RegisterPage() {
     <div className="mx-auto flex min-h-svh max-w-md items-center px-4">
       <Card className="w-full">
         <CardHeader>
-          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Start a log</p>
-          <CardTitle>Create account</CardTitle>
-          <CardDescription>Use Google or a name, email, and password.</CardDescription>
+          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{t("auth.startLog")}</p>
+          <CardTitle>{t("auth.createAccountTitle")}</CardTitle>
+          <CardDescription>{t("auth.registerDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
           <GoogleAuthButton
-            label="Continue with Google"
+            label={t("auth.google")}
             onAuthenticated={(token, user) => {
               setAuth(token, user);
               router.push("/projects");
@@ -57,7 +61,7 @@ export function RegisterPage() {
           />
           <form className="space-y-4" onSubmit={onSubmit}>
             <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">{t("common.name")}</Label>
               <Input
                 id="name"
                 value={name}
@@ -66,7 +70,7 @@ export function RegisterPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t("common.email")}</Label>
               <Input
                 id="email"
                 type="email"
@@ -76,7 +80,7 @@ export function RegisterPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t("common.password")}</Label>
               <Input
                 id="password"
                 type="password"
@@ -89,13 +93,13 @@ export function RegisterPage() {
             {error ? <p className="text-sm text-destructive">{error}</p> : null}
             <Button className="w-full" type="submit" disabled={pending}>
               {pending ? <Spinner /> : null}
-              {pending ? "Creating..." : "Create account"}
+              {pending ? t("auth.creating") : t("auth.createAccount")}
             </Button>
           </form>
           <p className="mt-4 text-sm text-muted-foreground">
-            Already have an account?{" "}
+            {t("auth.haveAccount")}{" "}
             <Link className="text-primary underline-offset-4 hover:underline" href="/login">
-              Sign in
+              {t("auth.signIn")}
             </Link>
           </p>
         </CardContent>

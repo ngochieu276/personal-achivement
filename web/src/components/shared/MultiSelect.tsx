@@ -1,6 +1,9 @@
+"use client";
+
 import { Check, ChevronsUpDown } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/i18n";
 import { cn } from "@/lib/utils";
 
 export type MultiSelectOption = {
@@ -12,8 +15,8 @@ export function MultiSelect({
   options,
   value,
   onChange,
-  placeholder = "Select...",
-  emptyLabel = "Nothing to select",
+  placeholder,
+  emptyLabel,
 }: {
   options: MultiSelectOption[];
   value: string[];
@@ -21,8 +24,11 @@ export function MultiSelect({
   placeholder?: string;
   emptyLabel?: string;
 }) {
+  const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
+  const resolvedPlaceholder = placeholder ?? t("common.select");
+  const resolvedEmptyLabel = emptyLabel ?? t("common.nothingToSelect");
 
   useEffect(() => {
     function onPointerDown(event: PointerEvent) {
@@ -34,10 +40,10 @@ export function MultiSelect({
 
   const selected = options.filter((option) => value.includes(option.value));
   const label = selected.length === 0
-    ? placeholder
+    ? resolvedPlaceholder
     : selected.length === 1
       ? selected[0].label
-      : `${selected.length} selected`;
+      : t("common.selectedCount", { count: selected.length });
 
   function toggle(id: string) {
     onChange(value.includes(id) ? value.filter((item) => item !== id) : [...value, id]);
@@ -53,7 +59,7 @@ export function MultiSelect({
         onClick={() => setOpen((next) => !next)}
         aria-expanded={open}
       >
-        <span className="truncate">{options.length === 0 ? emptyLabel : label}</span>
+        <span className="truncate">{options.length === 0 ? resolvedEmptyLabel : label}</span>
         <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
       </Button>
       {open ? (

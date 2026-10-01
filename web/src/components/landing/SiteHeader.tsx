@@ -9,21 +9,22 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { useI18n } from "@/i18n";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth";
 import Link from "next/link";
 import { Fragment, useEffect, useState } from "react";
 
-const links = [
-  { href: "#product", label: "Product" },
-  { href: "#how", label: "How it works" },
-  { href: "#why", label: "Why" },
-];
-
 export function SiteHeader() {
+  const { t } = useI18n();
   const [scrolled, setScrolled] = useState(false);
   const hydrated = useHydrated();
   const token = useAuthStore((state) => state.token);
+  const links = [
+    { href: "#product", label: t("landing.product") },
+    { href: "#how", label: t("landing.how") },
+    { href: "#why", label: t("landing.why") },
+  ];
 
   useEffect(() => {
     function onScroll() {
@@ -46,7 +47,7 @@ export function SiteHeader() {
           <BreadcrumbList>
             <BreadcrumbItem>
               <BreadcrumbLink href="#top" className="font-serif text-lg tracking-tight text-foreground">
-                Personal Record
+                {t("brand.name")}
               </BreadcrumbLink>
             </BreadcrumbItem>
             {links.map((link) => (
@@ -67,7 +68,7 @@ export function SiteHeader() {
               href="/projects"
               className="inline-flex items-center justify-center rounded-md bg-streak px-4 py-2 text-sm font-medium text-white hover:bg-streak/90"
             >
-              Open app
+              {t("nav.openApp")}
             </Link>
           ) : (
             <>

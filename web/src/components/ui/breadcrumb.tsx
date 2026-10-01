@@ -1,6 +1,9 @@
+"use client";
+
 import { Slot } from "@radix-ui/react-slot";
 import { ChevronRight, MoreHorizontal } from "lucide-react";
 import type { ComponentProps } from "react";
+import { useI18n } from "@/i18n";
 import { cn } from "@/lib/utils";
 
 export function Breadcrumb({ ...props }: ComponentProps<"nav">) {
@@ -73,6 +76,7 @@ export function BreadcrumbSeparator({ children, className, ...props }: Component
 }
 
 export function BreadcrumbEllipsis({ className, ...props }: ComponentProps<"span">) {
+  const { t } = useI18n();
   return (
     <span
       data-slot="breadcrumb-ellipsis"
@@ -82,7 +86,7 @@ export function BreadcrumbEllipsis({ className, ...props }: ComponentProps<"span
       {...props}
     >
       <MoreHorizontal className="size-4" />
-      <span className="sr-only">More</span>
+      <span className="sr-only">{t("breadcrumb.more")}</span>
     </span>
   );
 }

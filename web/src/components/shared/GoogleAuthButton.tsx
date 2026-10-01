@@ -1,6 +1,9 @@
+"use client";
+
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
+import { useI18n } from "@/i18n";
 import { api } from "@/lib/api";
 import { GoogleMark, loadGoogleOauth } from "@/lib/google";
 import type { User } from "@/lib/types";
@@ -14,6 +17,7 @@ export function GoogleAuthButton({
   onAuthenticated: (token: string, user: User) => void;
   onError: (message: string) => void;
 }) {
+  const { t } = useI18n();
   const onAuthenticatedRef = useRef(onAuthenticated);
   const onErrorRef = useRef(onError);
   const [clientId, setClientId] = useState<string | null>(
@@ -39,7 +43,7 @@ export function GoogleAuthButton({
   async function signIn() {
     const id = clientId || process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
     if (!id) {
-      onErrorRef.current("Add GOOGLE_CLIENT_ID to api/.env and restart the API.");
+      onErrorRef.current(t("auth.googleMissing"));
       return;
     }
 
@@ -53,7 +57,7 @@ export function GoogleAuthButton({
           scope: "openid email profile",
           callback: (response) => {
             if (response.access_token) resolve(response.access_token);
-            else reject(new Error(response.error || "Google sign-in was cancelled"));
+            else reject(new Error(response.error || t("auth.googleCancelled")));
           },
         });
         client.requestAccessToken();
@@ -65,7 +69,9 @@ export function GoogleAuthButton({
       });
       onAuthenticatedRef.current(data.token, data.user);
     } catch (error) {
-      onErrorRef.current(error instanceof Error ? error.message : "Google sign-in failed");
+      const message = error instanceof Error ? error.message : "";
+      if (message.includes("failed to load")) onErrorRef.current(t("auth.googleLoadFailed"));
+      else onErrorRef.current(message || t("auth.googleFailed"));
     } finally {
       setPending(false);
     }
@@ -81,14 +87,14 @@ export function GoogleAuthButton({
         disabled={pending}
       >
         {pending ? <Spinner /> : <GoogleMark className="h-5 w-5" />}
-        {pending ? "Connecting..." : label}
+        {pending ? t("auth.connecting") : label}
       </Button>
       <div className="relative">
         <div className="absolute inset-0 flex items-center">
           <span className="w-full border-t border-border" />
         </div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-card px-2 text-muted-foreground">or</span>
+          <span className="bg-card px-2 text-muted-foreground">{t("auth.or")}</span>
         </div>
       </div>
     </div>

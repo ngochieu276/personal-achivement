@@ -1,15 +1,9 @@
 "use client";
 
 import { Reveal } from "@/components/landing/Reveal";
+import { useI18n } from "@/i18n";
 import { animate, motion, useInView, useReducedMotion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
-
-const stats = [
-  { value: 4, suffix: "", label: "Rolling periods", hint: "Day, week, two weeks, month" },
-  { value: 2, suffix: "", label: "Period outcomes", hint: "Finish or miss, every cycle" },
-  { value: 1, suffix: "", label: "Honest streak", hint: "Hits climb. Misses reset." },
-  { value: 100, suffix: "%", label: "Your log", hint: "Activity by day, newest first" },
-];
 
 function CountUp({ value, suffix }: { value: number; suffix: string }) {
   const ref = useRef<HTMLSpanElement>(null);
@@ -40,6 +34,14 @@ function CountUp({ value, suffix }: { value: number; suffix: string }) {
 }
 
 export function StatsStrip() {
+  const { t } = useI18n();
+  const stats = [
+    { value: 4, suffix: "", label: t("landing.statPeriods"), hint: t("landing.statPeriodsHint") },
+    { value: 2, suffix: "", label: t("landing.statOutcomes"), hint: t("landing.statOutcomesHint") },
+    { value: 1, suffix: "", label: t("landing.statStreak"), hint: t("landing.statStreakHint") },
+    { value: 100, suffix: "%", label: t("landing.statLog"), hint: t("landing.statLogHint") },
+  ];
+
   return (
     <section id="why" className="mx-auto max-w-6xl px-4 py-8">
       <Reveal>

@@ -1,3 +1,5 @@
+"use client";
+
 import { Plus, Trash2 } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { ResourceLink } from "@/components/shared/ResourceLink";
@@ -5,6 +7,7 @@ import { YouTubePlayer } from "@/components/subjects/YouTubePlayer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { useI18n } from "@/i18n";
 import { youtubeVideoId } from "@/lib/youtube";
 
 export function SubjectDocuments({
@@ -18,6 +21,7 @@ export function SubjectDocuments({
   error?: string;
   onChange: (documents: string[]) => void;
 }) {
+  const { t } = useI18n();
   const [url, setUrl] = useState("");
 
   function addDocument(event: FormEvent) {
@@ -31,8 +35,8 @@ export function SubjectDocuments({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Youtube</CardTitle>
-        <CardDescription>Links and videos for this subject. YouTube URLs play here.</CardDescription>
+        <CardTitle>{t("subjects.youtube")}</CardTitle>
+        <CardDescription>{t("subjects.youtubeDesc")}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <form className="flex items-end gap-3" onSubmit={addDocument}>
@@ -41,16 +45,16 @@ export function SubjectDocuments({
             value={url}
             onChange={(event) => setUrl(event.target.value)}
             placeholder="https://"
-            aria-label="Document URL"
+            aria-label={t("subjects.documentUrl")}
           />
           <Button type="submit" disabled={pending || !url.trim()}>
             <Plus className="h-4 w-4" />
-            Add
+            {t("common.add")}
           </Button>
         </form>
         {error ? <p className="text-sm text-destructive">{error}</p> : null}
         {documents.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No videos yet.</p>
+          <p className="text-sm text-muted-foreground">{t("subjects.noVideos")}</p>
         ) : (
           <ul className="space-y-4">
             {documents.map((document) => (
@@ -77,6 +81,7 @@ function DocumentItem({
   pending: boolean;
   onRemove: () => void;
 }) {
+  const { t } = useI18n();
   const isYouTube = Boolean(youtubeVideoId(url));
 
   return (
@@ -93,7 +98,7 @@ function DocumentItem({
           className="h-8 w-8 shrink-0"
           onClick={onRemove}
           disabled={pending}
-          aria-label={`Remove ${url}`}
+          aria-label={t("common.removeNamed", { name: url })}
         >
           <Trash2 className="h-4 w-4" />
         </Button>

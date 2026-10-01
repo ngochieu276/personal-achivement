@@ -1,8 +1,11 @@
+"use client";
+
 import type { FormEvent } from "react";
 import { IconPicker } from "@/components/shared/IconPicker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useI18n } from "@/i18n";
 
 export function GroupForm({
   id,
@@ -29,6 +32,8 @@ export function GroupForm({
   submitLabel: string;
   idLocked?: boolean;
 }) {
+  const { t } = useI18n();
+
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
     onSubmit();
@@ -37,18 +42,18 @@ export function GroupForm({
   return (
     <form className="space-y-4" onSubmit={handleSubmit}>
       <div className="space-y-2">
-        <Label htmlFor="group-id">ID</Label>
+        <Label htmlFor="group-id">{t("groups.id")}</Label>
         <Input
           id="group-id"
           value={id}
           onChange={(event) => onIdChange(event.target.value)}
-          placeholder="badminton"
+          placeholder={t("groups.idPlaceholder")}
           required
           disabled={idLocked}
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="group-name">Name</Label>
+        <Label htmlFor="group-name">{t("common.name")}</Label>
         <Input
           id="group-name"
           value={name}

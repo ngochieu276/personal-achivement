@@ -2,9 +2,11 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MotionConfig } from "motion/react";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { useLocaleStore } from "@/stores/locale";
 
 export function Providers({ children }: { children: ReactNode }) {
+  const locale = useLocaleStore((state) => state.locale);
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -13,6 +15,10 @@ export function Providers({ children }: { children: ReactNode }) {
         },
       }),
   );
+
+  useEffect(() => {
+    document.documentElement.lang = locale === "vi" ? "vi" : "en";
+  }, [locale]);
 
   return (
     <MotionConfig reducedMotion="user">

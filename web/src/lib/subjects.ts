@@ -1,13 +1,17 @@
 import type { KpiTypePeriod, Subject } from "@/lib/types";
+import { t } from "@/i18n";
 
 export const PERIOD_ORDER: KpiTypePeriod[] = ["day", "week", "twoWeek", "month"];
 
-export const periodGroupLabels: Record<KpiTypePeriod, string> = {
-  day: "Day",
-  week: "Week",
-  twoWeek: "2 weeks",
-  month: "Month",
-};
+export function periodGroupLabel(period: KpiTypePeriod) {
+  const keys = {
+    day: "period.groupDay",
+    week: "period.groupWeek",
+    twoWeek: "period.groupTwoWeek",
+    month: "period.groupMonth",
+  } as const;
+  return t(keys[period]);
+}
 
 export function groupSubjectsByPeriod(subjects: Subject[]) {
   return PERIOD_ORDER.map((period) => ({

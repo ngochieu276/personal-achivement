@@ -1,10 +1,12 @@
 "use client";
 
 import { AnimatedProgress } from "@/components/landing/AnimatedProgress";
+import { useI18n } from "@/i18n";
 import { motion, useReducedMotion } from "motion/react";
 import { Flame, Star } from "lucide-react";
 
 export function ProductMock() {
+  const { t } = useI18n();
   const reduced = useReducedMotion();
 
   return (
@@ -16,13 +18,13 @@ export function ProductMock() {
     >
       <div className="flex items-center gap-2">
         <Star className="h-4 w-4 fill-streak text-streak" />
-        <p className="font-medium">Morning run</p>
+        <p className="font-medium">{t("landing.mockSubject")}</p>
       </div>
-      <p className="mt-1 text-sm text-muted-foreground">Per week · 150 min</p>
+      <p className="mt-1 text-sm text-muted-foreground">{t("landing.mockPeriod")}</p>
       <div className="mt-5 space-y-3">
         <AnimatedProgress />
         <div className="flex items-center justify-between text-sm text-muted-foreground">
-          <span>Log this period</span>
+          <span>{t("landing.mockLog")}</span>
           <span className="inline-flex items-center gap-1">
             <motion.span
               animate={reduced ? undefined : { scale: [1, 1.15, 1] }}
@@ -30,18 +32,18 @@ export function ProductMock() {
             >
               <Flame className="h-4 w-4 fill-streak text-streak" />
             </motion.span>
-            12 streak
+            {t("landing.mockStreak", { count: 12 })}
           </span>
         </div>
       </div>
       <div className="mt-5 grid grid-cols-2 gap-2 text-xs">
         <div className="rounded-md border bg-muted/60 px-3 py-2">
-          <p className="text-muted-foreground">Status</p>
-          <p className="mt-1 font-medium text-hit">On track to finish</p>
+          <p className="text-muted-foreground">{t("landing.mockStatus")}</p>
+          <p className="mt-1 font-medium text-hit">{t("landing.mockOnTrack")}</p>
         </div>
         <div className="rounded-md border bg-muted/60 px-3 py-2">
-          <p className="text-muted-foreground">Cycle</p>
-          <p className="mt-1 font-medium">3d left</p>
+          <p className="text-muted-foreground">{t("landing.mockCycle")}</p>
+          <p className="mt-1 font-medium">{t("landing.mockLeft")}</p>
         </div>
       </div>
     </motion.div>

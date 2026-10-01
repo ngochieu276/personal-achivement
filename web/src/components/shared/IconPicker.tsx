@@ -1,3 +1,5 @@
+"use client";
+
 import { useMemo, useState, type ReactNode } from "react";
 import { ChevronDown } from "lucide-react";
 import type { IconName } from "lucide-react/dynamic";
@@ -9,6 +11,7 @@ import {
   toLucideIconName,
   toPascalCase,
 } from "@/lib/icons";
+import { useI18n } from "@/i18n";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,6 +27,7 @@ export function IconPicker({
   value: string;
   onChange: (value: string) => void;
 }) {
+  const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const trimmed = query.trim();
@@ -50,7 +54,7 @@ export function IconPicker({
 
   return (
     <div className="space-y-2">
-      <Label>Icon (optional)</Label>
+      <Label>{t("common.iconOptional")}</Label>
       <Popover
         modal
         open={open}
@@ -63,7 +67,7 @@ export function IconPicker({
           <Button type="button" variant="outline" className="w-full justify-between font-normal">
             <span className="flex items-center gap-2 truncate">
               {value ? <EntityIcon name={value} className="h-4 w-4" /> : <span>—</span>}
-              <span className="truncate">{value || "No icon"}</span>
+              <span className="truncate">{value || t("common.noIcon")}</span>
             </span>
             <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
           </Button>
@@ -76,12 +80,12 @@ export function IconPicker({
               onKeyDown={(event) => {
                 if (event.key === "Enter") event.preventDefault();
               }}
-              placeholder="Search lucide icons..."
+              placeholder={t("common.searchIcons")}
               autoComplete="off"
-              aria-label="Search icons"
+              aria-label={t("common.searchIconsAria")}
             />
             <div className="grid max-h-44 grid-cols-8 gap-1 overflow-y-auto">
-              <IconChoice selected={!value} onClick={() => selectIcon("")} ariaLabel="No icon">
+              <IconChoice selected={!value} onClick={() => selectIcon("")} ariaLabel={t("common.noIcon")}>
                 —
               </IconChoice>
               {names.map((name) => (
@@ -140,22 +144,24 @@ function IconPickerHint({
   shown: number;
   total: number;
 }) {
+  const { t } = useI18n();
+
   if (!searching) {
     return (
       <p className="text-xs text-muted-foreground">
-        Featured icons shown. Search to browse all {ICON_NAMES.length} lucide icons.
+        {t("common.featuredIcons", { count: ICON_NAMES.length })}
       </p>
     );
   }
   if (total === 0) {
-    return <p className="text-xs text-muted-foreground">No icons match that name.</p>;
+    return <p className="text-xs text-muted-foreground">{t("common.noIcons")}</p>;
   }
   if (shown < total) {
     return (
       <p className="text-xs text-muted-foreground">
-        Showing {shown} of {total}. Keep typing to narrow results.
+        {t("common.showingIcons", { shown, total })}
       </p>
     );
   }
-  return <p className="text-xs text-muted-foreground">{total} matching icons.</p>;
+  return <p className="text-xs text-muted-foreground">{t("common.matchingIcons", { count: total })}</p>;
 }

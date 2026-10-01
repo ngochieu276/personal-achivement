@@ -1,10 +1,14 @@
+"use client";
+
 import Link from "next/link";
 import { HistoryLine } from "@/components/subjects/SubjectHistory";
+import { useI18n } from "@/i18n";
 import { EntityIcon } from "@/lib/icons";
 import { formatTime, unitLabel } from "@/lib/format";
 import type { ActivityItem } from "@/lib/types";
 
 export function ActivityRow({ item }: { item: ActivityItem }) {
+  useI18n();
   const unit = unitLabel(item.subject.kpiType);
 
   return (

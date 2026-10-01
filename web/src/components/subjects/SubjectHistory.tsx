@@ -1,3 +1,6 @@
+"use client";
+
+import { useI18n } from "@/i18n";
 import { formatDateTime } from "@/lib/format";
 import type { SubjectDetail, SubjectHistory } from "@/lib/types";
 
@@ -15,6 +18,7 @@ export function KpiDoneList({
   periodStart?: string;
   unit: string;
 }) {
+  const { t } = useI18n();
   const items = history.filter((item) => {
     if (item.type !== "kpi_done") return false;
     if (!periodStart) return true;
@@ -22,7 +26,7 @@ export function KpiDoneList({
   });
 
   if (items.length === 0) {
-    return <p className="text-sm text-muted-foreground">No KPI done events yet this period.</p>;
+    return <p className="text-sm text-muted-foreground">{t("subjects.noKpiDone")}</p>;
   }
 
   return (
@@ -30,7 +34,9 @@ export function KpiDoneList({
       {items.map((item) => (
         <li key={item.id} className="border-l-2 border-border pl-3">
           <p className="text-xs text-muted-foreground">{formatDateTime(firedAt(item))}</p>
-          <p className="text-sm">{kpiDoneLabel(item, unit)}</p>
+          <div className="text-sm">
+            <HistoryLine item={item} unit={unit} />
+          </div>
         </li>
       ))}
     </ol>
@@ -44,10 +50,11 @@ export function SubjectHistory({
   history: SubjectDetail["history"];
   unit: string;
 }) {
+  const { t } = useI18n();
   return (
     <ol className="space-y-4">
       {history.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No history yet. Track a period to start the log.</p>
+        <p className="text-sm text-muted-foreground">{t("subjects.noHistory")}</p>
       ) : (
         history.map((item) => (
           <li key={item.id} className="border-l-2 border-border pl-4">
@@ -67,13 +74,24 @@ export function HistoryLine({
   item: Pick<SubjectHistory, "type" | "payload">;
   unit: string;
 }) {
+  const { t } = useI18n();
   if (item.type === "kpi_done") {
-    return <p>{kpiDoneLabel(item, unit)}</p>;
+    const kind = String(item.payload.kind ?? "add");
+    const amount = Number(item.payload.amount ?? 0);
+    const total = Number(item.payload.total ?? 0);
+    if (kind === "set") {
+      return <p>{t("subjects.setCurrent", { total, unit })}</p>;
+    }
+    return <p>{t("subjects.addedProgress", { amount, unit, total })}</p>;
   }
   if (item.type === "kpi_change") {
     return (
       <p>
-        KPI updated from {String(item.payload.oldKpi)} to {String(item.payload.newKpi)} {unit}
+        {t("subjects.kpiUpdated", {
+          old: String(item.payload.oldKpi),
+          new: String(item.payload.newKpi),
+          unit,
+        })}
       </p>
     );
   }
@@ -83,22 +101,14 @@ export function HistoryLine({
     const kpi = Number(item.payload.kpi ?? 0);
     return (
       <p>
-        Period {status === "finish" ? "finished" : "missed"}: {progress} / {kpi} {unit}
+        {status === "finish"
+          ? t("subjects.periodFinished", { progress, kpi, unit })
+          : t("subjects.periodMissed", { progress, kpi, unit })}
       </p>
     );
   }
   if (item.type === "streak_hit") {
-    return <p>Streak hit: {String(item.payload.streak ?? 0)}</p>;
+    return <p>{t("subjects.streakHit", { streak: String(item.payload.streak ?? 0) })}</p>;
   }
-  return <p>Logged event</p>;
-}
-
-function kpiDoneLabel(item: Pick<SubjectHistory, "payload">, unit: string) {
-  const kind = String(item.payload.kind ?? "add");
-  const amount = Number(item.payload.amount ?? 0);
-  const total = Number(item.payload.total ?? 0);
-  if (kind === "set") {
-    return `Set current to ${total} ${unit}`;
-  }
-  return `Added ${amount} ${unit} · total ${total} ${unit}`;
+  return <p>{t("subjects.loggedEvent")}</p>;
 }

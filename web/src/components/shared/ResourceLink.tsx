@@ -1,5 +1,8 @@
+"use client";
+
 import { ExternalLink } from "lucide-react";
 import type { MouseEvent } from "react";
+import { useI18n } from "@/i18n";
 import { cn } from "@/lib/utils";
 
 export function ResourceLink({
@@ -9,6 +12,8 @@ export function ResourceLink({
   href: string;
   variant?: "compact" | "full";
 }) {
+  const { t } = useI18n();
+
   function stop(event: MouseEvent<HTMLAnchorElement>) {
     event.stopPropagation();
   }
@@ -25,7 +30,7 @@ export function ResourceLink({
       )}
     >
       <ExternalLink className={variant === "full" ? "h-4 w-4" : "h-3 w-3"} />
-      {variant === "full" ? "Open linked resource" : "Link"}
+      {variant === "full" ? t("common.openResource") : t("common.link")}
     </a>
   );
 }

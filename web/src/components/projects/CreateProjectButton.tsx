@@ -8,8 +8,10 @@ import { ProjectForm } from "@/components/projects/ProjectForm";
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/api";
 import type { GroupTree } from "@/lib/types";
+import { useI18n } from "@/i18n";
 
 export function CreateProjectButton() {
+  const { t } = useI18n();
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
@@ -42,11 +44,11 @@ export function CreateProjectButton() {
     <FormDialog
       open={open}
       onOpenChange={setOpen}
-      title="New project"
+      title={t("projects.new")}
       trigger={
         <Button size="sm">
           <Plus className="h-4 w-4" />
-          Create project
+          {t("projects.create")}
         </Button>
       }
     >
@@ -61,7 +63,7 @@ export function CreateProjectButton() {
         onSubmit={() => createProject.mutate()}
         pending={createProject.isPending}
         error={createProject.error?.message}
-        submitLabel="Create"
+        submitLabel={t("common.create")}
       />
     </FormDialog>
   );

@@ -1,15 +1,19 @@
+"use client";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useI18n } from "@/i18n";
 import type { DashboardStats } from "@/lib/types";
 
 export function StatCards({ summary }: { summary: DashboardStats["summary"] }) {
+  const { t } = useI18n();
   const items = [
-    { label: "On track", value: `${summary.onTrack}`, hint: "Hit KPI this cycle" },
-    { label: "At risk", value: `${summary.atRisk}`, hint: "Under 50% this cycle" },
-    { label: "Streaks", value: `${summary.streakCount}`, hint: "Subjects with a live streak" },
+    { label: t("dashboard.onTrack"), value: `${summary.onTrack}`, hint: t("dashboard.onTrackHint") },
+    { label: t("dashboard.atRisk"), value: `${summary.atRisk}`, hint: t("dashboard.atRiskHint") },
+    { label: t("dashboard.streaks"), value: `${summary.streakCount}`, hint: t("dashboard.streaksHint") },
     {
-      label: "Average",
+      label: t("dashboard.average"),
       value: `${Math.round(summary.averageProgress)}%`,
-      hint: summary.hitRate == null ? "Current cycle average" : `Hit rate ${summary.hitRate}%`,
+      hint: summary.hitRate == null ? t("dashboard.averageHint") : t("dashboard.hitRate", { rate: summary.hitRate }),
     },
   ];
 

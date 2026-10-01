@@ -1,5 +1,8 @@
+"use client";
+
 import type { ReactNode } from "react";
 import { EditButton } from "@/components/shared/EditButton";
+import { useI18n } from "@/i18n";
 import { EntityIcon } from "@/lib/icons";
 import { cn } from "@/lib/utils";
 
@@ -26,6 +29,7 @@ export function PageHeader({
   align?: "start" | "end";
   icon?: string | null;
 }) {
+  const { t } = useI18n();
   return (
     <div
       className={cn(
@@ -38,7 +42,7 @@ export function PageHeader({
         <div className="flex items-center gap-2">
           {icon ? <EntityIcon name={icon} className="h-8 w-8 text-secondary" /> : null}
           <h1 className="font-serif text-4xl">{title}</h1>
-          {onEdit ? <EditButton label={editLabel ?? `Edit ${title}`} onClick={onEdit} /> : null}
+          {onEdit ? <EditButton label={editLabel ?? t("common.editNamed", { name: title })} onClick={onEdit} /> : null}
         </div>
         {subtitle}
       </div>

@@ -31,8 +31,10 @@ import {
 import { EntityIcon } from "@/lib/icons";
 import { api } from "@/lib/api";
 import type { GroupTree } from "@/lib/types";
+import { useI18n } from "@/i18n";
 
 export function AppSidebar() {
+  const { t } = useI18n();
   const pathname = usePathname();
   const { isMobile, setOpenMobile } = useSidebar();
   const queryClient = useQueryClient();
@@ -77,7 +79,7 @@ export function AppSidebar() {
             <SidebarMenuButton
               asChild
               size="lg"
-              tooltip="Personal Record"
+              tooltip={t("brand.name")}
               className="h-auto py-1.5 group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:overflow-hidden group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:justify-center"
             >
               <Link
@@ -92,9 +94,9 @@ export function AppSidebar() {
                   Pr
                 </span>
                 <span className="min-w-0 group-data-[collapsible=icon]:hidden">
-                  <span className="block font-serif text-[1.05rem] italic leading-6 tracking-tight">Personal</span>
+                  <span className="block font-serif text-[1.05rem] italic leading-6 tracking-tight">{t("brand.personal")}</span>
                   <span className="mt-0.5 block text-[10px] font-medium uppercase leading-4 tracking-[0.16em] text-streak">
-                    Record
+                    {t("brand.record")}
                   </span>
                 </span>
               </Link>
@@ -104,12 +106,12 @@ export function AppSidebar() {
             <SidebarMenuButton
               asChild
               isActive={pathname === "/dashboard"}
-              tooltip="Dashboard"
+              tooltip={t("nav.dashboard")}
               className="group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0"
             >
               <Link href="/dashboard" onClick={closeMobile} className="group-data-[collapsible=icon]:justify-center">
                 <LayoutDashboard />
-                <span className="group-data-[collapsible=icon]:hidden">Dashboard</span>
+                <span className="group-data-[collapsible=icon]:hidden">{t("nav.dashboard")}</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -117,12 +119,12 @@ export function AppSidebar() {
             <SidebarMenuButton
               asChild
               isActive={pathname === "/projects"}
-              tooltip="Projects"
+              tooltip={t("nav.projects")}
               className="group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0"
             >
               <Link href="/projects" onClick={closeMobile} className="group-data-[collapsible=icon]:justify-center">
                 <FolderKanban />
-                <span className="group-data-[collapsible=icon]:hidden">Projects</span>
+                <span className="group-data-[collapsible=icon]:hidden">{t("nav.projects")}</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -132,15 +134,15 @@ export function AppSidebar() {
       <SidebarContent>
         <SidebarGroup>
           <div className="flex items-center justify-between gap-1">
-            <SidebarGroupLabel>Groups</SidebarGroupLabel>
+            <SidebarGroupLabel>{t("nav.groups")}</SidebarGroupLabel>
             <FormDialog
               open={groupOpen}
               onOpenChange={setGroupOpen}
-              title="New group"
+              title={t("groups.new")}
               trigger={
                 <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0 group-data-[collapsible=icon]:hidden">
                   <Plus className="h-4 w-4" />
-                  <span className="sr-only">Create group</span>
+                  <span className="sr-only">{t("nav.createGroup")}</span>
                 </Button>
               }
             >
@@ -154,7 +156,7 @@ export function AppSidebar() {
                 onSubmit={() => createGroup.mutate()}
                 pending={createGroup.isPending}
                 error={createGroup.error?.message}
-                submitLabel="Create"
+                submitLabel={t("common.create")}
               />
             </FormDialog>
           </div>
@@ -166,7 +168,7 @@ export function AppSidebar() {
                 </SidebarMenuItem>
               </SidebarMenu>
             ) : groups.length === 0 ? (
-              <p className="px-2 text-xs text-muted-foreground group-data-[collapsible=icon]:hidden">No groups yet.</p>
+              <p className="px-2 text-xs text-muted-foreground group-data-[collapsible=icon]:hidden">{t("nav.noGroups")}</p>
             ) : (
               <SidebarMenu>
                 {groups.map((group) => (
@@ -188,7 +190,7 @@ export function AppSidebar() {
                           <CollapsibleTrigger asChild>
                             <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0 group-data-[collapsible=icon]:hidden">
                               <ChevronRight className="h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-90" />
-                              <span className="sr-only">Toggle {group.name}</span>
+                              <span className="sr-only">{t("nav.toggleNamed", { name: group.name })}</span>
                             </Button>
                           </CollapsibleTrigger>
                         ) : null}
@@ -220,10 +222,10 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
         <SidebarGroup>
-          <SidebarGroupLabel>Projects</SidebarGroupLabel>
+          <SidebarGroupLabel>{t("nav.projects")}</SidebarGroupLabel>
           <SidebarGroupContent>
             {ungrouped.length === 0 && groups.length > 0 ? (
-              <p className="px-2 text-xs text-muted-foreground group-data-[collapsible=icon]:hidden">All projects are in a group.</p>
+              <p className="px-2 text-xs text-muted-foreground group-data-[collapsible=icon]:hidden">{t("nav.allProjectsGrouped")}</p>
             ) : (
               <SidebarMenu>
                 {ungrouped.map((project) => (

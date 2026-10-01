@@ -1,3 +1,5 @@
+"use client";
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
@@ -5,6 +7,7 @@ import { SubjectFileItem } from "@/components/subjects/SubjectFileItem";
 import { SubjectFilePreview } from "@/components/subjects/SubjectFilePreview";
 import { SubjectFileUpload } from "@/components/subjects/SubjectFileUpload";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useI18n } from "@/i18n";
 import { api } from "@/lib/api";
 import type { SubjectDetail, SubjectFile } from "@/lib/types";
 
@@ -15,6 +18,7 @@ export function SubjectFiles({
   subjectId: string;
   files: SubjectFile[];
 }) {
+  const { t } = useI18n();
   const queryClient = useQueryClient();
   const [preview, setPreview] = useState<SubjectFile | null>(null);
   const [pendingDelete, setPendingDelete] = useState<SubjectFile | null>(null);
@@ -33,13 +37,13 @@ export function SubjectFiles({
   return (
     <Card className="h-full">
       <CardHeader>
-        <CardTitle>Files</CardTitle>
-        <CardDescription>Images, PDFs, Word, and Excel. Preview, download, or delete.</CardDescription>
+        <CardTitle>{t("subjects.files")}</CardTitle>
+        <CardDescription>{t("subjects.filesDesc")}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <SubjectFileUpload subjectId={subjectId} />
         {files.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No files yet.</p>
+          <p className="text-sm text-muted-foreground">{t("subjects.noFiles")}</p>
         ) : (
           <ul className="space-y-2">
             {files.map((file) => (
@@ -68,9 +72,9 @@ export function SubjectFiles({
         onOpenChange={(open) => {
           if (!open) setPendingDelete(null);
         }}
-        title="Delete file?"
-        description={pendingDelete ? `This permanently deletes “${pendingDelete.name}”.` : ""}
-        confirmLabel={remove.isPending ? "Deleting..." : "Delete file"}
+        title={t("subjects.deleteFile")}
+        description={pendingDelete ? t("subjects.deleteFileDesc", { name: pendingDelete.name }) : ""}
+        confirmLabel={remove.isPending ? t("common.deleting") : t("subjects.deleteFileBtn")}
         pending={remove.isPending}
         error={remove.error?.message}
         onConfirm={() => {

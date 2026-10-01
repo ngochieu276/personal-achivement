@@ -1,8 +1,11 @@
+"use client";
+
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { MultiSelect } from "@/components/shared/MultiSelect";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { useI18n } from "@/i18n";
 import { api } from "@/lib/api";
 import type { Project } from "@/lib/types";
 
@@ -13,6 +16,7 @@ export function AddProjectsToGroup({
   groupId: string;
   assignedIds: string[];
 }) {
+  const { t } = useI18n();
   const queryClient = useQueryClient();
   const [selected, setSelected] = useState<string[]>([]);
 
@@ -41,15 +45,15 @@ export function AddProjectsToGroup({
 
   return (
     <div className="space-y-2 rounded-xl border bg-card p-4">
-      <Label>Add projects</Label>
+      <Label>{t("groups.addProjects")}</Label>
       <div className="flex flex-col gap-2 sm:flex-row">
         <div className="min-w-0 flex-1">
           <MultiSelect
             options={available.map((project) => ({ value: project.id, label: project.name }))}
             value={selected}
             onChange={setSelected}
-            placeholder="Select projects"
-            emptyLabel="All projects are already in this group"
+            placeholder={t("groups.selectProjects")}
+            emptyLabel={t("groups.allInGroup")}
           />
         </div>
         <Button
@@ -57,7 +61,7 @@ export function AddProjectsToGroup({
           disabled={selected.length === 0 || addProjects.isPending}
           onClick={() => addProjects.mutate()}
         >
-          Add
+          {t("common.add")}
         </Button>
       </div>
       {addProjects.error ? (

@@ -1,8 +1,11 @@
+"use client";
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import { useState, type FormEvent, type MouseEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useI18n } from "@/i18n";
 import { api } from "@/lib/api";
 import { unitLabel } from "@/lib/format";
 import type { KpiType, SubjectDetail } from "@/lib/types";
@@ -18,8 +21,10 @@ export function AddProgressForm({
   kpiType: KpiType;
   compact?: boolean;
 }) {
+  const { t } = useI18n();
   const queryClient = useQueryClient();
   const [add, setAdd] = useState("1");
+  const unit = unitLabel(kpiType);
 
   const mutation = useMutation({
     mutationFn: () =>
@@ -52,13 +57,13 @@ export function AddProgressForm({
         min="0.1"
         step="0.1"
         value={add}
-        aria-label={`Add ${unitLabel(kpiType)}`}
+        aria-label={t("subjects.addUnit", { unit })}
         className={compact ? "h-8 w-20" : undefined}
         onChange={(event) => setAdd(event.target.value)}
       />
       <Button type="submit" size={compact ? "sm" : "default"} disabled={mutation.isPending}>
         <Plus className="h-4 w-4" />
-        {compact ? "Add" : `Add ${unitLabel(kpiType)}`}
+        {compact ? t("common.add") : t("subjects.addUnit", { unit })}
       </Button>
       {mutation.error && !compact ? (
         <p className="text-sm text-destructive">{mutation.error.message}</p>

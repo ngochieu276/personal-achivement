@@ -1,3 +1,5 @@
+"use client";
+
 import { Star } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { AddProgressForm } from "@/components/subjects/AddProgressForm";
@@ -8,9 +10,10 @@ import { ResourceLink } from "@/components/shared/ResourceLink";
 import { RemainingBadge, StreakBadge } from "@/components/subjects/StreakBadge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useI18n } from "@/i18n";
 import { EntityIcon } from "@/lib/icons";
-import { periodLabels, unitLabel } from "@/lib/format";
-import { typeOfRecordLabels } from "@/lib/record";
+import { periodLabel, unitLabel } from "@/lib/format";
+import { typeOfRecordLabel } from "@/lib/record";
 import { exceedAmount, latestRecordNumber } from "@/lib/subjects";
 import type { Subject } from "@/lib/types";
 import type { ViewMode } from "@/stores/view";
@@ -24,14 +27,16 @@ export function SubjectCard({
   variant: ViewMode;
   onEdit: (subject: Subject) => void;
 }) {
+  const { t } = useI18n();
   const router = useRouter();
   const unit = unitLabel(subject.kpiType);
-  const period = periodLabels[subject.kpiTypePeriod];
+  const period = periodLabel(subject.kpiTypePeriod);
   const latest = latestRecordNumber(subject);
   const recordLabel = subject.typeOfRecord
-    ? `${typeOfRecordLabels[subject.typeOfRecord]}${latest != null ? ` · ${latest}` : ""}`
+    ? `${typeOfRecordLabel(subject.typeOfRecord)}${latest != null ? ` · ${latest}` : ""}`
     : null;
   const exceed = exceedAmount(subject.currentProgress, subject.kpi);
+  const editLabel = t("common.editNamed", { name: subject.name });
 
   function openSubject() {
     router.push(`/subjects/${subject.id}`);
@@ -63,7 +68,7 @@ export function SubjectCard({
             projectId={subject.projectId}
             kpiType={subject.kpiType}
           />
-          <EditButton label={`Edit ${subject.name}`} onClick={() => onEdit(subject)} />
+          <EditButton label={editLabel} onClick={() => onEdit(subject)} />
         </CardHeader>
       </Card>
     );
@@ -95,7 +100,7 @@ export function SubjectCard({
             <ExceedFlame exceed={exceed} />
             <StreakBadge streak={subject.currentStreak} />
             {subject.activeWindow ? <RemainingBadge end={subject.activeWindow.end} /> : null}
-            <EditButton label={`Edit ${subject.name}`} onClick={() => onEdit(subject)} />
+            <EditButton label={editLabel} onClick={() => onEdit(subject)} />
           </div>
         </div>
       </CardHeader>

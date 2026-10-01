@@ -1,5 +1,8 @@
+"use client";
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Timeline, TimelineContent, TimelineItem } from "@/components/ui/timeline";
+import { useI18n } from "@/i18n";
 import { formatDate } from "@/lib/format";
 import type { Subject } from "@/lib/types";
 
@@ -17,18 +20,19 @@ function collectRecords(subjects: Subject[]) {
 }
 
 export function ProjectRecordsCard({ subjects }: { subjects: Subject[] }) {
+  const { t } = useI18n();
   const records = collectRecords(subjects);
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Records</CardTitle>
-        <CardDescription>Logged numbers from each subject.</CardDescription>
+        <CardTitle>{t("subjects.records")}</CardTitle>
+        <CardDescription>{t("subjects.recordsDesc")}</CardDescription>
       </CardHeader>
       <CardContent>
         {records.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            Add a record from a subject page to see it here.
+            {t("subjects.recordsEmptyProject")}
           </p>
         ) : (
           <Timeline>

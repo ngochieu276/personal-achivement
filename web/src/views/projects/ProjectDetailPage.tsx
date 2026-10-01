@@ -1,3 +1,5 @@
+"use client";
+
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import { useState } from "react";
@@ -17,11 +19,13 @@ import { SubjectFormDialog } from "@/components/subjects/SubjectFormDialog";
 import { subjectToFormValues, type SubjectFormValues } from "@/components/subjects/SubjectForm";
 import { ViewToggle } from "@/components/layout/ViewToggle";
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/i18n";
 import { api } from "@/lib/api";
 import type { GroupTree, Project, Subject, SubjectDetail } from "@/lib/types";
 import { useViewStore } from "@/stores/view";
 
 export function ProjectDetailPage() {
+  const { t } = useI18n();
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -107,7 +111,7 @@ export function ProjectDetailPage() {
   const canDelete = Boolean(project) && !subjectsQuery.isLoading && subjects.length === 0;
   const deleteControl = canDelete ? (
     <DeleteButton
-      label="Delete project"
+      label={t("projects.delete")}
       pending={deleteProject.isPending}
       onClick={() => deleteProject.mutate()}
     />
@@ -115,13 +119,13 @@ export function ProjectDetailPage() {
 
   return (
     <Page>
-      <BackLink to="/projects">All projects</BackLink>
+      <BackLink to="/projects">{t("projects.all")}</BackLink>
       {projectQuery.isLoading ? (
-        <DetailHeaderSkeleton eyebrow="Project" />
+        <DetailHeaderSkeleton eyebrow={t("projects.eyebrow")} />
       ) : (
         <PageHeader
-          eyebrow="Project"
-          title={project?.name ?? "Project"}
+          eyebrow={t("projects.eyebrow")}
+          title={project?.name ?? t("breadcrumb.project")}
           icon={project?.icon}
           onEdit={
             project
@@ -133,7 +137,7 @@ export function ProjectDetailPage() {
                 }
               : undefined
           }
-          editLabel="Edit project"
+          editLabel={t("projects.edit")}
           actions={
             <>
               <ViewToggle />
@@ -141,16 +145,16 @@ export function ProjectDetailPage() {
               <SubjectFormDialog
                 open={open}
                 onOpenChange={setOpen}
-                title="New subject"
+                title={t("subjects.new")}
                 formKey={String(open)}
-                submitLabel="Create subject"
+                submitLabel={t("subjects.create")}
                 pending={createSubject.isPending}
                 error={createSubject.error?.message}
                 onSubmit={(values) => createSubject.mutate(values)}
                 trigger={
                   <Button>
                     <Plus className="h-4 w-4" />
-                    New subject
+                    {t("subjects.new")}
                   </Button>
                 }
               />
@@ -159,7 +163,7 @@ export function ProjectDetailPage() {
         />
       )}
 
-      <FormDialog open={editingProject} onOpenChange={setEditingProject} title="Edit project">
+      <FormDialog open={editingProject} onOpenChange={setEditingProject} title={t("projects.edit")}>
         <ProjectForm
           name={projectName}
           icon={projectIcon}
@@ -171,7 +175,7 @@ export function ProjectDetailPage() {
           onSubmit={() => updateProject.mutate()}
           pending={updateProject.isPending}
           error={updateProject.error?.message}
-          submitLabel="Save"
+          submitLabel={t("common.save")}
         />
       </FormDialog>
 
@@ -180,24 +184,24 @@ export function ProjectDetailPage() {
         onOpenChange={(next) => {
           if (!next) setEditingSubject(null);
         }}
-        title="Edit subject"
+        title={t("subjects.edit")}
         formKey={editingSubject?.id}
         initial={editingSubject ? subjectToFormValues(editingSubject) : undefined}
-        submitLabel="Save subject"
+        submitLabel={t("subjects.save")}
         pending={updateSubject.isPending}
         error={updateSubject.error?.message}
         onSubmit={(values) => updateSubject.mutate(values)}
       />
 
       {subjectsQuery.isLoading ? (
-        <PageLoading label="Loading subjects...">
+        <PageLoading label={t("subjects.loadingList")}>
           <CardListSkeleton kind="subjects" />
         </PageLoading>
       ) : subjects.length === 0 ? (
         <ListPlaceholder
           variant="empty"
-          title="No subjects yet"
-          description="Add a subject with a KPI, or delete this project."
+          title={t("subjects.emptyTitle")}
+          description={t("subjects.emptyDesc")}
           action={deleteControl}
         />
       ) : (

@@ -2,9 +2,11 @@
 
 import { GetStartedLink, SignInLink } from "@/components/landing/AppLink";
 import { ProductMock } from "@/components/landing/ProductMock";
+import { useI18n } from "@/i18n";
 import { motion, useReducedMotion } from "motion/react";
 
 export function Hero() {
+  const { t } = useI18n();
   const reduced = useReducedMotion();
 
   return (
@@ -16,7 +18,7 @@ export function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45 }}
         >
-          Personal KPI ledger
+          {t("brand.tagline")}
         </motion.p>
         <motion.h1
           className="mt-3 font-serif text-4xl leading-tight md:text-6xl"
@@ -24,7 +26,7 @@ export function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.55, delay: 0.08 }}
         >
-          Finish the period. Don&apos;t forget it.
+          {t("landing.heroTitle")}
         </motion.h1>
         <motion.p
           className="mt-5 max-w-md text-lg text-muted-foreground"
@@ -32,8 +34,7 @@ export function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.55, delay: 0.16 }}
         >
-          Groups, projects, and subjects. Log minutes or reps for this day, week, two weeks, or month.
-          When the cycle ends, Personal Record writes finish or miss — and keeps the streak honest.
+          {t("landing.heroBody")}
         </motion.p>
         <motion.div
           className="mt-8 flex flex-wrap items-center gap-3"

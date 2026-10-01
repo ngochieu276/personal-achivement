@@ -3,6 +3,7 @@
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
 import type { ComponentPropsWithoutRef, HTMLAttributes } from "react";
+import { useI18n } from "@/i18n";
 import { cn } from "@/lib/utils";
 
 export const Sheet = DialogPrimitive.Root;
@@ -29,6 +30,7 @@ export function SheetContent({
 }: ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & {
   side?: "left" | "right";
 }) {
+  const { t } = useI18n();
   return (
     <DialogPrimitive.Portal>
       <SheetOverlay />
@@ -43,7 +45,7 @@ export function SheetContent({
         {children}
         <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100">
           <X className="h-4 w-4" />
-          <span className="sr-only">Close</span>
+          <span className="sr-only">{t("common.close")}</span>
         </DialogPrimitive.Close>
       </DialogPrimitive.Content>
     </DialogPrimitive.Portal>

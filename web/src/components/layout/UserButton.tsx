@@ -1,9 +1,11 @@
 "use client";
 
-import { ChevronsUpDown, LogOut } from "lucide-react";
+import { ChevronsUpDown, Languages, LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
+import { useI18n } from "@/i18n";
+import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth";
 
 function initials(name: string) {
@@ -16,12 +18,18 @@ function initials(name: string) {
 export function UserButton() {
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
+  const { t, locale, setLocale } = useI18n();
   const router = useRouter();
-  const name = user?.name || "Account";
+  const name = user?.name || t("nav.account");
+  const vietnamese = locale === "vi";
 
   function onLogout() {
     logout();
     router.push("/login");
+  }
+
+  function toggleLocale() {
+    setLocale(vietnamese ? "en" : "vi");
   }
 
   return (
@@ -47,10 +55,41 @@ export function UserButton() {
             <button
               type="button"
               className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted"
+              onClick={toggleLocale}
+            >
+              <Languages className="h-4 w-4 shrink-0" />
+              <span className="min-w-0 flex-1 truncate text-left">{t("language.label")}</span>
+              <span
+                role="switch"
+                aria-checked={vietnamese}
+                className="inline-flex shrink-0 rounded-full bg-muted p-0.5 text-[10px] font-semibold tracking-wide"
+              >
+                <span
+                  className={cn(
+                    "rounded-full px-1.5 py-0.5 transition-colors",
+                    vietnamese ? "text-muted-foreground" : "bg-background text-foreground shadow-sm",
+                  )}
+                >
+                  EN
+                </span>
+                <span
+                  className={cn(
+                    "rounded-full px-1.5 py-0.5 transition-colors",
+                    vietnamese ? "bg-background text-foreground shadow-sm" : "text-muted-foreground",
+                  )}
+                >
+                  VI
+                </span>
+              </span>
+            </button>
+            <div className="my-1 h-px bg-border" />
+            <button
+              type="button"
+              className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted"
               onClick={onLogout}
             >
               <LogOut className="h-4 w-4" />
-              Log out
+              {t("nav.logOut")}
             </button>
           </PopoverContent>
         </Popover>

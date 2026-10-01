@@ -26,6 +26,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useI18n } from "@/i18n";
 import { cn } from "@/lib/utils";
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state";
@@ -130,6 +131,7 @@ export function Sidebar({
   variant?: "sidebar" | "floating" | "inset";
   collapsible?: "offcanvas" | "icon" | "none";
 }) {
+  const { t } = useI18n();
   const { isMobile, state, openMobile, setOpenMobile } = useSidebar();
 
   if (collapsible === "none") {
@@ -154,8 +156,8 @@ export function Sidebar({
           style={{ "--sidebar-width": SIDEBAR_WIDTH_MOBILE } as CSSProperties}
         >
           <SheetHeader className="sr-only">
-            <SheetTitle>Sidebar</SheetTitle>
-            <SheetDescription>Application navigation</SheetDescription>
+            <SheetTitle>{t("nav.sidebar")}</SheetTitle>
+            <SheetDescription>{t("nav.sidebarNav")}</SheetDescription>
           </SheetHeader>
           <div className="flex h-full w-full flex-col">{children}</div>
         </SheetContent>
@@ -202,6 +204,7 @@ export function Sidebar({
 }
 
 export function SidebarTrigger({ className, onClick, ...props }: ComponentProps<typeof Button>) {
+  const { t } = useI18n();
   const { toggleSidebar } = useSidebar();
   return (
     <Button
@@ -216,7 +219,7 @@ export function SidebarTrigger({ className, onClick, ...props }: ComponentProps<
       {...props}
     >
       <PanelLeft className="h-4 w-4" />
-      <span className="sr-only">Toggle Sidebar</span>
+      <span className="sr-only">{t("nav.toggleSidebar")}</span>
     </Button>
   );
 }

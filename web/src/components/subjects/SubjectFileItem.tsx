@@ -1,5 +1,8 @@
+"use client";
+
 import { Download, Eye, FileSpreadsheet, FileText, Image, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/i18n";
 import { apiBlob } from "@/lib/api";
 import { fileKind, formatDate } from "@/lib/format";
 import type { SubjectFile } from "@/lib/types";
@@ -25,6 +28,7 @@ export function SubjectFileItem({
   onPreview: () => void;
   onDelete: () => void;
 }) {
+  const { t } = useI18n();
   const Icon = icons[fileKind(file.mimeType)];
 
   async function download() {
@@ -45,10 +49,10 @@ export function SubjectFileItem({
         <p className="text-xs text-muted-foreground">{formatDate(file.createdAt)}</p>
       </div>
       <div className="flex shrink-0 items-center gap-1">
-        <Button type="button" variant="ghost" size="icon" className="h-8 w-8" onClick={onPreview} aria-label={`Preview ${file.name}`}>
+        <Button type="button" variant="ghost" size="icon" className="h-8 w-8" onClick={onPreview} aria-label={t("common.previewNamed", { name: file.name })}>
           <Eye className="h-4 w-4" />
         </Button>
-        <Button type="button" variant="ghost" size="icon" className="h-8 w-8" onClick={() => void download()} aria-label={`Download ${file.name}`}>
+        <Button type="button" variant="ghost" size="icon" className="h-8 w-8" onClick={() => void download()} aria-label={t("common.downloadNamed", { name: file.name })}>
           <Download className="h-4 w-4" />
         </Button>
         <Button
@@ -58,7 +62,7 @@ export function SubjectFileItem({
           className="h-8 w-8"
           onClick={onDelete}
           disabled={pending}
-          aria-label={`Delete ${file.name}`}
+          aria-label={t("common.deleteNamed", { name: file.name })}
         >
           <Trash2 className="h-4 w-4" />
         </Button>

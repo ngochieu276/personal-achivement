@@ -12,12 +12,15 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { useI18n, type MessageKey } from "@/i18n";
 import { api } from "@/lib/api";
 import type { GroupTree, SubjectDetail } from "@/lib/types";
 
 type Crumb = { href?: string; label: string };
+type Translate = (key: MessageKey, vars?: Record<string, string | number>) => string;
 
 export function AppBreadcrumb() {
+  const { t } = useI18n();
   const pathname = usePathname();
   const parts = pathname.split("/").filter(Boolean);
   const subjectId = parts[0] === "subjects" ? parts[1] : undefined;
@@ -36,12 +39,16 @@ export function AppBreadcrumb() {
 
   const groups = navQuery.data?.groups ?? [];
   const projects = [...groups.flatMap((group) => group.projects), ...(navQuery.data?.ungrouped ?? [])];
-  const crumbs = crumbsFor(parts, {
-    groups,
-    projects,
-    subjectName: subjectQuery.data?.subject.name,
-    subjectProjectId: subjectQuery.data?.subject.projectId,
-  });
+  const crumbs = crumbsFor(
+    parts,
+    {
+      groups,
+      projects,
+      subjectName: subjectQuery.data?.subject.name,
+      subjectProjectId: subjectQuery.data?.subject.projectId,
+    },
+    t,
+  );
 
   return (
     <Breadcrumb className="min-w-0">
@@ -78,35 +85,36 @@ function crumbsFor(
     subjectName?: string;
     subjectProjectId?: string;
   },
+  t: Translate,
 ): Crumb[] {
   const { groups, projects, subjectName, subjectProjectId } = names;
 
-  if (parts[0] === "dashboard") return [{ label: "Dashboard" }];
-  if (parts[0] === "activities") return [{ label: "Activities" }];
+  if (parts[0] === "dashboard") return [{ label: t("nav.dashboard") }];
+  if (parts[0] === "activities") return [{ label: t("nav.activities") }];
 
   if (parts[0] === "groups" && parts[1]) {
     const group = groups.find((item) => item.id === parts[1]);
-    return [{ href: "/projects", label: "Projects" }, { label: group?.name ?? "Group" }];
+    return [{ href: "/projects", label: t("nav.projects") }, { label: group?.name ?? t("breadcrumb.group") }];
   }
 
   if (parts[0] === "projects" && parts[1]) {
     const project = projects.find((item) => item.id === parts[1]);
-    return [{ href: "/projects", label: "Projects" }, { label: project?.name ?? "Project" }];
+    return [{ href: "/projects", label: t("nav.projects") }, { label: project?.name ?? t("breadcrumb.project") }];
   }
 
   if (parts[0] === "subjects" && parts[1]) {
     const project = projects.find((item) => item.id === subjectProjectId);
     const crumbs: Crumb[] = [
-      { href: "/projects", label: "Projects" },
+      { href: "/projects", label: t("nav.projects") },
       {
         href: subjectProjectId ? `/projects/${subjectProjectId}` : undefined,
-        label: project?.name ?? "Project",
+        label: project?.name ?? t("breadcrumb.project"),
       },
-      { href: parts[2] === "timeline" ? `/subjects/${parts[1]}` : undefined, label: subjectName ?? "Subject" },
+      { href: parts[2] === "timeline" ? `/subjects/${parts[1]}` : undefined, label: subjectName ?? t("breadcrumb.subject") },
     ];
-    if (parts[2] === "timeline") crumbs.push({ label: "Timeline" });
+    if (parts[2] === "timeline") crumbs.push({ label: t("breadcrumb.timeline") });
     return crumbs;
   }
 
-  return [{ label: "Projects" }];
+  return [{ label: t("nav.projects") }];
 }

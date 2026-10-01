@@ -1,9 +1,12 @@
+"use client";
+
 import { useEffect, useState, type FormEvent } from "react";
 import { IconPicker } from "@/components/shared/IconPicker";
 import { SubjectRecordFields } from "@/components/subjects/SubjectRecordFields";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useI18n } from "@/i18n";
 import { alignCycleStart, cycleStartHint, toDateInput } from "@/lib/cycle";
 import { formatDate } from "@/lib/format";
 import { defaultBetterDirection } from "@/lib/record";
@@ -53,6 +56,7 @@ export function SubjectForm({
   error?: string;
   onSubmit: (values: SubjectFormValues) => void;
 }) {
+  const { t } = useI18n();
   const [name, setName] = useState(initial?.name ?? "");
   const [icon, setIcon] = useState(initial?.icon ?? "");
   const [kpi, setKpi] = useState(String(initial?.kpi ?? 10));
@@ -100,7 +104,7 @@ export function SubjectForm({
   return (
     <form className="space-y-4" onSubmit={handleSubmit}>
       <div className="space-y-2">
-        <Label htmlFor="subject-name">Name</Label>
+        <Label htmlFor="subject-name">{t("common.name")}</Label>
         <Input
           id="subject-name"
           value={name}
@@ -111,7 +115,7 @@ export function SubjectForm({
       <IconPicker value={icon} onChange={setIcon} />
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="kpi">KPI</Label>
+          <Label htmlFor="kpi">{t("subjects.kpi")}</Label>
           <Input
             id="kpi"
             type="number"
@@ -123,35 +127,35 @@ export function SubjectForm({
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="kpi-type">Measure</Label>
+          <Label htmlFor="kpi-type">{t("subjects.measure")}</Label>
           <select
             id="kpi-type"
             className={selectClass}
             value={kpiType}
             onChange={(event) => setKpiType(event.target.value as KpiType)}
           >
-            <option value="totalRepeat">Total repeats</option>
-            <option value="totalTime">Total time (minutes)</option>
+            <option value="totalRepeat">{t("subjects.totalRepeat")}</option>
+            <option value="totalTime">{t("subjects.totalTime")}</option>
           </select>
         </div>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="period">Period</Label>
+          <Label htmlFor="period">{t("subjects.period")}</Label>
           <select
             id="period"
             className={selectClass}
             value={kpiTypePeriod}
             onChange={(event) => setKpiTypePeriod(event.target.value as KpiTypePeriod)}
           >
-            <option value="day">Per day</option>
-            <option value="week">Per week</option>
-            <option value="twoWeek">Per 2 weeks</option>
-            <option value="month">Per month</option>
+            <option value="day">{t("period.day")}</option>
+            <option value="week">{t("period.week")}</option>
+            <option value="twoWeek">{t("period.twoWeek")}</option>
+            <option value="month">{t("period.month")}</option>
           </select>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="start-date">In this cycle</Label>
+          <Label htmlFor="start-date">{t("subjects.inCycle")}</Label>
           <Input
             id="start-date"
             type="date"
@@ -162,10 +166,10 @@ export function SubjectForm({
         </div>
       </div>
       <p className="text-xs text-muted-foreground">
-        {cycleStartHint(kpiTypePeriod)} Cycle starts {formatDate(aligned.toISOString())}.
+        {cycleStartHint(kpiTypePeriod)} {t("subjects.cycleStarts", { date: formatDate(aligned.toISOString()) })}
       </p>
       <div className="space-y-2">
-        <Label htmlFor="link">Link (optional)</Label>
+        <Label htmlFor="link">{t("subjects.linkOptional")}</Label>
         <Input
           id="link"
           type="url"
@@ -180,7 +184,7 @@ export function SubjectForm({
           checked={isPriority}
           onChange={(event) => setIsPriority(event.target.checked)}
         />
-        Priority subject
+        {t("subjects.prioritySubject")}
       </label>
       <SubjectRecordFields
         typeOfRecord={typeOfRecord}

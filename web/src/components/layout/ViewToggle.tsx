@@ -1,10 +1,14 @@
+"use client";
+
 import { LayoutGrid, List } from "lucide-react";
 import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/i18n";
 import { cn } from "@/lib/utils";
 import { useViewStore, type ViewMode } from "@/stores/view";
 
 export function ViewToggle() {
+  const { t } = useI18n();
   const mode = useViewStore((state) => state.mode);
   const setMode = useViewStore((state) => state.setMode);
 
@@ -12,14 +16,14 @@ export function ViewToggle() {
     <div className="inline-flex rounded-md border border-border bg-card p-0.5">
       <ModeButton
         active={mode === "cards"}
-        label="Card view"
+        label={t("view.cards")}
         onClick={() => setMode("cards")}
       >
         <LayoutGrid className="h-4 w-4" />
       </ModeButton>
       <ModeButton
         active={mode === "list"}
-        label="List view"
+        label={t("view.list")}
         onClick={() => setMode("list")}
       >
         <List className="h-4 w-4" />

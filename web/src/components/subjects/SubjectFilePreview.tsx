@@ -1,6 +1,9 @@
+"use client";
+
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useI18n } from "@/i18n";
 import { apiBlob } from "@/lib/api";
 import { fileKind } from "@/lib/format";
 import type { SubjectFile } from "@/lib/types";
@@ -16,6 +19,7 @@ export function SubjectFilePreview({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
+  const { t } = useI18n();
   const previewQuery = useQuery({
     queryKey: ["subject-file", subjectId, file?.id],
     queryFn: () => apiBlob(`/subjects/${subjectId}/files/${file!.id}`),
@@ -41,11 +45,11 @@ export function SubjectFilePreview({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="inset-0 left-0 top-0 flex h-svh max-h-svh w-screen max-w-none translate-x-0 translate-y-0 flex-col gap-4 rounded-none border-0 p-4 sm:rounded-none">
         <DialogHeader className="shrink-0 pr-8">
-          <DialogTitle>{file?.name ?? "Preview"}</DialogTitle>
+          <DialogTitle>{file?.name}</DialogTitle>
         </DialogHeader>
         <div className="min-h-0 flex-1">
           {previewQuery.isLoading ? (
-            <p className="text-sm text-muted-foreground">Loading preview...</p>
+            <p className="text-sm text-muted-foreground">{t("subjects.loadingPreview")}</p>
           ) : previewQuery.isError ? (
             <p className="text-sm text-destructive">{previewQuery.error.message}</p>
           ) : objectUrl && kind === "image" ? (
@@ -54,7 +58,7 @@ export function SubjectFilePreview({
             <iframe title={file?.name} src={objectUrl} className="h-full w-full border-0" />
           ) : (
             <p className="text-sm text-muted-foreground">
-              Word and Excel files can be downloaded and opened on your device. In-browser preview is available for images and PDFs.
+              {t("subjects.officePreview")}
             </p>
           )}
         </div>
