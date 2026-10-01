@@ -80,7 +80,7 @@ export function ProjectsPage() {
         <ListPlaceholder
           variant="empty"
           title="No projects yet"
-          description="Use Create project in the sidebar, then add subjects like running, writing, or practice reps."
+          description="Use Create project in the header, then add subjects like running, writing, or practice reps."
         />
       ) : (
         <div className={viewClass(mode, "projects")}>

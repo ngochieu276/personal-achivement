@@ -5,9 +5,9 @@ import { ChevronRight, FolderKanban, LayoutDashboard, Plus } from "lucide-react"
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { UserButton } from "@/components/layout/UserButton";
 import { FormDialog } from "@/components/shared/FormDialog";
 import { GroupForm } from "@/components/projects/GroupForm";
-import { ProjectForm } from "@/components/projects/ProjectForm";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,21 +31,15 @@ import {
 import { EntityIcon } from "@/lib/icons";
 import { api } from "@/lib/api";
 import type { GroupTree } from "@/lib/types";
-import { useAuthStore } from "@/stores/auth";
 
 export function AppSidebar() {
   const pathname = usePathname();
   const { isMobile, setOpenMobile } = useSidebar();
   const queryClient = useQueryClient();
-  const user = useAuthStore((state) => state.user);
   const [groupOpen, setGroupOpen] = useState(false);
-  const [projectOpen, setProjectOpen] = useState(false);
   const [groupId, setGroupId] = useState("");
   const [groupName, setGroupName] = useState("");
   const [groupIcon, setGroupIcon] = useState("");
-  const [projectName, setProjectName] = useState("");
-  const [projectIcon, setProjectIcon] = useState("");
-  const [projectGroupIds, setProjectGroupIds] = useState<string[]>([]);
 
   const navQuery = useQuery({
     queryKey: ["nav"],
@@ -68,22 +62,6 @@ export function AppSidebar() {
     },
   });
 
-  const createProject = useMutation({
-    mutationFn: () =>
-      api("/projects", {
-        method: "POST",
-        body: JSON.stringify({ name: projectName, icon: projectIcon, groupIds: projectGroupIds }),
-      }),
-    onSuccess: async () => {
-      setProjectName("");
-      setProjectIcon("");
-      setProjectGroupIds([]);
-      setProjectOpen(false);
-      await queryClient.invalidateQueries({ queryKey: ["nav"] });
-      await queryClient.invalidateQueries({ queryKey: ["projects"] });
-    },
-  });
-
   const groups = navQuery.data?.groups ?? [];
   const ungrouped = navQuery.data?.ungrouped ?? [];
 
@@ -93,60 +71,62 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild size="lg" isActive={pathname === "/projects"} tooltip="Projects">
-              <Link href="/projects" onClick={closeMobile}>
+      <SidebarHeader className="overflow-hidden">
+        <SidebarMenu className="group-data-[collapsible=icon]:items-center">
+          <SidebarMenuItem className="group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center">
+            <SidebarMenuButton
+              asChild
+              size="lg"
+              tooltip="Personal Record"
+              className="h-auto py-1.5 group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:overflow-hidden group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:justify-center"
+            >
+              <Link
+                href="/projects"
+                onClick={closeMobile}
+                className="h-auto gap-2.5 group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0"
+              >
+                <span
+                  aria-hidden
+                  className="flex size-8 shrink-0 items-center justify-center rounded-md bg-streak font-serif text-[15px] italic leading-none text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.35)]"
+                >
+                  Pr
+                </span>
+                <span className="min-w-0 group-data-[collapsible=icon]:hidden">
+                  <span className="block font-serif text-[1.05rem] italic leading-6 tracking-tight">Personal</span>
+                  <span className="mt-0.5 block text-[10px] font-medium uppercase leading-4 tracking-[0.16em] text-streak">
+                    Record
+                  </span>
+                </span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem className="group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center">
+            <SidebarMenuButton
+              asChild
+              isActive={pathname === "/dashboard"}
+              tooltip="Dashboard"
+              className="group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0"
+            >
+              <Link href="/dashboard" onClick={closeMobile} className="group-data-[collapsible=icon]:justify-center">
+                <LayoutDashboard />
+                <span className="group-data-[collapsible=icon]:hidden">Dashboard</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem className="group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center">
+            <SidebarMenuButton
+              asChild
+              isActive={pathname === "/projects"}
+              tooltip="Projects"
+              className="group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0"
+            >
+              <Link href="/projects" onClick={closeMobile} className="group-data-[collapsible=icon]:justify-center">
                 <FolderKanban />
-                <span className="font-serif text-base">Personal Record</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname === "/dashboard"} tooltip="Dashboard">
-              <Link href="/dashboard" onClick={closeMobile}>
-                <LayoutDashboard />
-                <span>Dashboard</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname === "/projects"} tooltip="Projects">
-              <Link href="/projects" onClick={closeMobile}>
-                <LayoutDashboard />
-                <span>Projects</span>
+                <span className="group-data-[collapsible=icon]:hidden">Projects</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
-        <div className="grid gap-2 px-2 group-data-[collapsible=icon]:px-0">
-          <FormDialog
-            open={projectOpen}
-            onOpenChange={setProjectOpen}
-            title="New project"
-            trigger={
-              <Button size="sm" className="w-full justify-start group-data-[collapsible=icon]:pointer-events-none group-data-[collapsible=icon]:opacity-0">
-                <Plus className="h-4 w-4" />
-                <span className="group-data-[collapsible=icon]:hidden">Create project</span>
-              </Button>
-            }
-          >
-            <ProjectForm
-              name={projectName}
-              icon={projectIcon}
-              onNameChange={setProjectName}
-              onIconChange={setProjectIcon}
-              groupIds={projectGroupIds}
-              onGroupIdsChange={setProjectGroupIds}
-              groups={groups}
-              onSubmit={() => createProject.mutate()}
-              pending={createProject.isPending}
-              error={createProject.error?.message}
-              submitLabel="Create"
-            />
-          </FormDialog>
-        </div>
       </SidebarHeader>
       <SidebarSeparator />
       <SidebarContent>
@@ -261,8 +241,8 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter>
-        <p className="truncate px-2 text-xs text-muted-foreground group-data-[collapsible=icon]:hidden">{user?.name}</p>
+      <SidebarFooter className="group-data-[collapsible=icon]:items-center">
+        <UserButton />
       </SidebarFooter>
     </Sidebar>
   );

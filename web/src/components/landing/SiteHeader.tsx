@@ -2,10 +2,17 @@
 
 import { GetStartedLink, SignInLink } from "@/components/landing/AppLink";
 import { useHydrated } from "@/components/layout/AuthGate";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 
 const links = [
   { href: "#product", label: "Product" },
@@ -35,16 +42,23 @@ export function SiteHeader() {
       )}
     >
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4">
-        <a href="#top" className="font-serif text-lg tracking-tight">
-          Personal Record
-        </a>
-        <nav className="hidden items-center gap-6 text-sm text-muted-foreground md:flex">
-          {links.map((link) => (
-            <a key={link.href} href={link.href} className="hover:text-foreground">
-              {link.label}
-            </a>
-          ))}
-        </nav>
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="#top" className="font-serif text-lg tracking-tight text-foreground">
+                Personal Record
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            {links.map((link) => (
+              <Fragment key={link.href}>
+                <BreadcrumbSeparator className="hidden md:list-item" />
+                <BreadcrumbItem className="hidden md:inline-flex">
+                  <BreadcrumbLink href={link.href}>{link.label}</BreadcrumbLink>
+                </BreadcrumbItem>
+              </Fragment>
+            ))}
+          </BreadcrumbList>
+        </Breadcrumb>
         <div className="flex items-center gap-2">
           {!hydrated ? (
             <span className="inline-flex h-9 w-28" aria-hidden />
