@@ -123,7 +123,7 @@ subjectRoutes.get("/:id/events", async (c) => {
   const events = await prisma.subjectEvent.findMany({
     where: { subjectId: existing.id },
     orderBy: { periodStart: "desc" },
-    take: 100,
+    take: 400,
   });
   return c.json({ events });
 });

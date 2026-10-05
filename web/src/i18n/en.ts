@@ -44,6 +44,7 @@ export const en = {
     create: "Create",
     cancel: "Cancel",
     close: "Close",
+    moreActions: "More actions",
     loading: "Loading",
     link: "Link",
     none: "None",
@@ -264,6 +265,14 @@ export const en = {
     recordsEmptyProject: "Add a record from a subject page to see it here.",
     officePreview:
       "Word and Excel files can be downloaded and opened on your device. In-browser preview is available for images and PDFs.",
+    chartTitle: "Past periods",
+    chartDesc: "Target versus actual for each period.",
+    chartTarget: "Target",
+    chartActual: "Actual",
+    chart4Weeks: "Past 4 weeks",
+    chart3Months: "3 months",
+    chart6Months: "Past 6 months",
+    chartEmpty: "No periods in this range yet.",
   },
   dashboard: {
     overview: "Overview",

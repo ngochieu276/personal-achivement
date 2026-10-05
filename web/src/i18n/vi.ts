@@ -50,6 +50,7 @@ export const vi: DeepString<typeof en> = {
     create: "Tạo",
     cancel: "Hủy",
     close: "Đóng",
+    moreActions: "Thêm thao tác",
     loading: "Đang tải",
     link: "Liên kết",
     none: "Không",
@@ -270,6 +271,14 @@ export const vi: DeepString<typeof en> = {
     recordsEmptyProject: "Thêm kỷ lục từ trang chủ đề để thấy ở đây.",
     officePreview:
       "Tệp Word và Excel có thể tải về và mở trên thiết bị của bạn. Xem trong trình duyệt dành cho ảnh và PDF.",
+    chartTitle: "Các kỳ đã qua",
+    chartDesc: "Mục tiêu và thực tế của từng kỳ.",
+    chartTarget: "Mục tiêu",
+    chartActual: "Thực tế",
+    chart4Weeks: "4 tuần qua",
+    chart3Months: "3 tháng",
+    chart6Months: "6 tháng qua",
+    chartEmpty: "Chưa có kỳ nào trong khoảng này.",
   },
   dashboard: {
     overview: "Tổng quan",

@@ -6,7 +6,6 @@ import { useParams, useRouter } from "next/navigation";
 import { AddProgressForm } from "@/components/subjects/AddProgressForm";
 import { BackLink } from "@/components/layout/BackLink";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
-import { DeleteButton } from "@/components/shared/DeleteButton";
 import { ListPlaceholder } from "@/components/layout/ListPlaceholder";
 import { Page, PageHeader } from "@/components/layout/PageHeader";
 import { SubjectPageSkeleton } from "@/components/subjects/SubjectPageSkeleton";
@@ -14,12 +13,13 @@ import { ProgressBar } from "@/components/shared/ProgressBar";
 import { ResourceLink } from "@/components/shared/ResourceLink";
 import { SetProgressForm } from "@/components/subjects/SetProgressForm";
 import { RemainingBadge, StreakBadge } from "@/components/subjects/StreakBadge";
+import { SubjectActionsMenu } from "@/components/subjects/SubjectActionsMenu";
 import { SubjectDocuments } from "@/components/subjects/SubjectDocuments";
 import { SubjectFormDialog } from "@/components/subjects/SubjectFormDialog";
 import { ExceedFlame } from "@/components/shared/ExceedFlame";
-import { SubjectActivityButton, SubjectActivityDialog } from "@/components/subjects/SubjectActivityDialog";
-import { SubjectTimelineButton } from "@/components/subjects/PeriodTimeline";
+import { SubjectActivityDialog } from "@/components/subjects/SubjectActivityDialog";
 import { SubjectNote } from "@/components/subjects/SubjectNote";
+import { SubjectPeriodChart } from "@/components/subjects/SubjectPeriodChart";
 import { SubjectRecordsCard } from "@/components/subjects/SubjectRecordsCard";
 import { SubjectFiles } from "@/components/subjects/SubjectFiles";
 import { subjectToFormValues, type SubjectFormValues } from "@/components/subjects/SubjectForm";
@@ -129,26 +129,25 @@ export function SubjectDetailPage() {
         title={subject.name}
         icon={subject.icon}
         align="start"
-        onEdit={() => setEditing(true)}
-        editLabel={t("subjects.edit")}
         subtitle={
-          <p className="mt-2 text-muted-foreground">
-            {t("subjects.cycleStarted", { period: periodLabel(subject.kpiTypePeriod), date: formatDate(subject.startDate) })}
-            {recordSuffix}
-          </p>
+          <div className="mt-2 space-y-2">
+            <p className="text-muted-foreground">
+              {t("subjects.cycleStarted", { period: periodLabel(subject.kpiTypePeriod), date: formatDate(subject.startDate) })}
+              {recordSuffix}
+            </p>
+            <div className="flex flex-wrap items-center gap-2">
+              <StreakBadge streak={subject.currentStreak} variant="labeled" />
+              <RemainingBadge end={activeWindow.end} />
+            </div>
+          </div>
         }
         actions={
-          <>
-            <SubjectActivityButton onClick={() => setActivityOpen(true)} />
-            <SubjectTimelineButton subjectId={subject.id} />
-            <StreakBadge streak={subject.currentStreak} variant="labeled" />
-            <RemainingBadge end={activeWindow.end} />
-            <DeleteButton
-              label={t("subjects.delete")}
-              pending={deleteSubject.isPending}
-              onClick={() => setConfirmDelete(true)}
-            />
-          </>
+          <SubjectActionsMenu
+            subjectId={subject.id}
+            onEvents={() => setActivityOpen(true)}
+            onEdit={() => setEditing(true)}
+            onDelete={() => setConfirmDelete(true)}
+          />
         }
       />
 
@@ -182,7 +181,6 @@ export function SubjectDetailPage() {
         error={deleteSubject.error?.message}
         onConfirm={() => deleteSubject.mutate()}
       />
-
       <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
         <Card>
           <CardHeader>
@@ -235,6 +233,7 @@ export function SubjectDetailPage() {
         error={updateExtras.error?.message}
         onChange={(documents) => updateExtras.mutate({ documents })}
       />
+      <SubjectPeriodChart subject={subject} activeWindow={activeWindow} unit={unit} />
     </Page>
   );
 }
