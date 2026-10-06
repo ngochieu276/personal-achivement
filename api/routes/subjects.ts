@@ -34,6 +34,7 @@ const updateSubjectSchema = withRecordRefine({
   note: z.string().max(8000).optional().nullable(),
   documents: z.array(z.string().trim().url().max(500)).max(50).optional(),
   isPriority: z.boolean().optional(),
+  orderIndex: z.number().int().min(0).nullable().optional(),
   ...recordFieldShape,
 });
 
@@ -219,6 +220,7 @@ subjectRoutes.patch("/:id", async (c) => {
         : parsed.data.note?.trim() || null,
       documents: parsed.data.documents ?? existing.documents,
       isPriority: parsed.data.isPriority ?? existing.isPriority,
+      orderIndex: parsed.data.orderIndex === undefined ? existing.orderIndex : parsed.data.orderIndex,
       nextCloseAt: nextCloseAtFor(
         startDate,
         parsed.data.kpiTypePeriod ?? existing.kpiTypePeriod,

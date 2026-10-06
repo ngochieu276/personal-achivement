@@ -273,6 +273,9 @@ export const en = {
     chart3Months: "3 months",
     chart6Months: "Past 6 months",
     chartEmpty: "No periods in this range yet.",
+    organize: "Organize",
+    organizeTitle: "Organize subjects",
+    organizeDesc: "Drag to set the order of subjects in this project.",
   },
   dashboard: {
     overview: "Overview",

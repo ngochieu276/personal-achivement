@@ -170,7 +170,7 @@ projectRoutes.get("/:id/subjects", async (c) => {
   const subjects = await prisma.subject.findMany({
     where: { projectId: project.id },
     include: { records: { orderBy: { date: "desc" }, take: 20 } },
-    orderBy: [{ isPriority: "desc" }, { createdAt: "desc" }],
+    orderBy: [{ orderIndex: { sort: "asc", nulls: "last" } }, { isPriority: "desc" }, { name: "asc" }],
   });
 
   const now = new Date();
@@ -180,6 +180,46 @@ projectRoutes.get("/:id/subjects", async (c) => {
       activeWindow: getActiveWindow(subject.startDate, subject.kpiTypePeriod, now),
     })),
   });
+});
+
+const reorderSubjectsSchema = z.object({
+  subjectIds: z.array(z.string().min(1)).min(1),
+});
+
+projectRoutes.patch("/:id/subjects/order", async (c) => {
+  const project = await ownedProject(c.get("user").id, c.req.param("id"));
+  if (!project) return c.json({ error: "Project not found" }, 404);
+
+  const parsed = reorderSubjectsSchema.safeParse(await c.req.json());
+  if (!parsed.success) {
+    return c.json({ error: "Invalid input", details: parsed.error.flatten() }, 400);
+  }
+
+  const existing = await prisma.subject.findMany({
+    where: { projectId: project.id },
+    select: { id: true },
+  });
+  const allowed = new Set(existing.map((subject) => subject.id));
+  const unique = new Set(parsed.data.subjectIds);
+  if (
+    unique.size !== parsed.data.subjectIds.length ||
+    unique.size !== allowed.size ||
+    parsed.data.subjectIds.some((id) => !allowed.has(id))
+  ) {
+    return c.json({ error: "subjectIds must list each subject in this project once" }, 400);
+  }
+
+  await prisma.$transaction(
+    parsed.data.subjectIds.map((id, index) =>
+      prisma.subject.update({
+        where: { id },
+        data: { orderIndex: index },
+      }),
+    ),
+  );
+
+  invalidateUserReads(c.get("user").id);
+  return c.json({ ok: true });
 });
 
 projectRoutes.post("/:id/subjects", async (c) => {

@@ -15,6 +15,7 @@ import { PageLoading } from "@/components/layout/PageLoading";
 import { ProjectForm } from "@/components/projects/ProjectForm";
 import { ProjectRecordsCard } from "@/components/projects/ProjectRecordsCard";
 import { SubjectPeriodGroups } from "@/components/subjects/SubjectPeriodGroups";
+import { OrganizeSubjectsButton } from "@/components/subjects/OrganizeSubjectsSheet";
 import { SubjectFormDialog } from "@/components/subjects/SubjectFormDialog";
 import { subjectToFormValues, type SubjectFormValues } from "@/components/subjects/SubjectForm";
 import { ViewToggle } from "@/components/layout/ViewToggle";
@@ -141,6 +142,9 @@ export function ProjectDetailPage() {
           actions={
             <>
               <ViewToggle />
+              {subjects.length > 0 ? (
+                <OrganizeSubjectsButton projectId={id} subjects={subjects} />
+              ) : null}
               {deleteControl}
               <SubjectFormDialog
                 open={open}

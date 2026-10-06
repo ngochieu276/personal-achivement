@@ -37,7 +37,9 @@ export function SheetContent({
       <DialogPrimitive.Content
         className={cn(
           "fixed z-50 flex h-full flex-col bg-sidebar text-sidebar-foreground shadow-lg",
-          side === "left" ? "inset-y-0 left-0 border-r" : "inset-y-0 right-0 border-l",
+          side === "left"
+            ? "inset-y-0 left-0 border-r"
+            : "inset-y-0 right-0 border-l duration-200 data-[state=open]:animate-[sheet-in-right_0.22s_ease-out]",
           className,
         )}
         {...props}

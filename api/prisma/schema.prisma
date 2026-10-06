@@ -108,6 +108,7 @@ model Subject {
   isPriority      Boolean        @default(false)
   currentProgress Float          @default(0)
   currentStreak   Int            @default(0)
+  orderIndex      Int?
   nextCloseAt     DateTime?
   createdAt       DateTime       @default(now())
   project         Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
@@ -117,6 +118,7 @@ model Subject {
   files           File[]
 
   @@index([projectId, isPriority, createdAt])
+  @@index([projectId, orderIndex])
   @@index([nextCloseAt])
 }
 

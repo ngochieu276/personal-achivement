@@ -279,6 +279,9 @@ export const vi: DeepString<typeof en> = {
     chart3Months: "3 tháng",
     chart6Months: "6 tháng qua",
     chartEmpty: "Chưa có kỳ nào trong khoảng này.",
+    organize: "Sắp xếp",
+    organizeTitle: "Sắp xếp chủ đề",
+    organizeDesc: "Kéo thả để đặt thứ tự chủ đề trong dự án này.",
   },
   dashboard: {
     overview: "Tổng quan",

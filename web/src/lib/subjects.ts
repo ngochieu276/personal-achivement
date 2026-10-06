@@ -13,15 +13,23 @@ export function periodGroupLabel(period: KpiTypePeriod) {
   return t(keys[period]);
 }
 
+export function compareSubjects(left: Subject, right: Subject) {
+  const leftOrder = left.orderIndex;
+  const rightOrder = right.orderIndex;
+  const leftHasOrder = leftOrder != null;
+  const rightHasOrder = rightOrder != null;
+  if (leftHasOrder && rightHasOrder && leftOrder !== rightOrder) return leftOrder - rightOrder;
+  if (leftHasOrder !== rightHasOrder) return leftHasOrder ? -1 : 1;
+  if (left.isPriority !== right.isPriority) return left.isPriority ? -1 : 1;
+  return left.name.localeCompare(right.name);
+}
+
 export function groupSubjectsByPeriod(subjects: Subject[]) {
   return PERIOD_ORDER.map((period) => ({
     period,
     subjects: subjects
       .filter((subject) => subject.kpiTypePeriod === period)
-      .sort((left, right) => {
-        if (left.isPriority !== right.isPriority) return left.isPriority ? -1 : 1;
-        return left.name.localeCompare(right.name);
-      }),
+      .sort(compareSubjects),
   })).filter((group) => group.subjects.length > 0);
 }
 

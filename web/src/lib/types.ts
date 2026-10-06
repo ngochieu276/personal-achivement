@@ -63,6 +63,7 @@ export type Subject = {
   typeOfRecord: TypeOfRecord | null;
   betterDirection: BetterDirection | null;
   isPriority: boolean;
+  orderIndex?: number | null;
   currentProgress: number;
   currentStreak: number;
   createdAt: string;
