@@ -14,8 +14,10 @@ import { Page, PageHeader } from "@/components/layout/PageHeader";
 import { PageLoading } from "@/components/layout/PageLoading";
 import { ProjectForm } from "@/components/projects/ProjectForm";
 import { ProjectRecordsCard } from "@/components/projects/ProjectRecordsCard";
+import { ProjectActionsMenu } from "@/components/projects/ProjectActionsMenu";
+import { ProjectDocumentsDialog } from "@/components/projects/ProjectDocumentsDialog";
 import { SubjectPeriodGroups } from "@/components/subjects/SubjectPeriodGroups";
-import { OrganizeSubjectsButton } from "@/components/subjects/OrganizeSubjectsSheet";
+import { OrganizeSubjectsSheet } from "@/components/subjects/OrganizeSubjectsSheet";
 import { SubjectFormDialog } from "@/components/subjects/SubjectFormDialog";
 import { subjectToFormValues, type SubjectFormValues } from "@/components/subjects/SubjectForm";
 import { ViewToggle } from "@/components/layout/ViewToggle";
@@ -34,6 +36,8 @@ export function ProjectDetailPage() {
   const [open, setOpen] = useState(false);
   const [editingSubject, setEditingSubject] = useState<Subject | null>(null);
   const [editingProject, setEditingProject] = useState(false);
+  const [organizeOpen, setOrganizeOpen] = useState(false);
+  const [documentsOpen, setDocumentsOpen] = useState(false);
   const [projectName, setProjectName] = useState("");
   const [projectIcon, setProjectIcon] = useState("");
   const [projectGroupIds, setProjectGroupIds] = useState<string[]>([]);
@@ -143,7 +147,10 @@ export function ProjectDetailPage() {
             <>
               <ViewToggle />
               {subjects.length > 0 ? (
-                <OrganizeSubjectsButton projectId={id} subjects={subjects} />
+                <ProjectActionsMenu
+                  onDocuments={() => setDocumentsOpen(true)}
+                  onOrganize={() => setOrganizeOpen(true)}
+                />
               ) : null}
               {deleteControl}
               <SubjectFormDialog
@@ -166,6 +173,18 @@ export function ProjectDetailPage() {
           }
         />
       )}
+
+      <ProjectDocumentsDialog
+        open={documentsOpen}
+        onOpenChange={setDocumentsOpen}
+        subjects={subjects}
+      />
+      <OrganizeSubjectsSheet
+        open={organizeOpen}
+        onOpenChange={setOrganizeOpen}
+        projectId={id}
+        subjects={subjects}
+      />
 
       <FormDialog open={editingProject} onOpenChange={setEditingProject} title={t("projects.edit")}>
         <ProjectForm

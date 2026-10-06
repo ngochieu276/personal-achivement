@@ -157,6 +157,10 @@ export const en = {
     eyebrow: "Project",
     groupsOptional: "Groups (optional)",
     selectGroups: "Select groups",
+    documents: "Documents",
+    documentsTitle: "Documents",
+    documentsDesc: "Videos and links from subjects in this project.",
+    documentsEmpty: "No documents in this project yet.",
   },
   groups: {
     new: "New group",

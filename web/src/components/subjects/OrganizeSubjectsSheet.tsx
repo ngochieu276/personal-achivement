@@ -1,9 +1,8 @@
 "use client";
 
-import { GripVertical, ListOrdered } from "lucide-react";
+import { GripVertical } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
 import {
   Sheet,
   SheetContent,
@@ -18,33 +17,7 @@ import { compareSubjects } from "@/lib/subjects";
 import type { Subject } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-export function OrganizeSubjectsButton({
-  projectId,
-  subjects,
-}: {
-  projectId: string;
-  subjects: Subject[];
-}) {
-  const { t } = useI18n();
-  const [open, setOpen] = useState(false);
-
-  return (
-    <>
-      <Button type="button" variant="outline" size="sm" onClick={() => setOpen(true)}>
-        <ListOrdered className="h-4 w-4" />
-        {t("subjects.organize")}
-      </Button>
-      <OrganizeSubjectsSheet
-        open={open}
-        onOpenChange={setOpen}
-        projectId={projectId}
-        subjects={subjects}
-      />
-    </>
-  );
-}
-
-function OrganizeSubjectsSheet({
+export function OrganizeSubjectsSheet({
   open,
   onOpenChange,
   projectId,

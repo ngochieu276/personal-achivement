@@ -163,6 +163,10 @@ export const vi: DeepString<typeof en> = {
     eyebrow: "Dự án",
     groupsOptional: "Nhóm (tuỳ chọn)",
     selectGroups: "Chọn nhóm",
+    documents: "Tài liệu",
+    documentsTitle: "Tài liệu",
+    documentsDesc: "Video và liên kết từ các chủ đề trong dự án này.",
+    documentsEmpty: "Dự án này chưa có tài liệu.",
   },
   groups: {
     new: "Nhóm mới",
