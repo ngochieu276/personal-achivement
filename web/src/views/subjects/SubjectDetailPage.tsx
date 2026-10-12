@@ -16,6 +16,7 @@ import { RemainingBadge, StreakBadge } from "@/components/subjects/StreakBadge";
 import { SubjectActionsMenu } from "@/components/subjects/SubjectActionsMenu";
 import { SubjectDocuments } from "@/components/subjects/SubjectDocuments";
 import { SubjectFormDialog } from "@/components/subjects/SubjectFormDialog";
+import { SubjectStatusBadge } from "@/components/subjects/SubjectStatusBadge";
 import { ExceedFlame } from "@/components/shared/ExceedFlame";
 import { SubjectActivityDialog } from "@/components/subjects/SubjectActivityDialog";
 import { SubjectNote } from "@/components/subjects/SubjectNote";
@@ -30,7 +31,7 @@ import { api } from "@/lib/api";
 import { formatDate, periodLabel, unitLabel } from "@/lib/format";
 import { betterDirectionLabel, typeOfRecordLabel } from "@/lib/record";
 import { exceedAmount, latestRecordNumber } from "@/lib/subjects";
-import type { SubjectDetail } from "@/lib/types";
+import type { SubjectDetail, SubjectStatus } from "@/lib/types";
 
 export function SubjectDetailPage() {
   const { t } = useI18n();
@@ -77,6 +78,18 @@ export function SubjectDetailPage() {
       await queryClient.invalidateQueries({ queryKey: ["subjects", data.subject.projectId] });
       await queryClient.invalidateQueries({ queryKey: ["activities"] });
       setEditing(false);
+    },
+  });
+
+  const updateStatus = useMutation({
+    mutationFn: ({ status, statusComment }: { status: SubjectStatus; statusComment: string | null }) =>
+      api<SubjectDetail>(`/subjects/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ status, statusComment }),
+      }),
+    onSuccess: async (data) => {
+      queryClient.setQueryData(["subject", id], data);
+      await queryClient.invalidateQueries({ queryKey: ["subjects", data.subject.projectId] });
     },
   });
 
@@ -129,6 +142,7 @@ export function SubjectDetailPage() {
         title={subject.name}
         icon={subject.icon}
         align="start"
+        titleExtra={<SubjectStatusBadge status={subject.status} comment={subject.statusComment} />}
         subtitle={
           <div className="mt-2 space-y-2">
             <p className="text-muted-foreground">
@@ -169,6 +183,13 @@ export function SubjectDetailPage() {
         pending={updateSubject.isPending}
         error={updateSubject.error?.message}
         onSubmit={(values) => updateSubject.mutate(values)}
+        status={subject.status}
+        statusComment={subject.statusComment}
+        statusPending={updateStatus.isPending}
+        statusError={updateStatus.error?.message}
+        onUpdateStatus={async (status, statusComment) => {
+          await updateStatus.mutateAsync({ status, statusComment });
+        }}
       />
 
       <ConfirmDialog

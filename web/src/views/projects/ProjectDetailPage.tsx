@@ -24,7 +24,7 @@ import { ViewToggle } from "@/components/layout/ViewToggle";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/i18n";
 import { api } from "@/lib/api";
-import type { GroupTree, Project, Subject, SubjectDetail } from "@/lib/types";
+import type { GroupTree, Project, Subject, SubjectDetail, SubjectStatus } from "@/lib/types";
 import { useViewStore } from "@/stores/view";
 
 export function ProjectDetailPage() {
@@ -84,6 +84,29 @@ export function ProjectDetailPage() {
       setEditingSubject(null);
       await queryClient.invalidateQueries({ queryKey: ["subjects", id] });
       await queryClient.invalidateQueries({ queryKey: ["projects"] });
+      await queryClient.invalidateQueries({ queryKey: ["project", id] });
+    },
+  });
+
+  const updateSubjectStatus = useMutation({
+    mutationFn: ({
+      subjectId,
+      status,
+      statusComment,
+    }: {
+      subjectId: string;
+      status: SubjectStatus;
+      statusComment: string | null;
+    }) =>
+      api<SubjectDetail>(`/subjects/${subjectId}`, {
+        method: "PATCH",
+        body: JSON.stringify({ status, statusComment }),
+      }),
+    onSuccess: async (data) => {
+      setEditingSubject((current) =>
+        current && current.id === data.subject.id ? { ...current, ...data.subject } : current,
+      );
+      await queryClient.invalidateQueries({ queryKey: ["subjects", id] });
       await queryClient.invalidateQueries({ queryKey: ["project", id] });
     },
   });
@@ -214,6 +237,14 @@ export function ProjectDetailPage() {
         pending={updateSubject.isPending}
         error={updateSubject.error?.message}
         onSubmit={(values) => updateSubject.mutate(values)}
+        status={editingSubject?.status}
+        statusComment={editingSubject?.statusComment}
+        statusPending={updateSubjectStatus.isPending}
+        statusError={updateSubjectStatus.error?.message}
+        onUpdateStatus={async (status, statusComment) => {
+          if (!editingSubject) return;
+          await updateSubjectStatus.mutateAsync({ subjectId: editingSubject.id, status, statusComment });
+        }}
       />
 
       {subjectsQuery.isLoading ? (

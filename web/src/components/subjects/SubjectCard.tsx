@@ -8,6 +8,7 @@ import { ExceedFlame } from "@/components/shared/ExceedFlame";
 import { ProgressBar } from "@/components/shared/ProgressBar";
 import { ResourceLink } from "@/components/shared/ResourceLink";
 import { RemainingBadge, StreakBadge } from "@/components/subjects/StreakBadge";
+import { SubjectStatusBadge } from "@/components/subjects/SubjectStatusBadge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useI18n } from "@/i18n";
@@ -49,9 +50,10 @@ export function SubjectCard({
           <div className="flex min-w-0 flex-1 items-center gap-3">
             <EntityIcon name={subject.icon} className="h-5 w-5 shrink-0 text-secondary" />
             <span className="min-w-0">
-              <CardTitle className="flex items-center gap-1.5">
+              <CardTitle className="flex flex-wrap items-center gap-1.5">
                 {subject.isPriority ? <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" /> : null}
                 {subject.name}
+                <SubjectStatusBadge status={subject.status} comment={subject.statusComment} />
               </CardTitle>
               <CardDescription>
                 {period} · {subject.currentProgress} / {subject.kpi} {unit}
@@ -90,6 +92,7 @@ export function SubjectCard({
               <TooltipContent>{subject.name}</TooltipContent>
             </Tooltip>
           </TooltipProvider>
+          <SubjectStatusBadge status={subject.status} comment={subject.statusComment} />
         </div>
         <div className="flex items-center justify-between gap-2">
           <CardDescription className="min-w-0 truncate">

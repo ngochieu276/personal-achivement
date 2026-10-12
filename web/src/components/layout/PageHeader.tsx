@@ -19,9 +19,11 @@ export function PageHeader({
   actions,
   align = "end",
   icon,
+  titleExtra,
 }: {
   eyebrow: string;
   title: string;
+  titleExtra?: ReactNode;
   subtitle?: ReactNode;
   onEdit?: () => void;
   editLabel?: string;
@@ -39,9 +41,10 @@ export function PageHeader({
     >
       <div>
         <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{eyebrow}</p>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {icon ? <EntityIcon name={icon} className="h-8 w-8 text-secondary" /> : null}
           <h1 className="font-serif text-4xl">{title}</h1>
+          {titleExtra}
           {onEdit ? <EditButton label={editLabel ?? t("common.editNamed", { name: title })} onClick={onEdit} /> : null}
         </div>
         {subtitle}

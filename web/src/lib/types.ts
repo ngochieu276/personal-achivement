@@ -40,6 +40,7 @@ export type KpiType = "totalTime" | "totalRepeat";
 export type TypeOfRecord = "timePerRep" | "repPerTime" | "maximum" | "fastest" | "defineByUser";
 export type BetterDirection = "lowerIsBetter" | "higherIsBetter";
 export type EventStatus = "miss" | "finish";
+export type SubjectStatus = "active" | "pending" | "ending";
 export type HistoryType = "streak_hit" | "kpi_change" | "subject_event" | "kpi_done";
 
 export type PeriodWindow = {
@@ -63,6 +64,8 @@ export type Subject = {
   typeOfRecord: TypeOfRecord | null;
   betterDirection: BetterDirection | null;
   isPriority: boolean;
+  status?: SubjectStatus;
+  statusComment?: string | null;
   orderIndex?: number | null;
   currentProgress: number;
   currentStreak: number;

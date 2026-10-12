@@ -35,6 +35,8 @@ const updateSubjectSchema = withRecordRefine({
   documents: z.array(z.string().trim().url().max(500)).max(50).optional(),
   isPriority: z.boolean().optional(),
   orderIndex: z.number().int().min(0).nullable().optional(),
+  status: z.enum(["active", "pending", "ending"]).optional(),
+  statusComment: z.string().trim().max(500).optional().nullable(),
   ...recordFieldShape,
 });
 
@@ -200,6 +202,16 @@ subjectRoutes.patch("/:id", async (c) => {
     );
   }
 
+  const nextStatus = parsed.data.status ?? existing.status;
+  const nextComment = parsed.data.status === "active"
+    ? null
+    : parsed.data.statusComment === undefined
+      ? existing.statusComment
+      : parsed.data.statusComment?.trim() || null;
+  if (nextStatus !== "active" && !nextComment) {
+    return c.json({ error: "statusComment is required" }, 400);
+  }
+
   const nextKpi = parsed.data.kpi ?? existing.kpi;
   const subject = await prisma.subject.update({
     where: { id: existing.id },
@@ -221,6 +233,8 @@ subjectRoutes.patch("/:id", async (c) => {
       documents: parsed.data.documents ?? existing.documents,
       isPriority: parsed.data.isPriority ?? existing.isPriority,
       orderIndex: parsed.data.orderIndex === undefined ? existing.orderIndex : parsed.data.orderIndex,
+      status: nextStatus,
+      statusComment: nextComment,
       nextCloseAt: nextCloseAtFor(
         startDate,
         parsed.data.kpiTypePeriod ?? existing.kpiTypePeriod,

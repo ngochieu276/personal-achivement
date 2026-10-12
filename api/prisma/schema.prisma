@@ -45,6 +45,12 @@ enum BetterDirection {
   higherIsBetter
 }
 
+enum SubjectStatus {
+  active
+  pending
+  ending
+}
+
 model User {
   id           String    @id @default(cuid())
   name         String
@@ -106,6 +112,8 @@ model Subject {
   typeOfRecord    TypeOfRecord?
   betterDirection BetterDirection?
   isPriority      Boolean        @default(false)
+  status          SubjectStatus  @default(active)
+  statusComment   String?
   currentProgress Float          @default(0)
   currentStreak   Int            @default(0)
   orderIndex      Int?
