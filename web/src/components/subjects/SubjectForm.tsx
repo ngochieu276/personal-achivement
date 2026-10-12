@@ -1,5 +1,6 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState, type FormEvent } from "react";
 import { IconPicker } from "@/components/shared/IconPicker";
 import { SubjectRecordFields } from "@/components/subjects/SubjectRecordFields";
@@ -7,10 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useI18n } from "@/i18n";
+import { api } from "@/lib/api";
 import { alignCycleStart, cycleStartHint, toDateInput } from "@/lib/cycle";
 import { formatDate } from "@/lib/format";
 import { defaultBetterDirection } from "@/lib/record";
-import type { BetterDirection, KpiType, KpiTypePeriod, Subject, TypeOfRecord } from "@/lib/types";
+import type { BetterDirection, KpiType, KpiTypePeriod, Project, Subject, TypeOfRecord } from "@/lib/types";
 
 const selectClass =
   "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring";
@@ -26,6 +28,7 @@ export type SubjectFormValues = {
   typeOfRecord: TypeOfRecord | null;
   betterDirection: BetterDirection | null;
   isPriority: boolean;
+  projectId?: string;
 };
 
 export function subjectToFormValues(subject: Subject): SubjectFormValues {
@@ -40,6 +43,7 @@ export function subjectToFormValues(subject: Subject): SubjectFormValues {
     typeOfRecord: subject.typeOfRecord ?? null,
     betterDirection: subject.betterDirection ?? null,
     isPriority: subject.isPriority ?? false,
+    projectId: subject.projectId,
   };
 }
 
@@ -73,6 +77,15 @@ export function SubjectForm({
     initial?.betterDirection ?? defaultBetterDirection(initial?.typeOfRecord ?? ""),
   );
   const [isPriority, setIsPriority] = useState(initial?.isPriority ?? false);
+  const [projectId, setProjectId] = useState(initial?.projectId ?? "");
+  const canMove = Boolean(initial?.projectId);
+
+  const projectsQuery = useQuery({
+    queryKey: ["projects"],
+    queryFn: () => api<{ projects: Project[] }>("/projects"),
+    enabled: canMove,
+  });
+  const projects = projectsQuery.data?.projects ?? [];
 
   const aligned = alignCycleStart(new Date(`${startDate}T00:00:00.000Z`), kpiTypePeriod);
   const alignedDate = toDateInput(aligned);
@@ -98,6 +111,7 @@ export function SubjectForm({
           : defaultBetterDirection(typeOfRecord) || null
         : null,
       isPriority,
+      ...(canMove && projectId ? { projectId } : {}),
     });
   }
 
@@ -112,6 +126,28 @@ export function SubjectForm({
           required
         />
       </div>
+      {canMove ? (
+        <div className="space-y-2">
+          <Label htmlFor="subject-project">{t("subjects.project")}</Label>
+          <select
+            id="subject-project"
+            className={selectClass}
+            value={projectId}
+            onChange={(event) => setProjectId(event.target.value)}
+            disabled={projectsQuery.isLoading}
+            required
+          >
+            {projects.length === 0 && projectId ? (
+              <option value={projectId}>{t("breadcrumb.project")}</option>
+            ) : null}
+            {projects.map((project) => (
+              <option key={project.id} value={project.id}>
+                {project.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      ) : null}
       <IconPicker value={icon} onChange={setIcon} />
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">

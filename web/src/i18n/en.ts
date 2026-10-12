@@ -183,6 +183,7 @@ export const en = {
     new: "New subject",
     create: "Create subject",
     edit: "Edit subject",
+    project: "Project",
     save: "Save subject",
     delete: "Delete subject",
     deleteConfirm: "Delete subject?",

@@ -75,8 +75,16 @@ export function SubjectDetailPage() {
         body: JSON.stringify(values),
       }),
     onSuccess: async (data) => {
+      const fromProjectId = detailQuery.data?.subject.projectId;
       queryClient.setQueryData(["subject", id], data);
       await queryClient.invalidateQueries({ queryKey: ["subjects", data.subject.projectId] });
+      if (fromProjectId && fromProjectId !== data.subject.projectId) {
+        await queryClient.invalidateQueries({ queryKey: ["subjects", fromProjectId] });
+        await queryClient.invalidateQueries({ queryKey: ["project", fromProjectId] });
+        await queryClient.invalidateQueries({ queryKey: ["project", data.subject.projectId] });
+      }
+      await queryClient.invalidateQueries({ queryKey: ["projects"] });
+      await queryClient.invalidateQueries({ queryKey: ["nav"] });
       await queryClient.invalidateQueries({ queryKey: ["activities"] });
       setEditing(false);
     },

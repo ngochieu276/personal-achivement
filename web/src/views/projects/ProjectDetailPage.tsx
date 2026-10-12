@@ -80,11 +80,17 @@ export function ProjectDetailPage() {
         method: "PATCH",
         body: JSON.stringify(values),
       }),
-    onSuccess: async () => {
+    onSuccess: async (data) => {
+      const nextProjectId = data.subject.projectId;
       setEditingSubject(null);
       await queryClient.invalidateQueries({ queryKey: ["subjects", id] });
-      await queryClient.invalidateQueries({ queryKey: ["projects"] });
       await queryClient.invalidateQueries({ queryKey: ["project", id] });
+      if (nextProjectId !== id) {
+        await queryClient.invalidateQueries({ queryKey: ["subjects", nextProjectId] });
+        await queryClient.invalidateQueries({ queryKey: ["project", nextProjectId] });
+      }
+      await queryClient.invalidateQueries({ queryKey: ["projects"] });
+      await queryClient.invalidateQueries({ queryKey: ["nav"] });
     },
   });
 

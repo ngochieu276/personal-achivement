@@ -43,6 +43,7 @@ const updateSubjectSchema = withRecordRefine({
   images: z.array(z.string().trim().url().max(500)).max(20).optional(),
   isPriority: z.boolean().optional(),
   orderIndex: z.number().int().min(0).nullable().optional(),
+  projectId: z.string().min(1).optional(),
   status: z.enum(["active", "pending", "ending"]).optional(),
   statusComment: z.string().trim().max(500).optional().nullable(),
   ...recordFieldShape,
@@ -220,6 +221,18 @@ subjectRoutes.patch("/:id", async (c) => {
     return c.json({ error: "statusComment is required" }, 400);
   }
 
+  let nextProjectId = existing.projectId;
+  let nextOrderIndex = parsed.data.orderIndex === undefined ? existing.orderIndex : parsed.data.orderIndex;
+  if (parsed.data.projectId && parsed.data.projectId !== existing.projectId) {
+    const target = await prisma.project.findFirst({
+      where: { id: parsed.data.projectId, userId: c.get("user").id },
+      select: { id: true },
+    });
+    if (!target) return c.json({ error: "Project not found" }, 404);
+    nextProjectId = target.id;
+    if (parsed.data.orderIndex === undefined) nextOrderIndex = null;
+  }
+
   const nextKpi = parsed.data.kpi ?? existing.kpi;
   const subject = await prisma.subject.update({
     where: { id: existing.id },
@@ -229,6 +242,8 @@ subjectRoutes.patch("/:id", async (c) => {
       kpi: nextKpi,
       kpiTypePeriod: parsed.data.kpiTypePeriod ?? existing.kpiTypePeriod,
       kpiType: parsed.data.kpiType ?? existing.kpiType,
+      projectId: nextProjectId,
+      orderIndex: nextOrderIndex,
       startDate,
       link: parsed.data.link === undefined
         ? existing.link
@@ -241,7 +256,6 @@ subjectRoutes.patch("/:id", async (c) => {
       documents: parsed.data.documents ?? existing.documents,
       images: parsed.data.images ?? existing.images,
       isPriority: parsed.data.isPriority ?? existing.isPriority,
-      orderIndex: parsed.data.orderIndex === undefined ? existing.orderIndex : parsed.data.orderIndex,
       status: nextStatus,
       statusComment: nextComment,
       nextCloseAt: nextCloseAtFor(

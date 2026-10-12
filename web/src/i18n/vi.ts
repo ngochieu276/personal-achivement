@@ -189,6 +189,7 @@ export const vi: DeepString<typeof en> = {
     new: "Chủ đề mới",
     create: "Tạo chủ đề",
     edit: "Sửa chủ đề",
+    project: "Dự án",
     save: "Lưu chủ đề",
     delete: "Xóa chủ đề",
     deleteConfirm: "Xóa chủ đề?",
