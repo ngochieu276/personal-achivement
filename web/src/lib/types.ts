@@ -61,6 +61,7 @@ export type Subject = {
   link: string | null;
   note: string | null;
   documents: string[];
+  images?: string[];
   typeOfRecord: TypeOfRecord | null;
   betterDirection: BetterDirection | null;
   isPriority: boolean;

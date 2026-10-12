@@ -109,6 +109,7 @@ model Subject {
   link            String?
   note            String?
   documents       String[]       @default([])
+  images          String[]       @default([])
   typeOfRecord    TypeOfRecord?
   betterDirection BetterDirection?
   isPriority      Boolean        @default(false)

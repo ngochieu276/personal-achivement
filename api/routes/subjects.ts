@@ -13,6 +13,13 @@ import {
 } from "../period.ts";
 import { invalidateUserReads } from "../cache.ts";
 import {
+  destroyCloudinaryUrl,
+  isAllowedImage,
+  MAX_IMAGE_BYTES,
+  MAX_IMAGES_PER_SUBJECT,
+  uploadToCloudinary,
+} from "../cloudinary.ts";
+import {
   contentDisposition,
   fileMeta,
   isAllowedUpload,
@@ -33,6 +40,7 @@ const updateSubjectSchema = withRecordRefine({
   link: z.string().url().optional().or(z.literal("")).nullable(),
   note: z.string().max(8000).optional().nullable(),
   documents: z.array(z.string().trim().url().max(500)).max(50).optional(),
+  images: z.array(z.string().trim().url().max(500)).max(20).optional(),
   isPriority: z.boolean().optional(),
   orderIndex: z.number().int().min(0).nullable().optional(),
   status: z.enum(["active", "pending", "ending"]).optional(),
@@ -231,6 +239,7 @@ subjectRoutes.patch("/:id", async (c) => {
         ? existing.note
         : parsed.data.note?.trim() || null,
       documents: parsed.data.documents ?? existing.documents,
+      images: parsed.data.images ?? existing.images,
       isPriority: parsed.data.isPriority ?? existing.isPriority,
       orderIndex: parsed.data.orderIndex === undefined ? existing.orderIndex : parsed.data.orderIndex,
       status: nextStatus,
@@ -353,6 +362,73 @@ subjectRoutes.delete("/:id/records/:recordId", async (c) => {
   await prisma.subjectRecord.delete({ where: { id: record.id } });
   invalidateUserReads(c.get("user").id);
   const detail = await subjectDetail(existing, new Date(), { close: false });
+  return c.json(detail);
+});
+
+const imageUrlSchema = z.object({
+  url: z.string().trim().url().max(500),
+});
+
+subjectRoutes.post("/:id/images", async (c) => {
+  const existing = await ownedSubject(c.get("user").id, c.req.param("id"));
+  if (!existing) return c.json({ error: "Subject not found" }, 404);
+
+  const form = await c.req.formData();
+  const uploads = form.getAll("images").filter((item): item is globalThis.File => item instanceof globalThis.File);
+  if (uploads.length === 0) return c.json({ error: "No images uploaded" }, 400);
+  if (existing.images.length + uploads.length > MAX_IMAGES_PER_SUBJECT) {
+    return c.json({ error: `A subject can have at most ${MAX_IMAGES_PER_SUBJECT} images` }, 400);
+  }
+
+  for (const upload of uploads) {
+    if (upload.size > MAX_IMAGE_BYTES) {
+      return c.json({ error: `${upload.name} is larger than 8 MB` }, 400);
+    }
+    if (!isAllowedImage(upload.name, upload.type)) {
+      return c.json({ error: `${upload.name} must be a JPEG, PNG, GIF, or WebP image` }, 400);
+    }
+  }
+
+  const urls: string[] = [];
+  try {
+    for (const upload of uploads) {
+      const uploaded = await uploadToCloudinary(upload, `personal-record/subjects/${existing.id}`);
+      urls.push(uploaded.url);
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Cloudinary upload failed";
+    return c.json({ error: message }, 502);
+  }
+
+  const subject = await prisma.subject.update({
+    where: { id: existing.id },
+    data: { images: { push: urls } },
+  });
+  invalidateUserReads(c.get("user").id);
+  const detail = await subjectDetail(subject, new Date(), { close: false });
+  return c.json(detail, 201);
+});
+
+subjectRoutes.delete("/:id/images", async (c) => {
+  const existing = await ownedSubject(c.get("user").id, c.req.param("id"));
+  if (!existing) return c.json({ error: "Subject not found" }, 404);
+
+  const parsed = imageUrlSchema.safeParse(await c.req.json());
+  if (!parsed.success) {
+    return c.json({ error: "Invalid input", details: parsed.error.flatten() }, 400);
+  }
+  if (!existing.images.includes(parsed.data.url)) {
+    return c.json({ error: "Image not found" }, 404);
+  }
+
+  const images = existing.images.filter((image) => image !== parsed.data.url);
+  const subject = await prisma.subject.update({
+    where: { id: existing.id },
+    data: { images },
+  });
+  await destroyCloudinaryUrl(parsed.data.url);
+  invalidateUserReads(c.get("user").id);
+  const detail = await subjectDetail(subject, new Date(), { close: false });
   return c.json(detail);
 });
 

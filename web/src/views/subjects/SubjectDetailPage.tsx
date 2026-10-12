@@ -23,6 +23,7 @@ import { SubjectNote } from "@/components/subjects/SubjectNote";
 import { SubjectPeriodChart } from "@/components/subjects/SubjectPeriodChart";
 import { SubjectRecordsCard } from "@/components/subjects/SubjectRecordsCard";
 import { SubjectFiles } from "@/components/subjects/SubjectFiles";
+import { SubjectImages } from "@/components/subjects/SubjectImages";
 import { subjectToFormValues, type SubjectFormValues } from "@/components/subjects/SubjectForm";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -242,6 +243,7 @@ export function SubjectDetailPage() {
             onSave={(note) => updateExtras.mutate({ note })}
           />
       </div>
+      <SubjectImages subjectId={subject.id} images={subject.images ?? []} />
       <div className="grid gap-4 lg:grid-cols-3">
         <SubjectRecordsCard subject={subject} />
         <div className="lg:col-span-2">
