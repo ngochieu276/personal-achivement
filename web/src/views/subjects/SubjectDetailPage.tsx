@@ -239,6 +239,8 @@ export function SubjectDetailPage() {
                 subjectId={subject.id}
                 projectId={subject.projectId}
                 kpiType={subject.kpiType}
+                subjectName={subject.name}
+                subjectIcon={subject.icon}
               />
             </div>
             {subject.link ? <ResourceLink href={subject.link} variant="full" /> : null}

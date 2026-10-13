@@ -69,6 +69,8 @@ export function SubjectCard({
             subjectId={subject.id}
             projectId={subject.projectId}
             kpiType={subject.kpiType}
+            subjectName={subject.name}
+            subjectIcon={subject.icon}
           />
           <EditButton label={editLabel} onClick={() => onEdit(subject)} />
         </CardHeader>
@@ -120,6 +122,8 @@ export function SubjectCard({
           subjectId={subject.id}
           projectId={subject.projectId}
           kpiType={subject.kpiType}
+          subjectName={subject.name}
+          subjectIcon={subject.icon}
         />
       </CardContent>
     </Card>

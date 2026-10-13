@@ -1,8 +1,9 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus } from "lucide-react";
+import { Plus, Timer } from "lucide-react";
 import { useState, type FormEvent, type MouseEvent } from "react";
+import { SubjectTimerDialog } from "@/components/subjects/SubjectTimerDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useI18n } from "@/i18n";
@@ -14,16 +15,21 @@ export function AddProgressForm({
   subjectId,
   projectId,
   kpiType,
+  subjectName,
+  subjectIcon,
   compact = false,
 }: {
   subjectId: string;
   projectId: string;
   kpiType: KpiType;
+  subjectName: string;
+  subjectIcon?: string | null;
   compact?: boolean;
 }) {
   const { t } = useI18n();
   const queryClient = useQueryClient();
   const [add, setAdd] = useState("1");
+  const [timerOpen, setTimerOpen] = useState(false);
   const unit = unitLabel(kpiType);
 
   const mutation = useMutation({
@@ -65,8 +71,29 @@ export function AddProgressForm({
         <Plus className="h-4 w-4" />
         {compact ? t("common.add") : t("subjects.addUnit", { unit })}
       </Button>
+      {kpiType === "totalTime" ? (
+        <Button
+          type="button"
+          variant="outline"
+          size={compact ? "sm" : "default"}
+          onClick={() => setTimerOpen(true)}
+        >
+          <Timer className="h-4 w-4" />
+          {t("subjects.timer")}
+        </Button>
+      ) : null}
       {mutation.error && !compact ? (
         <p className="text-sm text-destructive">{mutation.error.message}</p>
+      ) : null}
+      {kpiType === "totalTime" ? (
+        <SubjectTimerDialog
+          open={timerOpen}
+          onOpenChange={setTimerOpen}
+          subjectId={subjectId}
+          projectId={projectId}
+          subjectName={subjectName}
+          subjectIcon={subjectIcon}
+        />
       ) : null}
     </form>
   );
