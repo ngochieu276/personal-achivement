@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChevronRight, FolderKanban, LayoutDashboard, Plus } from "lucide-react";
+import { Calendar, ChevronRight, FolderKanban, LayoutDashboard, Plus } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -125,6 +125,19 @@ export function AppSidebar() {
               <Link href="/projects" onClick={closeMobile} className="group-data-[collapsible=icon]:justify-center">
                 <FolderKanban />
                 <span className="group-data-[collapsible=icon]:hidden">{t("nav.projects")}</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem className="group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center">
+            <SidebarMenuButton
+              asChild
+              isActive={pathname === "/calendar"}
+              tooltip={t("nav.calendar")}
+              className="group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0"
+            >
+              <Link href="/calendar" onClick={closeMobile} className="group-data-[collapsible=icon]:justify-center">
+                <Calendar />
+                <span className="group-data-[collapsible=icon]:hidden">{t("nav.calendar")}</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

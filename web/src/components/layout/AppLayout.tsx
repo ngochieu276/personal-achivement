@@ -1,14 +1,19 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { usePathname } from "next/navigation";
 import { ActivitiesNavButton } from "@/components/layout/ActivitiesNavButton";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { AppSidebar } from "@/components/layout/AppSidebar";
 import { CreateProjectButton } from "@/components/projects/CreateProjectButton";
 import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { cn } from "@/lib/utils";
 
 export function AppLayout({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
+  const wide = pathname === "/calendar";
+
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -23,7 +28,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
           </div>
         </header>
         <div data-scroll-root className="min-w-0 flex-1 overflow-x-clip overflow-y-auto p-4 md:p-6">
-          <div className="mx-auto w-full min-w-0 max-w-6xl">{children}</div>
+          <div className={cn("mx-auto w-full min-w-0", wide ? "max-w-none" : "max-w-6xl")}>{children}</div>
         </div>
       </SidebarInset>
     </SidebarProvider>

@@ -153,6 +153,28 @@ export type ActivitiesPage = {
   nextCursor: string | null;
 };
 
+export type CalendarRecurrence =
+  | { frequency: "daily" }
+  | { frequency: "weekly"; weekday: number }
+  | { frequency: "monthly"; monthDay: number };
+
+export type CalendarTask = {
+  id: string;
+  projectId: string;
+  title: string;
+  startsAt: string;
+  endsAt: string;
+  recurrence: CalendarRecurrence | null;
+  createdAt: string;
+  project?: {
+    id: string;
+    name: string;
+    icon?: string | null;
+  };
+};
+
+export type CalendarView = "day" | "fourDays" | "week" | "month";
+
 export type DashboardStats = {
   summary: {
     subjectCount: number;
