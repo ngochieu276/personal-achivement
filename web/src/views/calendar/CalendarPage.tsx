@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useMemo, useState } from "react";
+import { CalendarDayTasksDialog } from "@/components/calendar/CalendarDayTasksDialog";
 import { CalendarMonth } from "@/components/calendar/CalendarMonth";
 import { CalendarTaskDialog } from "@/components/calendar/CalendarTaskDialog";
 import { CalendarTimeGrid } from "@/components/calendar/CalendarTimeGrid";
@@ -35,6 +36,7 @@ export function CalendarPage() {
   const [view, setView] = useState<CalendarView>("month");
   const [cursor, setCursor] = useState(() => new Date());
   const [draft, setDraft] = useState<Draft | null>(null);
+  const [moreDay, setMoreDay] = useState<{ day: Date; items: CalendarOccurrence[] } | null>(null);
 
   const range = useMemo(() => visibleRange(view, cursor), [cursor, view]);
   const days = useMemo(() => daysInRange(range.from, range.to), [range.from, range.to]);
@@ -150,6 +152,7 @@ export function CalendarPage() {
           }}
           onSlotClick={createOnDay}
           onEventClick={openEdit}
+          onMoreClick={(day, items) => setMoreDay({ day, items })}
         />
       ) : (
         <CalendarTimeGrid
@@ -159,6 +162,21 @@ export function CalendarPage() {
           onEventClick={openEdit}
         />
       )}
+
+      {moreDay ? (
+        <CalendarDayTasksDialog
+          open
+          onOpenChange={(open) => {
+            if (!open) setMoreDay(null);
+          }}
+          day={moreDay.day}
+          items={moreDay.items}
+          onEventClick={(item) => {
+            setMoreDay(null);
+            window.setTimeout(() => openEdit(item), 0);
+          }}
+        />
+      ) : null}
 
       {draft ? (
         <CalendarTaskDialog

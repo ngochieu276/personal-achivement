@@ -1,0 +1,187 @@
+export type User = {
+  id: string;
+  name: string;
+  email: string;
+  createdAt: string;
+};
+
+export type ProjectGroup = {
+  id: string;
+  name: string;
+  icon?: string | null;
+};
+
+export type Project = {
+  id: string;
+  name: string;
+  icon?: string | null;
+  createdAt: string;
+  subjectCount?: number;
+  averageProgress?: number;
+  groupIds?: string[];
+  groups?: ProjectGroup[];
+};
+
+export type Group = {
+  id: string;
+  name: string;
+  icon?: string | null;
+  createdAt: string;
+  projects: Project[];
+};
+
+export type GroupTree = {
+  groups: Group[];
+  ungrouped: Project[];
+};
+
+export type KpiTypePeriod = "day" | "week" | "twoWeek" | "month";
+export type KpiType = "totalTime" | "totalRepeat";
+export type TypeOfRecord = "timePerRep" | "repPerTime" | "maximum" | "fastest" | "defineByUser";
+export type BetterDirection = "lowerIsBetter" | "higherIsBetter";
+export type EventStatus = "miss" | "finish";
+export type SubjectStatus = "active" | "pending" | "ending";
+export type HistoryType = "streak_hit" | "kpi_change" | "subject_event" | "kpi_done";
+
+export type PeriodWindow = {
+  start: string;
+  end: string;
+  index: number;
+};
+
+export type Subject = {
+  id: string;
+  projectId: string;
+  name: string;
+  icon?: string | null;
+  kpi: number;
+  kpiTypePeriod: KpiTypePeriod;
+  kpiType: KpiType;
+  startDate: string;
+  link: string | null;
+  note: string | null;
+  documents: string[];
+  images?: string[];
+  typeOfRecord: TypeOfRecord | null;
+  betterDirection: BetterDirection | null;
+  isPriority: boolean;
+  status?: SubjectStatus;
+  statusComment?: string | null;
+  orderIndex?: number | null;
+  currentProgress: number;
+  currentStreak: number;
+  createdAt: string;
+  activeWindow?: PeriodWindow;
+  records?: SubjectRecord[];
+};
+
+export type SubjectRecord = {
+  id: string;
+  subjectId: string;
+  date: string;
+  recordNumber: number;
+  createdAt: string;
+};
+
+export type SubjectEvent = {
+  id: string;
+  subjectId: string;
+  status: EventStatus;
+  date: string;
+  periodStart: string;
+  periodEnd: string;
+  progress: number;
+  kpiSnapshot: number;
+  createdAt: string;
+};
+
+export type SubjectHistory = {
+  id: string;
+  subjectId: string;
+  type: HistoryType;
+  subjectEventId: string | null;
+  payload: Record<string, unknown>;
+  createdAt: string;
+};
+
+export type SubjectDetail = {
+  subject: Subject;
+  files: SubjectFile[];
+  activeWindow: PeriodWindow;
+  events: SubjectEvent[];
+  history: SubjectHistory[];
+};
+
+export type SubjectFile = {
+  id: string;
+  subjectId: string;
+  name: string;
+  mimeType: string;
+  createdAt: string;
+};
+
+export type SubjectEventsResponse = {
+  events: SubjectEvent[];
+};
+
+export type SubjectEventPatchResponse = {
+  event: SubjectEvent;
+  currentStreak: number;
+};
+
+export type ActivityRange = "week" | "month";
+
+export type ActivityItem = {
+  id: string;
+  type: HistoryType;
+  payload: Record<string, unknown>;
+  createdAt: string;
+  subjectId: string;
+  subject: {
+    id: string;
+    name: string;
+    icon?: string | null;
+    kpiType: KpiType;
+    projectId: string;
+    projectName: string;
+  };
+};
+
+export type ActivitiesPage = {
+  range: ActivityRange;
+  items: ActivityItem[];
+  nextCursor: string | null;
+};
+
+export type CalendarRecurrence =
+  | { frequency: "daily" }
+  | { frequency: "weekly"; weekday: number }
+  | { frequency: "monthly"; monthDay: number };
+
+export type CalendarTask = {
+  id: string;
+  projectId: string;
+  title: string;
+  startsAt: string;
+  endsAt: string;
+  recurrence: CalendarRecurrence | null;
+  createdAt: string;
+  project?: {
+    id: string;
+    name: string;
+    icon?: string | null;
+  };
+};
+
+export type CalendarView = "day" | "fourDays" | "week" | "month";
+
+export type DashboardStats = {
+  summary: {
+    subjectCount: number;
+    onTrack: number;
+    atRisk: number;
+    streakCount: number;
+    averageProgress: number;
+    hitRate: number | null;
+  };
+};

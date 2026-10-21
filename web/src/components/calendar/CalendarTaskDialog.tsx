@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { FormDialog } from "@/components/shared/FormDialog";
@@ -162,9 +163,16 @@ export function CalendarTaskDialog({
             {save.error ? <p className="text-sm text-destructive">{save.error.message}</p> : null}
             <div className="flex items-center justify-between gap-2">
               {task ? (
-                <Button type="button" variant="destructive" onClick={() => setConfirmDelete(true)}>
-                  {t("calendar.deleteTaskBtn")}
-                </Button>
+                <div className="flex flex-wrap gap-2">
+                  <Button type="button" variant="destructive" onClick={() => setConfirmDelete(true)}>
+                    {t("calendar.deleteTaskBtn")}
+                  </Button>
+                  {projectId ? (
+                    <Button type="button" variant="outline" asChild>
+                      <Link href={`/projects/${projectId}`}>{t("calendar.openProject")}</Link>
+                    </Button>
+                  ) : null}
+                </div>
               ) : (
                 <span />
               )}

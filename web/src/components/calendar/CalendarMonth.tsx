@@ -21,12 +21,14 @@ export function CalendarMonth({
   onDayClick,
   onSlotClick,
   onEventClick,
+  onMoreClick,
 }: {
   cursor: Date;
   occurrences: CalendarOccurrence[];
   onDayClick: (day: Date) => void;
   onSlotClick: (day: Date) => void;
   onEventClick: (item: CalendarOccurrence) => void;
+  onMoreClick: (day: Date, items: CalendarOccurrence[]) => void;
 }) {
   const { t, locale } = useI18n();
   const tag = localeTag(locale);
@@ -96,7 +98,16 @@ export function CalendarMonth({
                   </button>
                 ))}
                 {extra > 0 ? (
-                  <p className="px-1 text-[11px] text-muted-foreground">{t("calendar.more", { count: extra })}</p>
+                  <button
+                    type="button"
+                    className="w-full rounded px-1 py-0.5 text-left text-[11px] font-medium text-muted-foreground hover:bg-muted/80"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onMoreClick(day, items);
+                    }}
+                  >
+                    {t("calendar.more", { count: extra })}
+                  </button>
                 ) : null}
               </div>
             </div>

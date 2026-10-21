@@ -11,3 +11,6 @@ landing/.next
 api/generated
 api/.env
 web/.env
+mobile/.env
+mobile/.expo
+mobile/expo-env.d.ts
