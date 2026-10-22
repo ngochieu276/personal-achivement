@@ -11,6 +11,7 @@ import {
 } from "../period.ts";
 import { recordFieldShape, recordWriteData, withRecordRefine } from "../record.ts";
 import { cacheGet, cacheSet, invalidateUserReads } from "../cache.ts";
+import { cycleStatsForSubjects, withCycleStats } from "../cycle-stats.ts";
 import { projectInclude, toProjectDto } from "../serialize.ts";
 
 const createProjectSchema = z.object({
@@ -174,9 +175,10 @@ projectRoutes.get("/:id/subjects", async (c) => {
   });
 
   const now = new Date();
+  const cycleStats = await cycleStatsForSubjects(subjects.map((subject) => subject.id));
   return c.json({
     subjects: subjects.map((subject) => ({
-      ...subject,
+      ...withCycleStats(subject, cycleStats.get(subject.id)),
       activeWindow: getActiveWindow(subject.startDate, subject.kpiTypePeriod, now),
     })),
   });

@@ -2,6 +2,7 @@ import { Pressable, ScrollView, Text, View } from "react-native";
 import { localeTag, useI18n } from "@/i18n";
 import {
   addDays,
+  calendarTaskToneId,
   hourLabel,
   occurrencesOnDay,
   sameDay,
@@ -75,7 +76,7 @@ export function CalendarMonth({
                 </Text>
               </Pressable>
               {shown.map((item) => {
-                const tone = projectTone(item.task.projectId);
+                const tone = projectTone(calendarTaskToneId(item.task));
                 return (
                   <Pressable
                     key={`${item.task.id}-${item.startsAt.toISOString()}`}
@@ -140,7 +141,7 @@ export function CalendarTimeGrid({
                 onPress={() => onSlotClick(day, hour)}
               >
                 {items.map((item) => {
-                  const tone = projectTone(item.task.projectId);
+                  const tone = projectTone(calendarTaskToneId(item.task));
                   return (
                     <Pressable
                       key={item.task.id}

@@ -21,6 +21,44 @@ export function StreakBadge({
   );
 }
 
+export function CycleRatioBadge({
+  finished = 0,
+  total = 0,
+}: {
+  finished?: number;
+  total?: number;
+}) {
+  const { t } = useI18n();
+  return (
+    <Badge
+      variant="outline"
+      className="tabular-nums"
+      title={t("time.finishedCycles", { finished, total })}
+    >
+      {finished}/{total}
+    </Badge>
+  );
+}
+
+export function StreakWithCycles({
+  streak,
+  finished,
+  total,
+  variant = "count",
+}: {
+  streak: number;
+  finished?: number;
+  total?: number;
+  variant?: "count" | "labeled";
+}) {
+  return (
+    <span className="inline-flex items-center gap-1">
+      <StreakBadge streak={streak} variant={variant} />
+      <CycleRatioBadge finished={finished} total={total} />
+    </span>
+  );
+}
+
 export function RemainingBadge({ end }: { end: string }) {
   useI18n();
   return <Badge variant="secondary">{remainingLabel(end)}</Badge>;

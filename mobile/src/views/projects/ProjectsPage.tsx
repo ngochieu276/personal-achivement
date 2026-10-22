@@ -114,7 +114,7 @@ export function ProjectsPage() {
       ))}
 
       {ungrouped.length > 0 ? (
-        <Text className="font-serif text-lg text-foreground">{t("projects.all")}</Text>
+        <Text className="font-serif text-lg text-foreground">{t("projects.ungrouped")}</Text>
       ) : null}
       {projectsQuery.isLoading ? <Text className="text-muted-foreground">{t("projects.loading")}</Text> : null}
       {projects.length === 0 && !projectsQuery.isLoading ? (

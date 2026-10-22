@@ -71,6 +71,14 @@ export const en = {
     featuredIcons: "Featured icons shown. Search to browse all {count} lucide icons.",
     showingIcons: "Showing {shown} of {total}. Keep typing to narrow results.",
     matchingIcons: "{count} matching icons.",
+    search: "Search...",
+    noMatches: "No matches.",
+  },
+  search: {
+    placeholder: "Search projects and subjects...",
+    empty: "No matching projects or subjects.",
+    projects: "Projects",
+    subjects: "Subjects",
   },
   auth: {
     ledger: "Ledger",
@@ -154,6 +162,7 @@ export const en = {
     emptyTitle: "No projects yet",
     emptyDesc: "Use Create project in the header, then add subjects like running, writing, or practice reps.",
     all: "All projects",
+    ungrouped: "Ungrouped",
     delete: "Delete project",
     eyebrow: "Project",
     groupsOptional: "Groups (optional)",
@@ -354,6 +363,7 @@ export const en = {
     hoursLeft: "{count}h left",
     daysLeft: "{count}d left",
     streak: "{count} streak",
+    finishedCycles: "{finished}/{total} cycles",
   },
   cycle: {
     day: "Starts at the beginning of that day.",
@@ -393,6 +403,8 @@ export const en = {
     openProject: "Open project",
     loading: "Loading calendar...",
     emptyProject: "Create a project before adding calendar tasks.",
+    selectProjects: "Select projects",
+    searchProjects: "Search projects...",
   },
   notFound: {
     title: "Page not found",

@@ -49,6 +49,7 @@ export function AddProjectsToGroup({
       <div className="flex flex-col gap-2 sm:flex-row">
         <div className="min-w-0 flex-1">
           <MultiSelect
+            searchable
             options={available.map((project) => ({ value: project.id, label: project.name }))}
             value={selected}
             onChange={setSelected}

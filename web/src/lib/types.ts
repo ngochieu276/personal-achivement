@@ -70,6 +70,8 @@ export type Subject = {
   orderIndex?: number | null;
   currentProgress: number;
   currentStreak: number;
+  finishedCycles?: number;
+  totalCycles?: number;
   createdAt: string;
   activeWindow?: PeriodWindow;
   records?: SubjectRecord[];
@@ -158,19 +160,34 @@ export type CalendarRecurrence =
   | { frequency: "weekly"; weekday: number }
   | { frequency: "monthly"; monthDay: number };
 
+export type CalendarTaskProject = {
+  id: string;
+  name: string;
+  icon?: string | null;
+};
+
 export type CalendarTask = {
   id: string;
   projectId: string;
+  projectIds?: string[];
   title: string;
   startsAt: string;
   endsAt: string;
   recurrence: CalendarRecurrence | null;
   createdAt: string;
-  project?: {
+  project?: CalendarTaskProject | null;
+  projects?: CalendarTaskProject[];
+};
+
+export type SearchResults = {
+  projects: Array<{ id: string; name: string; icon?: string | null }>;
+  subjects: Array<{
     id: string;
     name: string;
     icon?: string | null;
-  };
+    projectId: string;
+    projectName: string;
+  }>;
 };
 
 export type CalendarView = "day" | "fourDays" | "week" | "month";

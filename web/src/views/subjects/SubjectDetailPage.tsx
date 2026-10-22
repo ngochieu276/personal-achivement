@@ -12,7 +12,7 @@ import { SubjectPageSkeleton } from "@/components/subjects/SubjectPageSkeleton";
 import { ProgressBar } from "@/components/shared/ProgressBar";
 import { ResourceLink } from "@/components/shared/ResourceLink";
 import { SetProgressForm } from "@/components/subjects/SetProgressForm";
-import { RemainingBadge, StreakBadge } from "@/components/subjects/StreakBadge";
+import { RemainingBadge, StreakWithCycles } from "@/components/subjects/StreakBadge";
 import { SubjectActionsMenu } from "@/components/subjects/SubjectActionsMenu";
 import { SubjectDocuments } from "@/components/subjects/SubjectDocuments";
 import { SubjectFormDialog } from "@/components/subjects/SubjectFormDialog";
@@ -159,7 +159,12 @@ export function SubjectDetailPage() {
               {recordSuffix}
             </p>
             <div className="flex flex-wrap items-center gap-2">
-              <StreakBadge streak={subject.currentStreak} variant="labeled" />
+              <StreakWithCycles
+                streak={subject.currentStreak}
+                finished={subject.finishedCycles}
+                total={subject.totalCycles}
+                variant="labeled"
+              />
               <RemainingBadge end={activeWindow.end} />
             </div>
           </div>

@@ -77,6 +77,14 @@ export const vi: DeepString<typeof en> = {
     featuredIcons: "Hiển thị icon nổi bật. Tìm kiếm để xem tất cả {count} icon Lucide.",
     showingIcons: "Đang hiện {shown} / {total}. Gõ thêm để thu hẹp kết quả.",
     matchingIcons: "{count} icon khớp.",
+    search: "Tìm kiếm...",
+    noMatches: "Không có kết quả khớp.",
+  },
+  search: {
+    placeholder: "Tìm dự án và chủ đề...",
+    empty: "Không có dự án hoặc chủ đề khớp.",
+    projects: "Dự án",
+    subjects: "Chủ đề",
   },
   auth: {
     ledger: "Sổ ghi",
@@ -160,6 +168,7 @@ export const vi: DeepString<typeof en> = {
     emptyTitle: "Chưa có dự án",
     emptyDesc: "Dùng Tạo dự án trên thanh trên, rồi thêm chủ đề như chạy, viết, hoặc số lần luyện tập.",
     all: "Tất cả dự án",
+    ungrouped: "Chưa nhóm",
     delete: "Xóa dự án",
     eyebrow: "Dự án",
     groupsOptional: "Nhóm (tuỳ chọn)",
@@ -360,6 +369,7 @@ export const vi: DeepString<typeof en> = {
     hoursLeft: "Còn {count} giờ",
     daysLeft: "Còn {count} ngày",
     streak: "{count} chuỗi",
+    finishedCycles: "{finished}/{total} kỳ",
   },
   cycle: {
     day: "Bắt đầu từ đầu ngày đó.",
@@ -399,6 +409,8 @@ export const vi: DeepString<typeof en> = {
     openProject: "Mở dự án",
     loading: "Đang tải lịch...",
     emptyProject: "Hãy tạo dự án trước khi thêm công việc trên lịch.",
+    selectProjects: "Chọn dự án",
+    searchProjects: "Tìm dự án...",
   },
   notFound: {
     title: "Không tìm thấy trang",

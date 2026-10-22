@@ -10,10 +10,13 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Card";
 import { AppModal, ConfirmDialog } from "@/components/ui/Modal";
+import { MultiSelect } from "@/components/ui/MultiSelect";
 import { Select } from "@/components/ui/Select";
 import { localeTag, useI18n } from "@/i18n";
 import { api } from "@/lib/api";
 import {
+  calendarTaskProjectIds,
+  calendarTaskToneId,
   daysInRange,
   expandAll,
   recurrenceFromStart,
@@ -39,7 +42,7 @@ export function CalendarPage() {
   const [draft, setDraft] = useState<Draft | null>(null);
   const [moreDay, setMoreDay] = useState<{ day: Date; items: CalendarOccurrence[] } | null>(null);
   const [title, setTitle] = useState("");
-  const [projectId, setProjectId] = useState("");
+  const [projectIds, setProjectIds] = useState<string[]>([]);
   const [frequency, setFrequency] = useState<Frequency>("none");
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [picking, setPicking] = useState<"start" | "end" | null>(null);
@@ -65,13 +68,13 @@ export function CalendarPage() {
 
   function openCreate(startsAt: Date, endsAt: Date) {
     setTitle("");
-    setProjectId(projects[0]?.id ?? "");
+    setProjectIds(projects[0]?.id ? [projects[0].id] : []);
     setFrequency("none");
     setDraft({ startsAt, endsAt });
   }
   function openEdit(item: CalendarOccurrence) {
     setTitle(item.task.title);
-    setProjectId(item.task.projectId);
+    setProjectIds(calendarTaskProjectIds(item.task));
     setFrequency(item.task.recurrence?.frequency ?? "none");
     setDraft({ task: item.task, startsAt: new Date(item.task.startsAt), endsAt: new Date(item.task.endsAt) });
   }
@@ -88,7 +91,7 @@ export function CalendarPage() {
       if (!draft) throw new Error("missing draft");
       const body = {
         title,
-        projectId,
+        projectIds,
         startsAt: draft.startsAt.toISOString(),
         endsAt: draft.endsAt.toISOString(),
         recurrence: recurrenceFromStart(frequency, draft.startsAt),
@@ -176,7 +179,7 @@ export function CalendarPage() {
           <Text className="text-sm text-muted-foreground">{t("calendar.emptyDay")}</Text>
         ) : (
           moreDay?.items.map((item) => {
-            const tone = projectTone(item.task.projectId);
+            const tone = projectTone(calendarTaskToneId(item.task));
             return (
               <Button
                 key={`${item.task.id}-${item.startsAt.toISOString()}`}
@@ -210,11 +213,13 @@ export function CalendarPage() {
               <Input value={title} onChangeText={setTitle} />
             </View>
             <View>
-              <Label>{t("subjects.project")}</Label>
-              <Select
-                value={projectId}
-                onChange={setProjectId}
+              <Label>{t("nav.projects")}</Label>
+              <MultiSelect
                 options={projects.map((project) => ({ value: project.id, label: project.name }))}
+                value={projectIds}
+                onChange={setProjectIds}
+                placeholder={t("calendar.selectProjects")}
+                searchPlaceholder={t("calendar.searchProjects")}
               />
             </View>
             <Button variant="outline" onPress={() => setPicking("start")}>
@@ -252,12 +257,17 @@ export function CalendarPage() {
                   <Button variant="destructive" onPress={() => setConfirmDelete(true)}>
                     {t("calendar.deleteTaskBtn")}
                   </Button>
-                  <Button variant="outline" onPress={() => router.push(`/projects/${projectId}`)}>
-                    {t("calendar.openProject")}
-                  </Button>
+                  {projectIds.map((id) => {
+                    const project = projects.find((item) => item.id === id);
+                    return (
+                      <Button key={id} variant="outline" onPress={() => router.push(`/projects/${id}`)}>
+                        {project?.name ?? t("calendar.openProject")}
+                      </Button>
+                    );
+                  })}
                 </>
               ) : null}
-              <Button loading={save.isPending} disabled={!title.trim() || !projectId} onPress={() => save.mutate()}>
+              <Button loading={save.isPending} disabled={!title.trim() || projectIds.length === 0} onPress={() => save.mutate()}>
                 {t("common.save")}
               </Button>
             </View>

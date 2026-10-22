@@ -242,3 +242,21 @@ export function recurrenceFromStart(frequency: CalendarRecurrence["frequency"] |
   if (frequency === "weekly") return { frequency: "weekly", weekday: start.getDay() };
   return { frequency: "monthly", monthDay: start.getDate() };
 }
+
+export function calendarTaskProjects(task: CalendarTask) {
+  if (task.projects?.length) return task.projects;
+  return task.project ? [task.project] : [];
+}
+
+export function calendarTaskProjectIds(task: CalendarTask) {
+  if (task.projectIds?.length) return task.projectIds;
+  return task.projectId ? [task.projectId] : [];
+}
+
+export function calendarTaskToneId(task: CalendarTask) {
+  return calendarTaskProjectIds(task)[0] ?? "";
+}
+
+export function calendarTaskProjectLabel(task: CalendarTask) {
+  return calendarTaskProjects(task).map((project) => project.name).join(", ");
+}

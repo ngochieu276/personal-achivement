@@ -3,6 +3,7 @@ import { z } from "zod";
 import { authMiddleware, type AuthUser } from "../auth.ts";
 import { invalidateUserReads } from "../cache.ts";
 import { prisma } from "../db.ts";
+import { Prisma } from "../generated/prisma/client.ts";
 
 const recurrenceSchema = z.union([
   z.object({ frequency: z.literal("daily") }),
@@ -16,27 +17,77 @@ const recurrenceSchema = z.union([
   }),
 ]);
 
+const projectIdsShape = {
+  projectId: z.string().min(1).optional(),
+  projectIds: z.array(z.string().min(1)).optional(),
+};
+
 const createSchema = z.object({
-  projectId: z.string().min(1),
   title: z.string().trim().min(1).max(200),
   startsAt: z.string().min(1),
   endsAt: z.string().min(1),
   recurrence: recurrenceSchema.nullable().optional(),
-});
+  ...projectIdsShape,
+}).refine(
+  (value) => Boolean(value.projectId) || (value.projectIds?.length ?? 0) > 0,
+  { message: "projectId or projectIds is required" },
+);
 
 const updateSchema = z.object({
-  projectId: z.string().min(1).optional(),
   title: z.string().trim().min(1).max(200).optional(),
   startsAt: z.string().min(1).optional(),
   endsAt: z.string().min(1).optional(),
   recurrence: recurrenceSchema.nullable().optional(),
-});
+  ...projectIdsShape,
+}).refine(
+  (value) => value.projectIds === undefined || value.projectIds.length > 0,
+  { message: "projectIds must not be empty" },
+);
 
 const projectSelect = { id: true, name: true, icon: true } as const;
+
+const taskInclude = {
+  projects: { include: { project: { select: projectSelect } } },
+} as const;
 
 function parseInstant(value: string) {
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function uniqueIds(values: string[]) {
+  return [...new Set(values.filter(Boolean))];
+}
+
+function requestedProjectIds(data: { projectId?: string; projectIds?: string[] }) {
+  return uniqueIds([
+    ...(data.projectIds ?? []),
+    ...(data.projectId ? [data.projectId] : []),
+  ]);
+}
+
+function toCalendarTaskDto(task: {
+  id: string;
+  title: string;
+  startsAt: Date;
+  endsAt: Date;
+  recurrence: unknown;
+  createdAt: Date;
+  projects: Array<{ project: { id: string; name: string; icon: string | null } }>;
+}) {
+  const projects = task.projects.map((item) => item.project);
+  return {
+    id: task.id,
+    title: task.title,
+    startsAt: task.startsAt,
+    endsAt: task.endsAt,
+    recurrence: task.recurrence,
+    createdAt: task.createdAt,
+    projectIds: projects.map((project) => project.id),
+    projects,
+    projectId: projects[0]?.id ?? "",
+    project: projects[0] ?? null,
+  };
 }
 
 export const calendarTaskRoutes = new Hono<{ Variables: { user: AuthUser } }>();
@@ -44,9 +95,20 @@ calendarTaskRoutes.use("*", authMiddleware);
 
 async function ownedTask(userId: string, taskId: string) {
   return await prisma.calendarTask.findFirst({
-    where: { id: taskId, project: { userId } },
-    include: { project: { select: projectSelect } },
+    where: { id: taskId, projects: { some: { project: { userId } } } },
+    include: taskInclude,
   });
+}
+
+async function ownedProjectIds(userId: string, projectIds: string[]) {
+  const unique = uniqueIds(projectIds);
+  if (unique.length === 0) return null;
+  const projects = await prisma.project.findMany({
+    where: { userId, id: { in: unique } },
+    select: { id: true },
+  });
+  if (projects.length !== unique.length) return null;
+  return unique;
 }
 
 calendarTaskRoutes.get("/", async (c) => {
@@ -58,17 +120,19 @@ calendarTaskRoutes.get("/", async (c) => {
 
   const rows = await prisma.calendarTask.findMany({
     where: {
-      project: { userId: c.get("user").id },
+      projects: { some: { project: { userId: c.get("user").id } } },
       startsAt: { lt: to },
     },
-    include: { project: { select: projectSelect } },
+    include: taskInclude,
     orderBy: { startsAt: "asc" },
   });
 
-  const calendarTasks = rows.filter((task) => {
-    if (task.recurrence == null) return task.endsAt > from;
-    return true;
-  });
+  const calendarTasks = rows
+    .filter((task) => {
+      if (task.recurrence == null) return task.endsAt > from;
+      return true;
+    })
+    .map(toCalendarTaskDto);
 
   return c.json({ calendarTasks });
 });
@@ -84,25 +148,24 @@ calendarTaskRoutes.post("/", async (c) => {
   if (!startsAt || !endsAt) return c.json({ error: "Invalid startsAt or endsAt" }, 400);
   if (endsAt <= startsAt) return c.json({ error: "endsAt must be after startsAt" }, 400);
 
-  const project = await prisma.project.findFirst({
-    where: { id: parsed.data.projectId, userId: c.get("user").id },
-    select: projectSelect,
-  });
-  if (!project) return c.json({ error: "Project not found" }, 404);
+  const projectIds = await ownedProjectIds(c.get("user").id, requestedProjectIds(parsed.data));
+  if (!projectIds) return c.json({ error: "Project not found" }, 404);
 
   const calendarTask = await prisma.calendarTask.create({
     data: {
-      projectId: project.id,
       title: parsed.data.title,
       startsAt,
       endsAt,
       recurrence: parsed.data.recurrence ?? undefined,
+      projects: {
+        create: projectIds.map((projectId) => ({ projectId })),
+      },
     },
-    include: { project: { select: projectSelect } },
+    include: taskInclude,
   });
 
   invalidateUserReads(c.get("user").id);
-  return c.json({ calendarTask }, 201);
+  return c.json({ calendarTask: toCalendarTaskDto(calendarTask) }, 201);
 });
 
 calendarTaskRoutes.patch("/:id", async (c) => {
@@ -123,30 +186,33 @@ calendarTaskRoutes.patch("/:id", async (c) => {
   if (!startsAt || !endsAt) return c.json({ error: "Invalid startsAt or endsAt" }, 400);
   if (endsAt <= startsAt) return c.json({ error: "endsAt must be after startsAt" }, 400);
 
-  let projectId = existing.projectId;
-  if (parsed.data.projectId && parsed.data.projectId !== existing.projectId) {
-    const project = await prisma.project.findFirst({
-      where: { id: parsed.data.projectId, userId: c.get("user").id },
-      select: { id: true },
-    });
-    if (!project) return c.json({ error: "Project not found" }, 404);
-    projectId = project.id;
+  const requested = requestedProjectIds(parsed.data);
+  if (requested.length > 0) {
+    const projectIds = await ownedProjectIds(c.get("user").id, requested);
+    if (!projectIds) return c.json({ error: "Project not found" }, 404);
+    await prisma.$transaction([
+      prisma.calendarTaskProject.deleteMany({ where: { calendarTaskId: existing.id } }),
+      prisma.calendarTaskProject.createMany({
+        data: projectIds.map((projectId) => ({ calendarTaskId: existing.id, projectId })),
+      }),
+    ]);
   }
 
   const calendarTask = await prisma.calendarTask.update({
     where: { id: existing.id },
     data: {
-      projectId,
       title: parsed.data.title ?? existing.title,
       startsAt,
       endsAt,
-      recurrence: parsed.data.recurrence === undefined ? existing.recurrence : parsed.data.recurrence,
+      ...(parsed.data.recurrence === undefined
+        ? {}
+        : { recurrence: parsed.data.recurrence ?? Prisma.DbNull }),
     },
-    include: { project: { select: projectSelect } },
+    include: taskInclude,
   });
 
   invalidateUserReads(c.get("user").id);
-  return c.json({ calendarTask });
+  return c.json({ calendarTask: toCalendarTaskDto(calendarTask) });
 });
 
 calendarTaskRoutes.delete("/:id", async (c) => {

@@ -32,7 +32,10 @@ export function SubjectCard({ subject, onEdit }: { subject: Subject; onEdit: (su
           <Text className="text-sm text-muted-foreground">
             {subject.currentProgress} / {subject.kpi} {unit}
             {subject.activeWindow ? ` · ${remainingLabel(subject.activeWindow.end)}` : ""}
-            {subject.currentStreak ? ` · ${t("time.streak", { count: subject.currentStreak })}` : ""}
+            {` · ${t("time.streak", { count: subject.currentStreak })} · ${t("time.finishedCycles", {
+              finished: subject.finishedCycles ?? 0,
+              total: subject.totalCycles ?? 0,
+            })}`}
           </Text>
           <ProgressBar current={subject.currentProgress} target={subject.kpi} />
         </Pressable>

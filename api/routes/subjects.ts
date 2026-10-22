@@ -28,6 +28,7 @@ import {
   resolveMimeType,
 } from "../files.ts";
 import { recordFieldShape, recordWriteData, withRecordRefine } from "../record.ts";
+import { cycleStatsForSubjects, withCycleStats } from "../cycle-stats.ts";
 import type { Subject } from "../generated/prisma/client.ts";
 
 const updateSubjectSchema = withRecordRefine({
@@ -92,7 +93,7 @@ async function subjectDetail(
     : await closeOverdueForSubject(existing.id, now, existing);
   if (!closed) return null;
 
-  const [history, records, files] = await Promise.all([
+  const [history, records, files, cycleStats] = await Promise.all([
     prisma.subjectHistory.findMany({
       where: { subjectId: existing.id },
       orderBy: { createdAt: "desc" },
@@ -109,10 +110,11 @@ async function subjectDetail(
       orderBy: { createdAt: "desc" },
       select: { id: true, subjectId: true, name: true, mimeType: true, createdAt: true },
     }),
+    cycleStatsForSubjects([existing.id]),
   ]);
 
   return {
-    subject: { ...closed, records },
+    subject: withCycleStats({ ...closed, records }, cycleStats.get(existing.id)),
     files,
     activeWindow: getActiveWindow(closed.startDate, closed.kpiTypePeriod, now),
     events: [],

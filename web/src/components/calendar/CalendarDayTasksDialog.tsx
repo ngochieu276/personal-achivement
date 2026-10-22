@@ -3,7 +3,7 @@
 import { projectTone } from "@/components/calendar/calendarStyles";
 import { FormDialog } from "@/components/shared/FormDialog";
 import { localeTag, useI18n } from "@/i18n";
-import type { CalendarOccurrence } from "@/lib/calendar";
+import { calendarTaskProjectLabel, calendarTaskToneId, type CalendarOccurrence } from "@/lib/calendar";
 import { cn } from "@/lib/utils";
 
 export function CalendarDayTasksDialog({
@@ -39,14 +39,14 @@ export function CalendarDayTasksDialog({
       ) : (
         <div className="space-y-1.5">
           {items.map((item) => {
-            const projectName = item.task.project?.name;
+            const projectName = calendarTaskProjectLabel(item.task);
             return (
               <button
                 key={`${item.task.id}-${item.startsAt.toISOString()}`}
                 type="button"
                 className={cn(
                   "flex w-full items-start gap-2 rounded-md border px-3 py-2 text-left text-sm",
-                  projectTone(item.task.projectId),
+                  projectTone(calendarTaskToneId(item.task)),
                 )}
                 onClick={() => onEventClick(item)}
               >

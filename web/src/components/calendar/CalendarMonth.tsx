@@ -4,6 +4,7 @@ import { projectTone } from "@/components/calendar/calendarStyles";
 import { localeTag, useI18n } from "@/i18n";
 import {
   addDays,
+  calendarTaskToneId,
   occurrencesOnDay,
   sameDay,
   startOfMonth,
@@ -87,7 +88,7 @@ export function CalendarMonth({
                     type="button"
                     className={cn(
                       "block w-full truncate rounded border px-1 py-0.5 text-left text-[11px] leading-tight",
-                      projectTone(item.task.projectId),
+                      projectTone(calendarTaskToneId(item.task)),
                     )}
                     onClick={(event) => {
                       event.stopPropagation();

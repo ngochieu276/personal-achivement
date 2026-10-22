@@ -5,12 +5,13 @@ import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { FormDialog } from "@/components/shared/FormDialog";
+import { MultiSelect } from "@/components/shared/MultiSelect";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useI18n } from "@/i18n";
 import { api } from "@/lib/api";
-import { recurrenceFromStart, toDateTimeLocal } from "@/lib/calendar";
+import { calendarTaskProjectIds, recurrenceFromStart, toDateTimeLocal } from "@/lib/calendar";
 import type { CalendarRecurrence, CalendarTask, Project } from "@/lib/types";
 
 const selectClass =
@@ -36,7 +37,7 @@ export function CalendarTaskDialog({
   const { t } = useI18n();
   const queryClient = useQueryClient();
   const [title, setTitle] = useState("");
-  const [projectId, setProjectId] = useState("");
+  const [projectIds, setProjectIds] = useState<string[]>([]);
   const [start, setStart] = useState("");
   const [end, setEnd] = useState("");
   const [frequency, setFrequency] = useState<Frequency>("none");
@@ -45,7 +46,7 @@ export function CalendarTaskDialog({
   useEffect(() => {
     if (!open) return;
     setTitle(task?.title ?? "");
-    setProjectId(task?.projectId ?? projects[0]?.id ?? "");
+    setProjectIds(task ? calendarTaskProjectIds(task) : (projects[0]?.id ? [projects[0].id] : []));
     setStart(toDateTimeLocal(startsAt));
     setEnd(toDateTimeLocal(endsAt));
     setFrequency(task?.recurrence?.frequency ?? "none");
@@ -57,7 +58,7 @@ export function CalendarTaskDialog({
       const startDate = new Date(start);
       const body = {
         title,
-        projectId,
+        projectIds,
         startsAt: startDate.toISOString(),
         endsAt: new Date(end).toISOString(),
         recurrence: recurrenceFromStart(frequency, startDate),
@@ -109,20 +110,15 @@ export function CalendarTaskDialog({
               <Input id="calendar-title" value={title} onChange={(event) => setTitle(event.target.value)} required />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="calendar-project">{t("subjects.project")}</Label>
-              <select
-                id="calendar-project"
-                className={selectClass}
-                value={projectId}
-                onChange={(event) => setProjectId(event.target.value)}
-                required
-              >
-                {projects.map((project) => (
-                  <option key={project.id} value={project.id}>
-                    {project.name}
-                  </option>
-                ))}
-              </select>
+              <Label>{t("nav.projects")}</Label>
+              <MultiSelect
+                searchable
+                options={projects.map((project) => ({ value: project.id, label: project.name }))}
+                value={projectIds}
+                onChange={setProjectIds}
+                placeholder={t("calendar.selectProjects")}
+                searchPlaceholder={t("calendar.searchProjects")}
+              />
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
@@ -167,11 +163,16 @@ export function CalendarTaskDialog({
                   <Button type="button" variant="destructive" onClick={() => setConfirmDelete(true)}>
                     {t("calendar.deleteTaskBtn")}
                   </Button>
-                  {projectId ? (
-                    <Button type="button" variant="outline" asChild>
-                      <Link href={`/projects/${projectId}`}>{t("calendar.openProject")}</Link>
-                    </Button>
-                  ) : null}
+                  {projectIds.map((id) => {
+                    const project = projects.find((item) => item.id === id);
+                    return (
+                      <Button key={id} type="button" variant="outline" asChild>
+                        <Link href={`/projects/${id}`}>
+                          {project ? project.name : t("calendar.openProject")}
+                        </Link>
+                      </Button>
+                    );
+                  })}
                 </div>
               ) : (
                 <span />
@@ -180,7 +181,7 @@ export function CalendarTaskDialog({
                 <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                   {t("common.cancel")}
                 </Button>
-                <Button type="submit" disabled={save.isPending || !projectId}>
+                <Button type="submit" disabled={save.isPending || projectIds.length === 0}>
                   {save.isPending ? t("common.saving") : t("common.save")}
                 </Button>
               </div>

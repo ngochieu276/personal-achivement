@@ -118,7 +118,12 @@ export function SubjectDetailPage() {
               </Text>
             ) : null}
             <Text className="text-sm text-muted-foreground">
-              {t("time.streak", { count: subject.currentStreak })} · {remainingLabel(activeWindow.end)}
+              {t("time.streak", { count: subject.currentStreak })} ·{" "}
+              {t("time.finishedCycles", {
+                finished: subject.finishedCycles ?? 0,
+                total: subject.totalCycles ?? 0,
+              })}{" "}
+              · {remainingLabel(activeWindow.end)}
             </Text>
           </View>
         }

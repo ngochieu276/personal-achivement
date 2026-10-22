@@ -57,6 +57,7 @@ export function ProjectForm({
         <div className="space-y-2">
           <Label>{t("projects.groupsOptional")}</Label>
           <MultiSelect
+            searchable
             options={groups.map((group) => ({ value: group.id, label: `${group.name} (${group.id})` }))}
             value={groupIds}
             onChange={onGroupIdsChange}

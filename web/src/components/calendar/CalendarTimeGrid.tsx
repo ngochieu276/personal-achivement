@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { HOUR_HEIGHT, projectTone } from "@/components/calendar/calendarStyles";
 import { localeTag, useI18n } from "@/i18n";
 import {
+  calendarTaskToneId,
   hourLabel,
   layoutDayEvents,
   minutesFromMidnight,
@@ -114,7 +115,7 @@ export function CalendarTimeGrid({
                     type="button"
                     className={cn(
                       "absolute z-20 overflow-hidden rounded border px-1.5 py-1 text-left text-xs leading-tight",
-                      projectTone(item.task.projectId),
+                      projectTone(calendarTaskToneId(item.task)),
                     )}
                     style={{
                       top: item.top,

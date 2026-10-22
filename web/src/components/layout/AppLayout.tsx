@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { ActivitiesNavButton } from "@/components/layout/ActivitiesNavButton";
 import { AppBreadcrumb } from "@/components/layout/AppBreadcrumb";
 import { AppSidebar } from "@/components/layout/AppSidebar";
+import { HeaderSearch } from "@/components/layout/HeaderSearch";
 import { CreateProjectButton } from "@/components/projects/CreateProjectButton";
 import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
@@ -22,6 +23,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
           <SidebarTrigger />
           <Separator orientation="vertical" className="h-4" />
           <AppBreadcrumb />
+          <HeaderSearch />
           <div className="ml-auto flex items-center gap-2">
             <ActivitiesNavButton />
             <CreateProjectButton />

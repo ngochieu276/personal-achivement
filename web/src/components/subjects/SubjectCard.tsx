@@ -7,7 +7,7 @@ import { EditButton } from "@/components/shared/EditButton";
 import { ExceedFlame } from "@/components/shared/ExceedFlame";
 import { ProgressBar } from "@/components/shared/ProgressBar";
 import { ResourceLink } from "@/components/shared/ResourceLink";
-import { RemainingBadge, StreakBadge } from "@/components/subjects/StreakBadge";
+import { RemainingBadge, StreakWithCycles } from "@/components/subjects/StreakBadge";
 import { SubjectStatusBadge } from "@/components/subjects/SubjectStatusBadge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -63,7 +63,11 @@ export function SubjectCard({
           </div>
           <ExceedFlame exceed={exceed} />
           <ProgressBar current={subject.currentProgress} target={subject.kpi} size="inline" />
-          <StreakBadge streak={subject.currentStreak} />
+          <StreakWithCycles
+            streak={subject.currentStreak}
+            finished={subject.finishedCycles}
+            total={subject.totalCycles}
+          />
           <AddProgressForm
             compact
             subjectId={subject.id}
@@ -103,7 +107,11 @@ export function SubjectCard({
           </CardDescription>
           <div className="flex shrink-0 items-center gap-1">
             <ExceedFlame exceed={exceed} />
-            <StreakBadge streak={subject.currentStreak} />
+            <StreakWithCycles
+              streak={subject.currentStreak}
+              finished={subject.finishedCycles}
+              total={subject.totalCycles}
+            />
             {subject.activeWindow ? <RemainingBadge end={subject.activeWindow.end} /> : null}
             <EditButton label={editLabel} onClick={() => onEdit(subject)} />
           </div>

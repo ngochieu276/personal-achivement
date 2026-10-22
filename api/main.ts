@@ -7,6 +7,7 @@ import { activityRoutes } from "./routes/activities.ts";
 import { statsRoutes } from "./routes/stats.ts";
 import { subjectRoutes } from "./routes/subjects.ts";
 import { calendarTaskRoutes } from "./routes/calendar-tasks.ts";
+import { searchRoutes } from "./routes/search.ts";
 import { closeAllOverdue } from "./period.ts";
 
 const app = new Hono();
@@ -62,6 +63,7 @@ app.route("/groups", groupRoutes);
 app.route("/projects", projectRoutes);
 app.route("/subjects", subjectRoutes);
 app.route("/calendar-tasks", calendarTaskRoutes);
+app.route("/search", searchRoutes);
 app.route("/stats", statsRoutes);
 app.route("/activities", activityRoutes);
 
