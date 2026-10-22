@@ -192,13 +192,21 @@ export type SearchResults = {
 
 export type CalendarView = "day" | "fourDays" | "week" | "month";
 
-export type DashboardStats = {
-  summary: {
-    subjectCount: number;
-    onTrack: number;
-    atRisk: number;
-    streakCount: number;
-    averageProgress: number;
-    hitRate: number | null;
-  };
+export type DashboardActivity = {
+  from: string;
+  to: string;
+  days: Array<{ date: string; count: number }>;
+};
+
+export type DashboardCyclePeriod = "day" | "week" | "month";
+export type DashboardCycleRange = "month" | "3months" | "6months";
+
+export type DashboardCycles = {
+  period: DashboardCyclePeriod;
+  range: DashboardCycleRange;
+  points: Array<{
+    start: string;
+    finish: number;
+    total: number;
+  }>;
 };
