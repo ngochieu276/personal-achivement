@@ -13,8 +13,7 @@ import { Card, CardTitle } from "@/components/ui/Card";
 import { ConfirmDialog, AppModal } from "@/components/ui/Modal";
 import { useI18n } from "@/i18n";
 import { api } from "@/lib/api";
-import { groupSubjectsByPeriod } from "@/lib/subjects";
-import { periodGroupLabel } from "@/lib/subjects";
+import { groupSubjectsByPeriod, periodGroupLabel, visibleProjectSubjects } from "@/lib/subjects";
 import type { GroupTree, Project, Subject, SubjectDetail, SubjectStatus } from "@/lib/types";
 
 export function ProjectDetailPage() {
@@ -72,7 +71,11 @@ export function ProjectDetailPage() {
       api(`/subjects/${statusSubject?.id}`, { method: "PATCH", body: JSON.stringify({ status, statusComment }) }),
     onSuccess: async () => {
       setStatusSubject(null);
+      setEditingSubject(null);
       await queryClient.invalidateQueries({ queryKey: ["subjects", id] });
+      await queryClient.invalidateQueries({ queryKey: ["project", id] });
+      await queryClient.invalidateQueries({ queryKey: ["projects"] });
+      await queryClient.invalidateQueries({ queryKey: ["archived-subjects"] });
     },
   });
   const updateProject = useMutation({
@@ -93,14 +96,16 @@ export function ProjectDetailPage() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["projects"] });
       await queryClient.invalidateQueries({ queryKey: ["nav"] });
+      await queryClient.invalidateQueries({ queryKey: ["archived-subjects"] });
       router.replace("/projects");
     },
   });
 
-  const subjects = subjectsQuery.data?.subjects ?? [];
+  const allSubjects = subjectsQuery.data?.subjects ?? [];
+  const subjects = visibleProjectSubjects(allSubjects);
   const project = projectQuery.data?.project;
   const groups = navQuery.data?.groups ?? [];
-  const documents = subjects.flatMap((subject) => subject.documents ?? []);
+  const documents = allSubjects.flatMap((subject) => subject.documents ?? []);
   const records = subjects.flatMap((subject) => (subject.records ?? []).map((record) => ({ ...record, subject })));
 
   return (
@@ -140,7 +145,7 @@ export function ProjectDetailPage() {
         <Button variant="outline" size="sm" onPress={() => setDocumentsOpen(true)}>
           {t("projects.documents")}
         </Button>
-        {subjects.length === 0 ? (
+        {allSubjects.length === 0 ? (
           <Button variant="destructive" size="sm" onPress={() => setConfirmDelete(true)}>
             {t("projects.delete")}
           </Button>

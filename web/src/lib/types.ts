@@ -75,6 +75,11 @@ export type Subject = {
   createdAt: string;
   activeWindow?: PeriodWindow;
   records?: SubjectRecord[];
+  project?: {
+    id: string;
+    name: string;
+    icon?: string | null;
+  };
 };
 
 export type SubjectRecord = {

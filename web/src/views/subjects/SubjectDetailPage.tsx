@@ -99,6 +99,9 @@ export function SubjectDetailPage() {
     onSuccess: async (data) => {
       queryClient.setQueryData(["subject", id], data);
       await queryClient.invalidateQueries({ queryKey: ["subjects", data.subject.projectId] });
+      await queryClient.invalidateQueries({ queryKey: ["project", data.subject.projectId] });
+      await queryClient.invalidateQueries({ queryKey: ["projects"] });
+      await queryClient.invalidateQueries({ queryKey: ["archived-subjects"] });
     },
   });
 
@@ -111,6 +114,7 @@ export function SubjectDetailPage() {
       await queryClient.invalidateQueries({ queryKey: ["projects"] });
       await queryClient.invalidateQueries({ queryKey: ["project", projectId] });
       await queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      await queryClient.invalidateQueries({ queryKey: ["archived-subjects"] });
       if (projectId) router.push(`/projects/${projectId}`);
       else router.push("/projects");
     },

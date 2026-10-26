@@ -67,6 +67,8 @@ export function progressPercent(current: number, target: number) {
 
 export function averageProgressPercent(subjects: Array<{ currentProgress: number; kpi: number }>) {
   if (subjects.length === 0) return 0;
-  const total = subjects.reduce((sum, subject) => sum + progressPercent(subject.currentProgress, subject.kpi), 0);
+  const total = subjects.reduce((sum, subject) => {
+    return sum + Math.min(100, progressPercent(subject.currentProgress, subject.kpi));
+  }, 0);
   return total / subjects.length;
 }

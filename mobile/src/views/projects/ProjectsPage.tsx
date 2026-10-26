@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Pressable, Text, View } from "react-native";
-import { Link } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import { AccountMenu } from "@/components/layout/AccountMenu";
 import { EmptyState, PageHeader, Screen } from "@/components/layout/Screen";
 import { GroupForm } from "@/components/projects/GroupForm";
@@ -16,6 +16,7 @@ import type { GroupTree, Project } from "@/lib/types";
 
 export function ProjectsPage() {
   const { t } = useI18n();
+  const router = useRouter();
   const queryClient = useQueryClient();
   const [createOpen, setCreateOpen] = useState(false);
   const [groupOpen, setGroupOpen] = useState(false);
@@ -86,9 +87,14 @@ export function ProjectsPage() {
           </>
         }
       />
-      <Button variant="outline" onPress={() => setGroupOpen(true)}>
-        {t("nav.createGroup")}
-      </Button>
+      <View className="flex-row flex-wrap gap-2">
+        <Button variant="outline" onPress={() => setGroupOpen(true)}>
+          {t("nav.createGroup")}
+        </Button>
+        <Button variant="outline" onPress={() => router.push("/archived")}>
+          {t("nav.archived")}
+        </Button>
+      </View>
 
       {groups.map((group) => (
         <View key={group.id} className="gap-2">

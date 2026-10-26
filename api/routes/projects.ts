@@ -198,7 +198,7 @@ projectRoutes.patch("/:id/subjects/order", async (c) => {
   }
 
   const existing = await prisma.subject.findMany({
-    where: { projectId: project.id },
+    where: { projectId: project.id, status: { not: "pending" } },
     select: { id: true },
   });
   const allowed = new Set(existing.map((subject) => subject.id));
@@ -208,7 +208,7 @@ projectRoutes.patch("/:id/subjects/order", async (c) => {
     unique.size !== allowed.size ||
     parsed.data.subjectIds.some((id) => !allowed.has(id))
   ) {
-    return c.json({ error: "subjectIds must list each subject in this project once" }, 400);
+    return c.json({ error: "subjectIds must list each visible subject in this project once" }, 400);
   }
 
   await prisma.$transaction(

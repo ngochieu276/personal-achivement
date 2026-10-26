@@ -64,6 +64,9 @@ export function SubjectDetailPage() {
       queryClient.setQueryData(["subject", id], data);
       setStatusOpen(false);
       await queryClient.invalidateQueries({ queryKey: ["subjects", data.subject.projectId] });
+      await queryClient.invalidateQueries({ queryKey: ["project", data.subject.projectId] });
+      await queryClient.invalidateQueries({ queryKey: ["projects"] });
+      await queryClient.invalidateQueries({ queryKey: ["archived-subjects"] });
     },
   });
   const deleteSubject = useMutation({
@@ -73,6 +76,7 @@ export function SubjectDetailPage() {
       await queryClient.invalidateQueries({ queryKey: ["subjects", projectId] });
       await queryClient.invalidateQueries({ queryKey: ["projects"] });
       await queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      await queryClient.invalidateQueries({ queryKey: ["archived-subjects"] });
       router.replace(projectId ? `/projects/${projectId}` : "/projects");
     },
   });

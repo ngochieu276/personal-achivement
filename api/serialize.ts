@@ -3,6 +3,7 @@ import { averageProgressPercent } from "./record.ts";
 type ProjectSubjectProgress = {
   currentProgress: number;
   kpi: number;
+  status?: string;
 };
 
 type ProjectWithGroups = {
@@ -22,9 +23,11 @@ export const projectNavInclude = {
   groups: { include: { group: { select: { id: true, name: true, icon: true } } } },
 } as const;
 
+const visibleSubjects = { status: { not: "pending" as const } };
+
 export const projectInclude = {
-  _count: { select: { subjects: true } },
-  subjects: { select: { currentProgress: true, kpi: true } },
+  _count: { select: { subjects: { where: visibleSubjects } } },
+  subjects: { where: visibleSubjects, select: { currentProgress: true, kpi: true, status: true } },
   groups: { include: { group: { select: { id: true, name: true, icon: true } } } },
 } as const;
 

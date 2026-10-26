@@ -15,6 +15,7 @@ export const en = {
     calendar: "Calendar",
     projects: "Projects",
     activities: "Activities",
+    archived: "Archived",
     groups: "Groups",
     openApp: "Open app",
     signIn: "Sign in",
@@ -334,6 +335,13 @@ export const en = {
     rangeMonth: "Past month",
     range3Months: "Past 3 months",
     range6Months: "Past 6 months",
+  },
+  archived: {
+    eyebrow: "Paused",
+    title: "Archived",
+    loading: "Loading archived subjects...",
+    emptyTitle: "No pending subjects",
+    emptyDesc: "Subjects marked pending move here and leave the project list.",
   },
   activities: {
     log: "Log",

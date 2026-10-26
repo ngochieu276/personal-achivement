@@ -45,3 +45,29 @@ export function exceedAmount(current: number, target: number) {
 export function latestRecordNumber(subject: Subject) {
   return subject.records?.[0]?.recordNumber ?? null;
 }
+
+export function visibleProjectSubjects(subjects: Subject[]) {
+  return subjects.filter((subject) => subject.status !== "pending");
+}
+
+export function groupArchivedByProject(subjects: Subject[]) {
+  const groups = new Map<
+    string,
+    { projectId: string; name: string; icon?: string | null; subjects: Subject[] }
+  >();
+  for (const subject of subjects) {
+    const projectId = subject.project?.id ?? subject.projectId;
+    const current = groups.get(projectId);
+    if (current) {
+      current.subjects.push(subject);
+      continue;
+    }
+    groups.set(projectId, {
+      projectId,
+      name: subject.project?.name ?? "",
+      icon: subject.project?.icon,
+      subjects: [subject],
+    });
+  }
+  return [...groups.values()].sort((left, right) => left.name.localeCompare(right.name));
+}

@@ -21,6 +21,7 @@ export const vi: DeepString<typeof en> = {
     calendar: "Lịch",
     projects: "Dự án",
     activities: "Hoạt động",
+    archived: "Lưu trữ",
     groups: "Nhóm",
     openApp: "Mở ứng dụng",
     signIn: "Đăng nhập",
@@ -340,6 +341,13 @@ export const vi: DeepString<typeof en> = {
     rangeMonth: "Tháng qua",
     range3Months: "3 tháng qua",
     range6Months: "6 tháng qua",
+  },
+  archived: {
+    eyebrow: "Tạm dừng",
+    title: "Lưu trữ",
+    loading: "Đang tải chủ đề lưu trữ...",
+    emptyTitle: "Không có chủ đề tạm dừng",
+    emptyDesc: "Chủ đề được đánh dấu tạm dừng sẽ chuyển vào đây và không còn hiện trong danh sách dự án.",
   },
   activities: {
     log: "Nhật ký",

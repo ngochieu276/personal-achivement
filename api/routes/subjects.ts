@@ -122,6 +122,31 @@ async function subjectDetail(
   };
 }
 
+subjectRoutes.get("/", async (c) => {
+  const status = c.req.query("status");
+  if (status !== "pending") {
+    return c.json({ error: "status must be pending" }, 400);
+  }
+
+  const now = new Date();
+  const subjects = await prisma.subject.findMany({
+    where: { project: { userId: c.get("user").id }, status: "pending" },
+    include: {
+      records: { orderBy: { date: "desc" }, take: 20 },
+      project: { select: { id: true, name: true, icon: true } },
+    },
+    orderBy: [{ name: "asc" }],
+  });
+  const cycleStats = await cycleStatsForSubjects(subjects.map((subject) => subject.id));
+
+  return c.json({
+    subjects: subjects.map((subject) => ({
+      ...withCycleStats(subject, cycleStats.get(subject.id)),
+      activeWindow: getActiveWindow(subject.startDate, subject.kpiTypePeriod, now),
+    })),
+  });
+});
+
 subjectRoutes.get("/:id", async (c) => {
   const existing = await ownedSubject(c.get("user").id, c.req.param("id"));
   if (!existing) return c.json({ error: "Subject not found" }, 404);

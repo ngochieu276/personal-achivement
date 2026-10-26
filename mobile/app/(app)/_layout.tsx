@@ -7,6 +7,7 @@ export default function AppLayout() {
   return (
     <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: "#e6f0f9" } }}>
       <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="archived" />
       <Stack.Screen name="projects/[id]" />
       <Stack.Screen name="groups/[id]" />
       <Stack.Screen name="subjects/[id]/index" />

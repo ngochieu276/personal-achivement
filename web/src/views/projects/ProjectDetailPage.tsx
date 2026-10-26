@@ -24,6 +24,7 @@ import { ViewToggle } from "@/components/layout/ViewToggle";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/i18n";
 import { api } from "@/lib/api";
+import { visibleProjectSubjects } from "@/lib/subjects";
 import type { GroupTree, Project, Subject, SubjectDetail, SubjectStatus } from "@/lib/types";
 import { useViewStore } from "@/stores/view";
 
@@ -109,11 +110,16 @@ export function ProjectDetailPage() {
         body: JSON.stringify({ status, statusComment }),
       }),
     onSuccess: async (data) => {
-      setEditingSubject((current) =>
-        current && current.id === data.subject.id ? { ...current, ...data.subject } : current,
-      );
+      if (data.subject.status === "pending") setEditingSubject(null);
+      else {
+        setEditingSubject((current) =>
+          current && current.id === data.subject.id ? { ...current, ...data.subject } : current,
+        );
+      }
       await queryClient.invalidateQueries({ queryKey: ["subjects", id] });
       await queryClient.invalidateQueries({ queryKey: ["project", id] });
+      await queryClient.invalidateQueries({ queryKey: ["projects"] });
+      await queryClient.invalidateQueries({ queryKey: ["archived-subjects"] });
     },
   });
 
@@ -136,13 +142,15 @@ export function ProjectDetailPage() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["projects"] });
       await queryClient.invalidateQueries({ queryKey: ["nav"] });
+      await queryClient.invalidateQueries({ queryKey: ["archived-subjects"] });
       router.push("/projects");
     },
   });
 
-  const subjects = subjectsQuery.data?.subjects ?? [];
+  const allSubjects = subjectsQuery.data?.subjects ?? [];
+  const subjects = visibleProjectSubjects(allSubjects);
   const project = projectQuery.data?.project;
-  const canDelete = Boolean(project) && !subjectsQuery.isLoading && subjects.length === 0;
+  const canDelete = Boolean(project) && !subjectsQuery.isLoading && allSubjects.length === 0;
   const deleteControl = canDelete ? (
     <DeleteButton
       label={t("projects.delete")}
@@ -206,7 +214,7 @@ export function ProjectDetailPage() {
       <ProjectDocumentsDialog
         open={documentsOpen}
         onOpenChange={setDocumentsOpen}
-        subjects={subjects}
+        subjects={allSubjects}
       />
       <OrganizeSubjectsSheet
         open={organizeOpen}
