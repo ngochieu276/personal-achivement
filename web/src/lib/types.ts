@@ -195,6 +195,24 @@ export type SearchResults = {
   }>;
 };
 
+export type SubjectOption = {
+  id: string;
+  name: string;
+  icon?: string | null;
+  projectId: string;
+  projectName: string;
+};
+
+export type Note = {
+  id: string;
+  title: string;
+  body: string;
+  createdAt: string;
+  updatedAt: string;
+  subjectIds: string[];
+  subjects: SubjectOption[];
+};
+
 export type CalendarView = "day" | "fourDays" | "week" | "month";
 
 export type DashboardActivity = {

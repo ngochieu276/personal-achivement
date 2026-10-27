@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Archive, Calendar, ChevronRight, FolderKanban, LayoutDashboard, Plus } from "lucide-react";
+import { Archive, Calendar, ChevronRight, FolderKanban, LayoutDashboard, Plus, StickyNote } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -151,6 +151,19 @@ export function AppSidebar() {
               <Link href="/archived" onClick={closeMobile} className="group-data-[collapsible=icon]:justify-center">
                 <Archive />
                 <span className="group-data-[collapsible=icon]:hidden">{t("nav.archived")}</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem className="group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center">
+            <SidebarMenuButton
+              asChild
+              isActive={pathname === "/notes"}
+              tooltip={t("nav.notes")}
+              className="group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0"
+            >
+              <Link href="/notes" onClick={closeMobile} className="group-data-[collapsible=icon]:justify-center">
+                <StickyNote />
+                <span className="group-data-[collapsible=icon]:hidden">{t("nav.notes")}</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

@@ -23,11 +23,12 @@ export const projectNavInclude = {
   groups: { include: { group: { select: { id: true, name: true, icon: true } } } },
 } as const;
 
-const visibleSubjects = { status: { not: "pending" as const } };
+const listedSubjects = { status: { not: "pending" as const } };
+const progressSubjects = { status: "active" as const };
 
 export const projectInclude = {
-  _count: { select: { subjects: { where: visibleSubjects } } },
-  subjects: { where: visibleSubjects, select: { currentProgress: true, kpi: true, status: true } },
+  _count: { select: { subjects: { where: listedSubjects } } },
+  subjects: { where: progressSubjects, select: { currentProgress: true, kpi: true, status: true } },
   groups: { include: { group: { select: { id: true, name: true, icon: true } } } },
 } as const;
 

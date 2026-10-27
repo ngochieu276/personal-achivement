@@ -93,6 +93,7 @@ function crumbsFor(
   if (parts[0] === "calendar") return [{ label: t("nav.calendar") }];
   if (parts[0] === "activities") return [{ label: t("nav.activities") }];
   if (parts[0] === "archived") return [{ label: t("nav.archived") }];
+  if (parts[0] === "notes") return [{ label: t("nav.notes") }];
 
   if (parts[0] === "groups" && parts[1]) {
     const group = groups.find((item) => item.id === parts[1]);

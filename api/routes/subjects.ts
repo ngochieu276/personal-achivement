@@ -122,6 +122,29 @@ async function subjectDetail(
   };
 }
 
+subjectRoutes.get("/options", async (c) => {
+  const subjects = await prisma.subject.findMany({
+    where: { project: { userId: c.get("user").id } },
+    select: {
+      id: true,
+      name: true,
+      icon: true,
+      projectId: true,
+      project: { select: { name: true } },
+    },
+    orderBy: [{ name: "asc" }],
+  });
+  return c.json({
+    subjects: subjects.map((subject) => ({
+      id: subject.id,
+      name: subject.name,
+      icon: subject.icon,
+      projectId: subject.projectId,
+      projectName: subject.project.name,
+    })),
+  });
+});
+
 subjectRoutes.get("/", async (c) => {
   const status = c.req.query("status");
   if (status !== "pending") {

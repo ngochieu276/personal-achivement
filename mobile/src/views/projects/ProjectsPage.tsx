@@ -94,6 +94,9 @@ export function ProjectsPage() {
         <Button variant="outline" onPress={() => router.push("/archived")}>
           {t("nav.archived")}
         </Button>
+        <Button variant="outline" onPress={() => router.push("/notes")}>
+          {t("nav.notes")}
+        </Button>
       </View>
 
       {groups.map((group) => (
