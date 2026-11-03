@@ -18,6 +18,7 @@ export async function api<T>(path: string, options: RequestInit = {}): Promise<T
     headers.set("Content-Type", "application/json");
   }
   if (token) headers.set("Authorization", `Bearer ${token}`);
+  headers.set("X-Timezone", Intl.DateTimeFormat().resolvedOptions().timeZone);
 
   const res = await fetch(`${API_URL}${path}`, { ...options, headers });
   if (res.status === 204) return undefined as T;
@@ -36,6 +37,7 @@ export async function apiBlob(path: string): Promise<Blob> {
   const token = useAuthStore.getState().token;
   const headers = new Headers();
   if (token) headers.set("Authorization", `Bearer ${token}`);
+  headers.set("X-Timezone", Intl.DateTimeFormat().resolvedOptions().timeZone);
 
   const res = await fetch(`${API_URL}${path}`, { headers });
   if (!res.ok) {

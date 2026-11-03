@@ -10,6 +10,7 @@ import {
   nextCloseAtFor,
   parseStartDate,
   recomputeCurrentStreak,
+  resolveTimeZone,
 } from "../period.ts";
 import { invalidateUserReads } from "../cache.ts";
 import {
@@ -74,6 +75,10 @@ const eventPatchSchema = z.object({
 export const subjectRoutes = new Hono<{ Variables: { user: AuthUser } }>();
 subjectRoutes.use("*", authMiddleware);
 
+function requestTimeZone(c: { get: (key: "user") => AuthUser }) {
+  return resolveTimeZone(c.get("user").timezone);
+}
+
 async function ownedSubject(userId: string, subjectId: string) {
   return await prisma.subject.findFirst({
     where: {
@@ -86,11 +91,12 @@ async function ownedSubject(userId: string, subjectId: string) {
 async function subjectDetail(
   existing: Subject,
   now = new Date(),
-  options: { close?: boolean } = {},
+  options: { close?: boolean; timeZone?: string } = {},
 ) {
+  const timeZone = resolveTimeZone(options.timeZone);
   const closed = options.close === false
     ? existing
-    : await closeOverdueForSubject(existing.id, now, existing);
+    : await closeOverdueForSubject(existing.id, now, existing, timeZone);
   if (!closed) return null;
 
   const [history, records, files, cycleStats] = await Promise.all([
@@ -116,7 +122,7 @@ async function subjectDetail(
   return {
     subject: withCycleStats({ ...closed, records }, cycleStats.get(existing.id)),
     files,
-    activeWindow: getActiveWindow(closed.startDate, closed.kpiTypePeriod, now),
+    activeWindow: getActiveWindow(closed.startDate, closed.kpiTypePeriod, now, timeZone),
     events: [],
     history,
   };
@@ -165,7 +171,7 @@ subjectRoutes.get("/", async (c) => {
   return c.json({
     subjects: subjects.map((subject) => ({
       ...withCycleStats(subject, cycleStats.get(subject.id)),
-      activeWindow: getActiveWindow(subject.startDate, subject.kpiTypePeriod, now),
+      activeWindow: getActiveWindow(subject.startDate, subject.kpiTypePeriod, now, requestTimeZone(c)),
     })),
   });
 });
@@ -173,7 +179,7 @@ subjectRoutes.get("/", async (c) => {
 subjectRoutes.get("/:id", async (c) => {
   const existing = await ownedSubject(c.get("user").id, c.req.param("id"));
   if (!existing) return c.json({ error: "Subject not found" }, 404);
-  const detail = await subjectDetail(existing);
+  const detail = await subjectDetail(existing, new Date(), { timeZone: requestTimeZone(c) });
   return c.json(detail);
 });
 
@@ -181,7 +187,7 @@ subjectRoutes.get("/:id/events", async (c) => {
   const existing = await ownedSubject(c.get("user").id, c.req.param("id"));
   if (!existing) return c.json({ error: "Subject not found" }, 404);
 
-  await closeOverdueForSubject(existing.id, new Date(), existing);
+  await closeOverdueForSubject(existing.id, new Date(), existing, requestTimeZone(c));
   const events = await prisma.subjectEvent.findMany({
     where: { subjectId: existing.id },
     orderBy: { periodStart: "desc" },
@@ -251,13 +257,15 @@ subjectRoutes.patch("/:id", async (c) => {
 
   let startDate = existing.startDate;
   if (parsed.data.startDate || parsed.data.kpiTypePeriod) {
+    const timeZone = requestTimeZone(c);
     const raw = parsed.data.startDate
-      ? parseStartDate(parsed.data.startDate)
+      ? parseStartDate(parsed.data.startDate, timeZone)
       : existing.startDate;
     if (!raw) return c.json({ error: "Invalid startDate" }, 400);
     startDate = alignCycleStart(
       raw,
       parsed.data.kpiTypePeriod ?? existing.kpiTypePeriod,
+      timeZone,
     );
   }
 
@@ -311,6 +319,8 @@ subjectRoutes.patch("/:id", async (c) => {
       nextCloseAt: nextCloseAtFor(
         startDate,
         parsed.data.kpiTypePeriod ?? existing.kpiTypePeriod,
+        new Date(),
+        requestTimeZone(c),
       ),
       ...recordWriteData(parsed.data, existing),
     },
@@ -327,7 +337,7 @@ subjectRoutes.patch("/:id", async (c) => {
   }
 
   invalidateUserReads(c.get("user").id);
-  const detail = await subjectDetail(subject);
+  const detail = await subjectDetail(subject, new Date(), { timeZone: requestTimeZone(c) });
   return c.json(detail);
 });
 
@@ -348,7 +358,8 @@ subjectRoutes.put("/:id/progress", async (c) => {
     return c.json({ error: "Invalid input", details: parsed.error.flatten() }, 400);
   }
 
-  const closed = await closeOverdueForSubject(existing.id, new Date(), existing);
+  const timeZone = requestTimeZone(c);
+  const closed = await closeOverdueForSubject(existing.id, new Date(), existing, timeZone);
   const subject = closed ?? existing;
   const base = subject.currentProgress;
   const currentProgress = parsed.data.add !== undefined
@@ -357,7 +368,7 @@ subjectRoutes.put("/:id/progress", async (c) => {
   const amount = parsed.data.add !== undefined
     ? parsed.data.add
     : currentProgress - base;
-  const window = getActiveWindow(subject.startDate, subject.kpiTypePeriod);
+  const window = getActiveWindow(subject.startDate, subject.kpiTypePeriod, new Date(), timeZone);
   const firedAt = new Date().toISOString();
 
   await prisma.$transaction([
@@ -384,7 +395,7 @@ subjectRoutes.put("/:id/progress", async (c) => {
   const detail = await subjectDetail(
     { ...subject, currentProgress },
     new Date(),
-    { close: false },
+    { close: false, timeZone },
   );
   return c.json(detail);
 });
@@ -398,7 +409,7 @@ subjectRoutes.post("/:id/records", async (c) => {
     return c.json({ error: "Invalid input", details: parsed.error.flatten() }, 400);
   }
 
-  const date = parseStartDate(parsed.data.date) ?? new Date(parsed.data.date);
+  const date = parseStartDate(parsed.data.date, requestTimeZone(c)) ?? new Date(parsed.data.date);
   if (Number.isNaN(date.getTime())) return c.json({ error: "Invalid date" }, 400);
 
   await prisma.subjectRecord.create({
@@ -410,7 +421,7 @@ subjectRoutes.post("/:id/records", async (c) => {
   });
 
   invalidateUserReads(c.get("user").id);
-  const detail = await subjectDetail(existing, new Date(), { close: false });
+  const detail = await subjectDetail(existing, new Date(), { close: false, timeZone: requestTimeZone(c) });
   return c.json(detail, 201);
 });
 
@@ -425,7 +436,7 @@ subjectRoutes.delete("/:id/records/:recordId", async (c) => {
 
   await prisma.subjectRecord.delete({ where: { id: record.id } });
   invalidateUserReads(c.get("user").id);
-  const detail = await subjectDetail(existing, new Date(), { close: false });
+  const detail = await subjectDetail(existing, new Date(), { close: false, timeZone: requestTimeZone(c) });
   return c.json(detail);
 });
 
@@ -469,7 +480,7 @@ subjectRoutes.post("/:id/images", async (c) => {
     data: { images: { push: urls } },
   });
   invalidateUserReads(c.get("user").id);
-  const detail = await subjectDetail(subject, new Date(), { close: false });
+  const detail = await subjectDetail(subject, new Date(), { close: false, timeZone: requestTimeZone(c) });
   return c.json(detail, 201);
 });
 
@@ -492,7 +503,7 @@ subjectRoutes.delete("/:id/images", async (c) => {
   });
   await destroyCloudinaryUrl(parsed.data.url);
   invalidateUserReads(c.get("user").id);
-  const detail = await subjectDetail(subject, new Date(), { close: false });
+  const detail = await subjectDetail(subject, new Date(), { close: false, timeZone: requestTimeZone(c) });
   return c.json(detail);
 });
 

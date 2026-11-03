@@ -15,6 +15,7 @@ import { ConfirmDialog } from "@/components/ui/Modal";
 import { Select } from "@/components/ui/Select";
 import { localeTag, useI18n } from "@/i18n";
 import { api, apiBlob } from "@/lib/api";
+import { toDateInput } from "@/lib/cycle";
 import { formatDate, formatDateTime } from "@/lib/format";
 import type {
   PeriodWindow,
@@ -302,7 +303,7 @@ export function SubjectRecords({
 }) {
   const { t } = useI18n();
   const queryClient = useQueryClient();
-  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [date, setDate] = useState(toDateInput(new Date()));
   const [number, setNumber] = useState("");
   const add = useMutation({
     mutationFn: () =>

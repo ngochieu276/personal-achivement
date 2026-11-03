@@ -1,42 +1,50 @@
 import type { KpiTypePeriod } from "@/lib/types";
 import { t } from "@/i18n";
 
-export function startOfUtcDay(date: Date) {
-  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+export function startOfLocalDay(date: Date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 }
 
-export function startOfIsoWeekUtc(date: Date) {
-  const day = startOfUtcDay(date);
-  const weekday = day.getUTCDay();
+export function startOfIsoWeek(date: Date) {
+  const day = startOfLocalDay(date);
+  const weekday = day.getDay();
   const offset = weekday === 0 ? 6 : weekday - 1;
-  day.setUTCDate(day.getUTCDate() - offset);
+  day.setDate(day.getDate() - offset);
   return day;
 }
 
 export function alignCycleStart(date: Date, period: KpiTypePeriod) {
-  const day = startOfUtcDay(date);
+  const day = startOfLocalDay(date);
   switch (period) {
     case "day":
       return day;
     case "week":
-      return startOfIsoWeekUtc(day);
+      return startOfIsoWeek(day);
     case "twoWeek": {
-      const monday = startOfIsoWeekUtc(day);
-      const epoch = Date.UTC(1970, 0, 5);
-      const diffDays = Math.floor((monday.getTime() - epoch) / 86_400_000);
+      const monday = startOfIsoWeek(day);
+      const epoch = startOfIsoWeek(new Date(1970, 0, 5));
+      const diffDays = Math.round((monday.getTime() - epoch.getTime()) / 86_400_000);
       const weekIndex = Math.floor(diffDays / 7);
       if (weekIndex % 2 !== 0) {
-        monday.setUTCDate(monday.getUTCDate() - 7);
+        monday.setDate(monday.getDate() - 7);
       }
       return monday;
     }
     case "month":
-      return new Date(Date.UTC(day.getUTCFullYear(), day.getUTCMonth(), 1));
+      return new Date(day.getFullYear(), day.getMonth(), 1);
   }
 }
 
+export function parseDateInput(value: string) {
+  const [year, month, day] = value.split("-").map(Number);
+  return new Date(year, (month ?? 1) - 1, day ?? 1);
+}
+
 export function toDateInput(date: Date) {
-  return date.toISOString().slice(0, 10);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
 
 export function cycleStartHint(period: KpiTypePeriod) {

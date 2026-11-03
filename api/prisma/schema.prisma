@@ -58,6 +58,7 @@ model User {
   passwordHash String?
   googleId     String?   @unique
   createdAt    DateTime  @default(now())
+  timezone     String    @default("UTC")
   projects     Project[]
   groups       Group[]
   notes        Note[]

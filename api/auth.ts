@@ -1,6 +1,8 @@
 import bcrypt from "bcryptjs";
 import * as jose from "jose";
 import type { MiddlewareHandler } from "hono";
+import { prisma } from "./db.ts";
+import { resolveTimeZone } from "./period.ts";
 
 const encoder = new TextEncoder();
 
@@ -17,7 +19,10 @@ export type AuthUser = {
   name: string;
   email: string;
   createdAt: Date;
+  timezone: string;
 };
+
+const lastTimeZone = new Map<string, string>();
 
 export async function hashPassword(password: string) {
   return await bcrypt.hash(password, 10);
@@ -49,12 +54,14 @@ export function publicUser(user: {
   name: string;
   email: string;
   createdAt: Date;
+  timezone?: string;
 }): AuthUser {
   return {
     id: user.id,
     name: user.name,
     email: user.email,
     createdAt: user.createdAt,
+    timezone: resolveTimeZone(user.timezone),
   };
 }
 
@@ -69,12 +76,18 @@ export const authMiddleware: MiddlewareHandler<{
 
   try {
     const { userId, email } = await verifyToken(token);
+    const timezone = resolveTimeZone(c.req.header("X-Timezone"));
     c.set("user", {
       id: userId,
       email,
       name: "",
       createdAt: new Date(0),
+      timezone,
     });
+    if (lastTimeZone.get(userId) !== timezone) {
+      lastTimeZone.set(userId, timezone);
+      prisma.user.update({ where: { id: userId }, data: { timezone } }).catch(() => {});
+    }
     await next();
   } catch {
     return c.json({ error: "Unauthorized" }, 401);

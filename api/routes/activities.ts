@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { z } from "zod";
 import { authMiddleware, type AuthUser } from "../auth.ts";
 import { prisma } from "../db.ts";
-import { startOfIsoWeekUtc, startOfUtcDay } from "../period.ts";
+import { addPeriod, resolveTimeZone, startOfIsoWeek, startOfZonedDay } from "../period.ts";
 
 const PAGE_SIZE = 20;
 
@@ -12,11 +12,9 @@ const PROGRESS_TYPES = ["kpi_done", "subject_event"] as const;
 export const activityRoutes = new Hono<{ Variables: { user: AuthUser } }>();
 activityRoutes.use("*", authMiddleware);
 
-function rangeStart(range: "week" | "month", now: Date) {
-  if (range === "week") return startOfIsoWeekUtc(now);
-  const start = startOfUtcDay(now);
-  start.setUTCDate(start.getUTCDate() - 30);
-  return start;
+function rangeStart(range: "week" | "month", now: Date, timeZone: string) {
+  if (range === "week") return startOfIsoWeek(now, timeZone);
+  return addPeriod(startOfZonedDay(now, timeZone), "day", -30, timeZone);
 }
 
 function parseCursor(raw: string | undefined) {
@@ -40,7 +38,7 @@ activityRoutes.get("/", async (c) => {
   }
 
   const now = new Date();
-  const from = rangeStart(parsedRange.data, now);
+  const from = rangeStart(parsedRange.data, now, resolveTimeZone(c.get("user").timezone));
   const cursor = parseCursor(c.req.query("cursor"));
 
   const rows = await prisma.subjectHistory.findMany({

@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useI18n } from "@/i18n";
 import { api } from "@/lib/api";
-import { alignCycleStart, cycleStartHint, toDateInput } from "@/lib/cycle";
+import { alignCycleStart, cycleStartHint, parseDateInput, toDateInput } from "@/lib/cycle";
 import { formatDate } from "@/lib/format";
 import { defaultBetterDirection } from "@/lib/record";
 import type { BetterDirection, KpiType, KpiTypePeriod, Project, Subject, TypeOfRecord } from "@/lib/types";
@@ -87,7 +87,7 @@ export function SubjectForm({
   });
   const projects = projectsQuery.data?.projects ?? [];
 
-  const aligned = alignCycleStart(new Date(`${startDate}T00:00:00.000Z`), kpiTypePeriod);
+  const aligned = alignCycleStart(parseDateInput(startDate), kpiTypePeriod);
   const alignedDate = toDateInput(aligned);
 
   useEffect(() => {

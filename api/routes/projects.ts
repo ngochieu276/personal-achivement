@@ -5,9 +5,12 @@ import { prisma } from "../db.ts";
 import { iconSchema, normalizeIcon } from "../icon.ts";
 import {
   alignCycleStart,
+  closeOverdueForSubject,
   getActiveWindow,
   nextCloseAtFor,
   parseStartDate,
+  resolveTimeZone,
+  zonedDateKey,
 } from "../period.ts";
 import { recordFieldShape, recordWriteData, withRecordRefine } from "../record.ts";
 import { cacheGet, cacheSet, invalidateUserReads } from "../cache.ts";
@@ -68,6 +71,10 @@ async function projectDto(projectId: string, userId?: string) {
     include: projectInclude,
   });
   return project ? toProjectDto(project) : null;
+}
+
+function requestTimeZone(c: { get: (key: "user") => AuthUser }) {
+  return resolveTimeZone(c.get("user").timezone);
 }
 
 projectRoutes.get("/", async (c) => {
@@ -175,11 +182,20 @@ projectRoutes.get("/:id/subjects", async (c) => {
   });
 
   const now = new Date();
-  const cycleStats = await cycleStatsForSubjects(subjects.map((subject) => subject.id));
+  const timeZone = requestTimeZone(c);
+  const closed = await Promise.all(
+    subjects.map(async (subject) =>
+      await closeOverdueForSubject(subject.id, now, subject, timeZone) ?? subject
+    ),
+  );
+  if (closed.some((subject, index) => subject.nextCloseAt?.getTime() !== subjects[index].nextCloseAt?.getTime())) {
+    invalidateUserReads(c.get("user").id);
+  }
+  const cycleStats = await cycleStatsForSubjects(closed.map((subject) => subject.id));
   return c.json({
-    subjects: subjects.map((subject) => ({
+    subjects: closed.map((subject) => ({
       ...withCycleStats(subject, cycleStats.get(subject.id)),
-      activeWindow: getActiveWindow(subject.startDate, subject.kpiTypePeriod, now),
+      activeWindow: getActiveWindow(subject.startDate, subject.kpiTypePeriod, now, timeZone),
     })),
   });
 });
@@ -233,13 +249,15 @@ projectRoutes.post("/:id/subjects", async (c) => {
     return c.json({ error: "Invalid input", details: parsed.error.flatten() }, 400);
   }
 
+  const timeZone = requestTimeZone(c);
   const rawStart = parseStartDate(
-    parsed.data.startDate ?? new Date().toISOString().slice(0, 10),
+    parsed.data.startDate ?? zonedDateKey(new Date(), timeZone),
+    timeZone,
   );
   if (!rawStart) {
     return c.json({ error: "Invalid startDate" }, 400);
   }
-  const startDate = alignCycleStart(rawStart, parsed.data.kpiTypePeriod);
+  const startDate = alignCycleStart(rawStart, parsed.data.kpiTypePeriod, timeZone);
 
   const subject = await prisma.subject.create({
     data: {
@@ -250,7 +268,7 @@ projectRoutes.post("/:id/subjects", async (c) => {
       kpiTypePeriod: parsed.data.kpiTypePeriod,
       kpiType: parsed.data.kpiType,
       startDate,
-      nextCloseAt: nextCloseAtFor(startDate, parsed.data.kpiTypePeriod),
+      nextCloseAt: nextCloseAtFor(startDate, parsed.data.kpiTypePeriod, new Date(), timeZone),
       link: parsed.data.link ? parsed.data.link : null,
       isPriority: parsed.data.isPriority ?? false,
       ...recordWriteData(parsed.data),
@@ -261,7 +279,7 @@ projectRoutes.post("/:id/subjects", async (c) => {
   return c.json({
     subject: {
       ...subject,
-      activeWindow: getActiveWindow(subject.startDate, subject.kpiTypePeriod),
+      activeWindow: getActiveWindow(subject.startDate, subject.kpiTypePeriod, new Date(), timeZone),
     },
   }, 201);
 });
