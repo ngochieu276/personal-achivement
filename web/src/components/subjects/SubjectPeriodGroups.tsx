@@ -20,9 +20,9 @@ export function SubjectPeriodGroups({
   const groups = groupSubjectsByPeriod(subjects);
 
   return (
-    <div className="space-y-8">
+    <div className="min-w-0 space-y-8">
       {groups.map((group) => (
-        <section key={group.period} className="space-y-3">
+        <section key={group.period} className="min-w-0 space-y-3">
           <h2 className="text-sm font-medium uppercase tracking-[0.16em] text-muted-foreground">
             {periodGroupLabel(group.period)}
           </h2>

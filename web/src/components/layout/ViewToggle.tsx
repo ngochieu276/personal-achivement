@@ -59,6 +59,6 @@ function ModeButton({
 }
 
 export function viewClass(mode: ViewMode, _kind: "projects" | "subjects") {
-  if (mode === "list") return "grid gap-2";
-  return "grid gap-4 sm:grid-cols-2 lg:grid-cols-3";
+  if (mode === "list") return "grid min-w-0 gap-2";
+  return "grid min-w-0 gap-4 sm:grid-cols-2 lg:grid-cols-3";
 }

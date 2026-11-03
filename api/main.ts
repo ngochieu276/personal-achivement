@@ -24,13 +24,29 @@ const origins = [
     .filter(Boolean),
 ];
 
+function isLanHost(hostname: string) {
+  if (
+    hostname === "localhost" ||
+    hostname === "127.0.0.1" ||
+    hostname === "[::1]" ||
+    hostname === "::1" ||
+    hostname.endsWith(".local")
+  ) {
+    return true;
+  }
+  const parts = hostname.split(".").map(Number);
+  if (parts.length !== 4 || parts.some((part) => Number.isNaN(part) || part < 0 || part > 255)) {
+    return false;
+  }
+  const [a, b] = parts;
+  return a === 10 || (a === 192 && b === 168) || (a === 172 && b >= 16 && b <= 31) || (a === 169 && b === 254);
+}
+
 function isAllowedOrigin(origin: string) {
   if (origins.includes(origin)) return true;
   try {
     const url = new URL(origin);
-    const localHost =
-      url.hostname === "localhost" || url.hostname === "127.0.0.1";
-    if (localHost && (url.protocol === "http:" || url.protocol === "https:")) {
+    if (isLanHost(url.hostname) && (url.protocol === "http:" || url.protocol === "https:")) {
       return true;
     }
     // Vercel preview deployments for this project.

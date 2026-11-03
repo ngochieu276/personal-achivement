@@ -7,7 +7,7 @@ import { EntityIcon } from "@/lib/icons";
 import { cn } from "@/lib/utils";
 
 export function Page({ children }: { children: ReactNode }) {
-  return <div className="space-y-6">{children}</div>;
+  return <div className="min-w-0 space-y-6">{children}</div>;
 }
 
 export function PageHeader({
@@ -35,21 +35,21 @@ export function PageHeader({
   return (
     <div
       className={cn(
-        "flex justify-between gap-4",
-        align === "start" ? "flex-wrap items-start" : "items-end",
+        "flex min-w-0 flex-col gap-3 sm:flex-row sm:justify-between",
+        align === "start" ? "sm:items-start" : "sm:items-end",
       )}
     >
-      <div>
+      <div className="min-w-0">
         <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{eyebrow}</p>
-        <div className="flex flex-wrap items-center gap-2">
-          {icon ? <EntityIcon name={icon} className="h-8 w-8 text-secondary" /> : null}
-          <h1 className="font-serif text-4xl">{title}</h1>
+        <div className="flex items-center gap-2">
+          {icon ? <EntityIcon name={icon} className="h-7 w-7 shrink-0 text-secondary sm:h-8 sm:w-8" /> : null}
+          <h1 className="min-w-0 break-words font-serif text-3xl leading-tight sm:text-4xl">{title}</h1>
           {titleExtra}
           {onEdit ? <EditButton label={editLabel ?? t("common.editNamed", { name: title })} onClick={onEdit} /> : null}
         </div>
         {subtitle}
       </div>
-      {actions ? <div className="flex items-center gap-2">{actions}</div> : null}
+      {actions ? <div className="flex min-w-0 flex-wrap items-center gap-2 sm:justify-end">{actions}</div> : null}
     </div>
   );
 }

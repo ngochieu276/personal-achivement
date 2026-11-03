@@ -57,14 +57,22 @@ export function AddProgressForm({
   }
 
   return (
-    <form className={compact ? "relative z-10 flex items-center gap-1" : "flex items-end gap-3"} onSubmit={onSubmit} onClick={stop}>
+    <form
+      className={
+        compact
+          ? "relative z-10 flex min-w-0 flex-wrap items-center gap-1"
+          : "flex flex-wrap items-end gap-3"
+      }
+      onSubmit={onSubmit}
+      onClick={stop}
+    >
       <Input
         type="number"
         min="0.1"
         step="0.1"
         value={add}
         aria-label={t("subjects.addUnit", { unit })}
-        className={compact ? "h-8 w-20" : undefined}
+        className={compact ? "h-8 w-16 min-w-0 sm:w-20" : undefined}
         onChange={(event) => setAdd(event.target.value)}
       />
       <Button type="submit" size={compact ? "sm" : "default"} disabled={mutation.isPending}>
@@ -76,10 +84,11 @@ export function AddProgressForm({
           type="button"
           variant="outline"
           size={compact ? "sm" : "default"}
+          aria-label={t("subjects.timer")}
           onClick={() => setTimerOpen(true)}
         >
           <Timer className="h-4 w-4" />
-          {t("subjects.timer")}
+          <span className="hidden sm:inline">{t("subjects.timer")}</span>
         </Button>
       ) : null}
       {mutation.error && !compact ? (

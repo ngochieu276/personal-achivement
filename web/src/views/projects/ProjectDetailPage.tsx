@@ -200,9 +200,9 @@ export function ProjectDetailPage() {
                 error={createSubject.error?.message}
                 onSubmit={(values) => createSubject.mutate(values)}
                 trigger={
-                  <Button>
+                  <Button aria-label={t("subjects.new")}>
                     <Plus className="h-4 w-4" />
-                    {t("subjects.new")}
+                    <span className="hidden sm:inline">{t("subjects.new")}</span>
                   </Button>
                 }
               />

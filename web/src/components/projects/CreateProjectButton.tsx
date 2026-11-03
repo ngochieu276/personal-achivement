@@ -46,9 +46,9 @@ export function CreateProjectButton() {
       onOpenChange={setOpen}
       title={t("projects.new")}
       trigger={
-        <Button size="sm">
+        <Button size="sm" aria-label={t("projects.create")}>
           <Plus className="h-4 w-4" />
-          {t("projects.create")}
+          <span className="hidden sm:inline">{t("projects.create")}</span>
         </Button>
       }
     >

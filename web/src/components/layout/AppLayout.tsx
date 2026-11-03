@@ -19,12 +19,14 @@ export function AppLayout({ children }: { children: ReactNode }) {
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className="flex h-14 shrink-0 items-center gap-2 border-b bg-card px-4">
+        <header className="flex h-14 min-w-0 shrink-0 items-center gap-2 overflow-hidden border-b bg-card px-3 sm:px-4">
           <SidebarTrigger />
-          <Separator orientation="vertical" className="h-4" />
-          <AppBreadcrumb />
+          <Separator orientation="vertical" className="hidden h-4 sm:block" />
+          <div className="hidden min-w-0 md:block">
+            <AppBreadcrumb />
+          </div>
           <HeaderSearch />
-          <div className="ml-auto flex items-center gap-2">
+          <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-2">
             <ActivitiesNavButton />
             <CreateProjectButton />
           </div>

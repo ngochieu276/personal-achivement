@@ -128,7 +128,7 @@ export function HeaderSearch() {
           onFocus={() => setOpen(true)}
           onKeyDown={onKeyDown}
           placeholder={t("search.placeholder")}
-          className="h-9 pl-8"
+          className="h-9 truncate pl-8 placeholder:truncate"
           role="combobox"
           aria-expanded={showPanel}
           aria-autocomplete="list"

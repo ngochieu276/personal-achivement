@@ -52,7 +52,7 @@ export function StreakWithCycles({
   variant?: "count" | "labeled";
 }) {
   return (
-    <span className="inline-flex items-center gap-1">
+    <span className="inline-flex flex-wrap items-center gap-1">
       <StreakBadge streak={streak} variant={variant} />
       <CycleRatioBadge finished={finished} total={total} />
     </span>
