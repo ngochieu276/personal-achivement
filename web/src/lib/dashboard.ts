@@ -5,7 +5,13 @@ export type ActivityCell = {
   count: number;
 };
 
-export const ACTIVITY_LEVELS = ["#d5e8f8", "#bbf7d0", "#4ade80", "#22c55e", "#15803d"] as const;
+export const ACTIVITY_LEVELS = [
+  "var(--activity-0)",
+  "var(--activity-1)",
+  "var(--activity-2)",
+  "var(--activity-3)",
+  "var(--activity-4)",
+] as const;
 
 export function activityLevel(count: number) {
   if (count <= 0) return 0;

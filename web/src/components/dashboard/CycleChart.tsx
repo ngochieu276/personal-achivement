@@ -105,10 +105,10 @@ export function CycleChart() {
                     <stop offset="100%" stopColor={FINISH_COLOR} stopOpacity={0.02} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="4 8" stroke="#88bdf2" opacity={0.35} vertical={false} />
+                <CartesianGrid strokeDasharray="4 8" stroke="var(--border)" opacity={0.35} vertical={false} />
                 <XAxis
                   dataKey="label"
-                  tick={{ fill: "#6a89a7", fontSize: 12 }}
+                  tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
                   tickLine={false}
                   axisLine={false}
                   interval="preserveStartEnd"
@@ -117,7 +117,7 @@ export function CycleChart() {
                 <YAxis
                   allowDecimals={false}
                   domain={[0, yMax]}
-                  tick={{ fill: "#6a89a7", fontSize: 12 }}
+                  tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
                   tickLine={false}
                   axisLine={false}
                   width={36}
@@ -129,9 +129,10 @@ export function CycleChart() {
                   ]}
                   contentStyle={{
                     borderRadius: "0.85rem",
-                    borderColor: "#d5e8f8",
-                    background: "rgba(247, 251, 255, 0.96)",
-                    boxShadow: "0 12px 30px rgba(56, 73, 89, 0.08)",
+                    borderColor: "var(--border)",
+                    background: "var(--card)",
+                    color: "var(--foreground)",
+                    boxShadow: "var(--shadow)",
                   }}
                 />
                 <Legend
@@ -146,7 +147,7 @@ export function CycleChart() {
                   fill="url(#cycle-total)"
                   strokeWidth={2.5}
                   dot={{ r: 3, strokeWidth: 0, fill: TOTAL_COLOR }}
-                  activeDot={{ r: 5, strokeWidth: 2, stroke: "#f7fbff" }}
+                  activeDot={{ r: 5, strokeWidth: 2, stroke: "var(--card)" }}
                 />
                 <Area
                   type="monotone"
@@ -155,7 +156,7 @@ export function CycleChart() {
                   fill="url(#cycle-finish)"
                   strokeWidth={2.5}
                   dot={{ r: 3, strokeWidth: 0, fill: FINISH_COLOR }}
-                  activeDot={{ r: 5, strokeWidth: 2, stroke: "#f7fbff" }}
+                  activeDot={{ r: 5, strokeWidth: 2, stroke: "var(--card)" }}
                 />
               </AreaChart>
             </ResponsiveContainer>

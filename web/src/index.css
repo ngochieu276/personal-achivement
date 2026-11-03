@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme inline {
   --font-sans: var(--font-source), ui-sans-serif, system-ui, sans-serif;
   --font-serif: var(--font-fraunces), ui-serif, Georgia, serif;
@@ -67,6 +69,61 @@
   --sidebar-border: #88bdf2;
   --sidebar-ring: #88bdf2;
   --radius: 0.85rem;
+  --shadow: 0 12px 30px rgba(73, 52, 31, 0.08);
+  --activity-0: #d5e8f8;
+  --activity-1: #bbf7d0;
+  --activity-2: #4ade80;
+  --activity-3: #22c55e;
+  --activity-4: #15803d;
+  --page-glow-a: rgba(136, 189, 242, 0.4);
+  --page-glow-b: rgba(249, 115, 22, 0.12);
+  --page-from: #e8f3fc;
+  --page-mid: #bdddfc;
+  --page-to: #e6f0f9;
+  color-scheme: light;
+}
+
+.dark {
+  --background: #15202b;
+  --foreground: #e8f1f8;
+  --card: #1e2c3a;
+  --card-foreground: #e8f1f8;
+  --muted: #2a3d50;
+  --muted-foreground: #8aa4bc;
+  --border: #3d5a73;
+  --input: #3d5a73;
+  --primary: #d5e8f8;
+  --primary-foreground: #15202b;
+  --secondary: #6a89a7;
+  --secondary-foreground: #e8f1f8;
+  --accent: #2d4a63;
+  --accent-foreground: #e8f1f8;
+  --destructive: #e07a88;
+  --ring: #88bdf2;
+  --hit: #22c55e;
+  --progress: #60a5fa;
+  --streak: #fb923c;
+  --miss: #e07a88;
+  --sidebar: #121c27;
+  --sidebar-foreground: #e8f1f8;
+  --sidebar-primary: #d5e8f8;
+  --sidebar-primary-foreground: #15202b;
+  --sidebar-accent: #243647;
+  --sidebar-accent-foreground: #e8f1f8;
+  --sidebar-border: #3d5a73;
+  --sidebar-ring: #88bdf2;
+  --shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+  --activity-0: #243647;
+  --activity-1: #14532d;
+  --activity-2: #166534;
+  --activity-3: #22c55e;
+  --activity-4: #4ade80;
+  --page-glow-a: rgba(136, 189, 242, 0.16);
+  --page-glow-b: rgba(249, 115, 22, 0.08);
+  --page-from: #121c27;
+  --page-mid: #1a2836;
+  --page-to: #15202b;
+  color-scheme: dark;
 }
 
 * {
@@ -96,9 +153,9 @@ body {
   margin: 0;
   overscroll-behavior-x: none;
   background:
-    radial-gradient(circle at top left, rgba(136, 189, 242, 0.4), transparent 34%),
-    radial-gradient(circle at 90% 12%, rgba(249, 115, 22, 0.12), transparent 28%),
-    linear-gradient(180deg, #e8f3fc 0%, #bdddfc 48%, #e6f0f9 100%);
+    radial-gradient(circle at top left, var(--page-glow-a), transparent 34%),
+    radial-gradient(circle at 90% 12%, var(--page-glow-b), transparent 28%),
+    linear-gradient(180deg, var(--page-from) 0%, var(--page-mid) 48%, var(--page-to) 100%);
   color: var(--foreground);
   font-family: var(--font-sans);
 }

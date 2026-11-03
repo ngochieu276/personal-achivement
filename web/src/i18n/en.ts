@@ -10,6 +10,11 @@ export const en = {
     en: "English",
     vi: "Tiếng Việt",
   },
+  theme: {
+    label: "Theme",
+    light: "Light",
+    dark: "Dark",
+  },
   nav: {
     dashboard: "Dashboard",
     calendar: "Calendar",

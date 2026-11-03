@@ -68,7 +68,7 @@ app.use(
       if (!origin) return origins[0];
       return isAllowedOrigin(origin) ? origin : "";
     },
-    allowHeaders: ["Content-Type", "Authorization"],
+    allowHeaders: ["Content-Type", "Authorization", "X-Timezone"],
     allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     maxAge: 86400,
   }),

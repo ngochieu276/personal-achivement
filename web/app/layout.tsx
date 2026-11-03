@@ -42,9 +42,14 @@ export const metadata: Metadata = {
   },
 };
 
+const themeBootScript = `(function(){try{var raw=localStorage.getItem("pr-theme");var theme=raw?JSON.parse(raw).state.theme:"light";if(theme==="dark")document.documentElement.classList.add("dark");document.documentElement.style.colorScheme=theme==="dark"?"dark":"light";}catch(e){}})();`;
+
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
+      </head>
       <body className={`${sourceSans.variable} ${fraunces.variable} antialiased`}>
         <Providers>{children}</Providers>
       </body>

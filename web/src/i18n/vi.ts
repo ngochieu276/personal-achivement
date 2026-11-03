@@ -16,6 +16,11 @@ export const vi: DeepString<typeof en> = {
     en: "English",
     vi: "Tiếng Việt",
   },
+  theme: {
+    label: "Giao diện",
+    light: "Sáng",
+    dark: "Tối",
+  },
   nav: {
     dashboard: "Tổng quan",
     calendar: "Lịch",

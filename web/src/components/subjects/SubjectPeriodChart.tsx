@@ -96,18 +96,18 @@ export function SubjectPeriodChart({
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={points} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#88bdf2" opacity={0.45} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" opacity={0.45} />
                 <XAxis
                   dataKey="label"
-                  tick={{ fill: "#6a89a7", fontSize: 12 }}
+                  tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
                   tickLine={false}
-                  axisLine={{ stroke: "#88bdf2" }}
+                  axisLine={{ stroke: "var(--border)" }}
                 />
                 <YAxis
                   domain={[0, yMax]}
-                  tick={{ fill: "#6a89a7", fontSize: 12 }}
+                  tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
                   tickLine={false}
-                  axisLine={{ stroke: "#88bdf2" }}
+                  axisLine={{ stroke: "var(--border)" }}
                   width={40}
                 />
                 <Tooltip
@@ -117,8 +117,9 @@ export function SubjectPeriodChart({
                   ]}
                   contentStyle={{
                     borderRadius: "0.75rem",
-                    borderColor: "#88bdf2",
-                    background: "#f7fbff",
+                    borderColor: "var(--border)",
+                    background: "var(--card)",
+                    color: "var(--foreground)",
                   }}
                 />
                 <Legend
@@ -129,7 +130,7 @@ export function SubjectPeriodChart({
                 <Line
                   type="monotone"
                   dataKey="target"
-                  stroke="#6a89a7"
+                  stroke="var(--muted-foreground)"
                   strokeWidth={2}
                   dot={{ r: 3 }}
                   activeDot={{ r: 5 }}
@@ -137,7 +138,7 @@ export function SubjectPeriodChart({
                 <Line
                   type="monotone"
                   dataKey="actual"
-                  stroke="#3b82f6"
+                  stroke="var(--progress)"
                   strokeWidth={2}
                   dot={{ r: 3 }}
                   activeDot={{ r: 5 }}

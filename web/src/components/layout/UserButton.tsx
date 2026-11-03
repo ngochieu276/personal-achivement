@@ -1,12 +1,13 @@
 "use client";
 
-import { ChevronsUpDown, Languages, LogOut } from "lucide-react";
+import { ChevronsUpDown, Languages, LogOut, SunMoon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 import { useI18n } from "@/i18n";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth";
+import { useThemeStore } from "@/stores/theme";
 
 function initials(name: string) {
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -19,9 +20,12 @@ export function UserButton() {
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
   const { t, locale, setLocale } = useI18n();
+  const theme = useThemeStore((state) => state.theme);
+  const setTheme = useThemeStore((state) => state.setTheme);
   const router = useRouter();
   const name = user?.name || t("nav.account");
   const vietnamese = locale === "vi";
+  const dark = theme === "dark";
 
   function onLogout() {
     logout();
@@ -30,6 +34,10 @@ export function UserButton() {
 
   function toggleLocale() {
     setLocale(vietnamese ? "en" : "vi");
+  }
+
+  function toggleTheme() {
+    setTheme(dark ? "light" : "dark");
   }
 
   return (
@@ -79,6 +87,36 @@ export function UserButton() {
                   )}
                 >
                   VI
+                </span>
+              </span>
+            </button>
+            <button
+              type="button"
+              className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted"
+              onClick={toggleTheme}
+            >
+              <SunMoon className="h-4 w-4 shrink-0" />
+              <span className="min-w-0 flex-1 truncate text-left">{t("theme.label")}</span>
+              <span
+                role="switch"
+                aria-checked={dark}
+                className="inline-flex shrink-0 rounded-full bg-muted p-0.5 text-[10px] font-semibold tracking-wide"
+              >
+                <span
+                  className={cn(
+                    "rounded-full px-1.5 py-0.5 transition-colors",
+                    dark ? "text-muted-foreground" : "bg-background text-foreground shadow-sm",
+                  )}
+                >
+                  {t("theme.light")}
+                </span>
+                <span
+                  className={cn(
+                    "rounded-full px-1.5 py-0.5 transition-colors",
+                    dark ? "bg-background text-foreground shadow-sm" : "text-muted-foreground",
+                  )}
+                >
+                  {t("theme.dark")}
                 </span>
               </span>
             </button>
